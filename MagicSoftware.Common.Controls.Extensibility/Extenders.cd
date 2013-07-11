@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="MagicSoftware.Common.Controls.Extenders.BehaviorExtenderBase" Collapsed="true">
+    <Position X="3.5" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACCAAAQAABAAAAAAAAAQAAAAEAAAAAAIAAAA=</HashCode>
+      <FileName>Controls\Extenders\BehaviorExtenderBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="MagicSoftware.Common.Controls.Extenders.DataGridExtenderBase" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Controls\Extenders\DataGridExtenderBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MagicSoftware.Common.Controls.Extenders.BehaviorExtensions" Collapsed="true">
+    <Position X="9.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAEEAABQAAIAFQQAQABgAAAAAAARACAA=</HashCode>
+      <FileName>Controls\Extenders\BehaviorExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MagicSoftware.Common.Controls.Extenders.DataGridFocusManager" Collapsed="true">
+    <Position X="2.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgCQAAAACAAAAAAIAAAAACAAAAABIAIIA=</HashCode>
+      <FileName>Controls\Extenders\DataGridFocusManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MagicSoftware.Common.Controls.Extenders.FocusManagerBase" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAgAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Controls\Extenders\FocusManagerBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MagicSoftware.Common.Controls.Extenders.KeyboardHandler" Collapsed="true">
+    <Position X="5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAgAQAQAAAAAAAAAAEAAAAAAAIAAAA=</HashCode>
+      <FileName>Controls\Extenders\KeyboardHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MagicSoftware.Common.Controls.Extenders.MouseHandlerBase" Collapsed="true">
+    <Position X="7.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Controls\Extenders\MouseHandlerBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MagicSoftware.Common.Controls.Extenders.DataGridValidationExtender" Collapsed="true">
+    <Position X="0.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAIAAAABAQAAAAAAAAAAAAIAAAAABAAAAAIAAAA=</HashCode>
+      <FileName>Controls\Extenders\DataGridValidationExtender.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MagicSoftware.Common.Controls.Extenders.DataGridKeyboardHandler" Collapsed="true">
+    <Position X="5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAgBAAIAAAAAwAAgACAAAQAIAAAEAAQCEAQAgAAQ=</HashCode>
+      <FileName>Controls\Extenders\DataGridKeyboardHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MagicSoftware.Common.Controls.Extenders.DataGridMouseHandler" Collapsed="true">
+    <Position X="7.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAABAAAAAAAQAAAAABAAAAAAgIAAAA=</HashCode>
+      <FileName>Controls\Extenders\MouseHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{44B6574A-5DE1-41E9-BC71-78427A7A8C44}</ProjectGuid>
+    <OutputType>library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MagicSoftware.Common.Controls.Extensibility</RootNamespace>
+    <AssemblyName>MagicSoftware.Common.Controls.Extensibility</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="MagicSoftware.Common, Version=2.0.0.691, Culture=neutral, PublicKeyToken=7dc14d2003666719, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MagicSoftware.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\Extenders\BehaviorExtenderBase.cs" />
+    <Compile Include="Controls\Extenders\BehaviorExtensions.cs" />
+    <Compile Include="Controls\Extenders\DataGridExtenderBase.cs" />
+    <Compile Include="Controls\Extenders\DataGridFocusManager.cs" />
+    <Compile Include="Controls\Extenders\DataGridKeyboardHandler.cs" />
+    <Compile Include="Controls\Extenders\DataGridValidationExtender.cs" />
+    <Compile Include="Controls\Extenders\FocusManagerBase.cs" />
+    <Compile Include="Controls\Extenders\FolderFocusManager.cs" />
+    <Compile Include="Controls\Extenders\IValidationAdornerFactory.cs" />
+    <Compile Include="Controls\Extenders\ItemsControlKeyboardHandlerBase.cs" />
+    <Compile Include="Controls\Extenders\KeyboardHandlerBase.cs" />
+    <Compile Include="Controls\Extenders\MouseHandler.cs" />
+    <Compile Include="Controls\Extenders\MouseHandlerBase.cs" />
+    <Compile Include="Controls\KeyExtensions.cs" />
+    <Compile Include="Controls\Proxies\CheckBoxProxy.cs" />
+    <Compile Include="Controls\Proxies\ComboBoxProxy.cs" />
+    <Compile Include="Controls\Proxies\DataGridProxy.cs" />
+    <Compile Include="Controls\Proxies\ElementProxy.cs" />
+    <Compile Include="Controls\Proxies\ElementProxyFactory.cs" />
+    <Compile Include="Controls\Proxies\IElementProxyFactory.cs" />
+    <Compile Include="Controls\Proxies\ListViewProxy.cs" />
+    <Compile Include="Controls\Proxies\SelectorProxy.cs" />
+    <Compile Include="Controls\Proxies\TextBoxProxy.cs" />
+    <Compile Include="Controls\ProxyCommand.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Validation\ExtendedValidationResult.cs" />
+    <Compile Include="Validation\ExtendedValidationRule.cs" />
+    <Compile Include="Validation\IValidatingObject.cs" />
+    <Compile Include="Validation\ResultType.cs" />
+    <Compile Include="Validation\ValidationActions.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Extenders.cd" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

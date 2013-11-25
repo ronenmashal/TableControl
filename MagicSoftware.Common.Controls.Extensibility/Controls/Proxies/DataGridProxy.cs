@@ -11,7 +11,7 @@ using System.ComponentModel.Composition;
 
 using DataGrid = System.Windows.Controls.DataGrid;
 
-namespace MagicSoftware.Common.Controls.Proxies
+namespace MagicSoftware.Common.Controls.ProxiesX
 {
    [Export(typeof(ElementProxy))]
    public class DataGridProxy : SelectorProxy

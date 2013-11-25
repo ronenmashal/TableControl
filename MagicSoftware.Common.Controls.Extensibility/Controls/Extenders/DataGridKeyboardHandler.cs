@@ -11,9 +11,9 @@ using System.Windows;
 using System.Windows.Media;
 using MagicSoftware.Common.Utils;
 using System.ComponentModel;
-using MagicSoftware.Common.Controls.Proxies;
+using MagicSoftware.Common.Controls.ProxiesX;
 
-namespace MagicSoftware.Common.Controls.Extenders
+namespace MagicSoftware.Common.Controls.ExtendersX
 {
    public class DataGridKeyboardHandler : SelectorKeyboardHandlerBase
    {

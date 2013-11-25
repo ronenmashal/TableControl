@@ -6,10 +6,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Diagnostics;
 using System.Windows.Input;
-using MagicSoftware.Common.Controls.Proxies;
+using MagicSoftware.Common.Controls.ProxiesX;
 using System.Windows.Media;
 
-namespace MagicSoftware.Common.Controls.Extenders
+namespace MagicSoftware.Common.Controls.ExtendersX
 {
    public class DataGridMouseHandler : MouseHandlerBase
    {

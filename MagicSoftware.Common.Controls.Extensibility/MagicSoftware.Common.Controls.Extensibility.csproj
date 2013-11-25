@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="Controls\Extenders\BehaviorExtenderBase.cs" />
     <Compile Include="Controls\Extenders\BehaviorExtensions.cs" />
+    <Compile Include="Controls\Extenders\DataGridColumnArrangeExtender.cs" />
     <Compile Include="Controls\Extenders\DataGridExtenderBase.cs" />
     <Compile Include="Controls\Extenders\DataGridFocusManager.cs" />
     <Compile Include="Controls\Extenders\DataGridKeyboardHandler.cs" />

@@ -9,7 +9,7 @@ using log4net;
 using LogLevel = log4net.Core.Level;
 using MagicSoftware.Common.Utils;
 
-namespace MagicSoftware.Common.Controls.Extenders
+namespace MagicSoftware.Common.Controls.ExtendersX
 {
    public abstract class KeyboardHandlerBase : BehaviorExtenderBase
    {

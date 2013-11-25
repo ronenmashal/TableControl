@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows;
 using System.ComponentModel.Composition;
 
-namespace MagicSoftware.Common.Controls.Proxies
+namespace MagicSoftware.Common.Controls.ProxiesX
 {
    public interface IElementProxyFactory
    {

@@ -19,8 +19,8 @@
             <mg:DataGridFocusManager x:Key="DGFocusManager" />
             <mg:FolderFocusManager x:Key="FolderFocusManager" />
             <mg:DataGridMouseHandler x:Key="DGMouseHandler" />
-            <l:MyValidationAdornerFactory x:Key="MyAdornerFactory"/>
-            <mg:DataGridValidationExtender x:Key="DGValidationExtender" AdornerFactory="{StaticResource MyAdornerFactory}"/>
+            <l:MyValidationAdornerFactory x:Key="MyAdornerFactory" />
+            <mg:DataGridValidationExtender x:Key="DGValidationExtender" AdornerFactory="{StaticResource MyAdornerFactory}" />
 
             <Style x:Key="{x:Type data:MyHeaderView}"
                    BasedOn="{StaticResource {x:Type DataGridRow}}"
@@ -54,28 +54,30 @@
         </ResourceDictionary>
     </Window.Resources>
     <DockPanel>
-        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
             <Button Name="ChangeColumnVisibility" Click="ChangeColumnVisibility_Click">Column Visibility</Button>
         </StackPanel>
         <dg:EnhancedDataGrid CanUserAddRows="False"
                              EnableRowVirtualization="True"
                              ItemsSource="{Binding Items}"
+                             Loaded="DataGrid_Loaded"
                              mg:BehaviorExtensions.FocusManager="{StaticResource DGFocusManager}"
                              mg:BehaviorExtensions.KeyboardHandler="{StaticResource DGKeyboardHandler}"
                              mg:BehaviorExtensions.MouseHandler="{StaticResource DGMouseHandler}"
                              mg:BehaviorExtensions.ValidationExtender="{StaticResource DGValidationExtender}"
-                             Loaded="DataGrid_Loaded"
-                             RowStyleSelector="{StaticResource TemplateSelector}" >
+                             RowStyleSelector="{StaticResource TemplateSelector}">
             <DataGrid.Columns>
-                <DataGridTextColumn Visibility="{Binding ColVisibility, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                <DataGridTextColumn Width="70"
                                     MinWidth="10"
                                     MaxWidth="200"
                                     CanUserResize="True"
-                                    Width="70">
+                                    Visibility="{Binding ColVisibility,
+                                                         RelativeSource={RelativeSource FindAncestor,
+                                                                                        AncestorType=Window}}">
                     <DataGridTextColumn.Binding>
                         <Binding Path="StringVal">
                             <Binding.ValidationRules>
-                                <data:XXXValidationRule/>
+                                <data:XXXValidationRule />
                             </Binding.ValidationRules>
                         </Binding>
                     </DataGridTextColumn.Binding>
@@ -83,9 +85,11 @@
             </DataGrid.Columns>
         </dg:EnhancedDataGrid>
 
-        <!--<DataGrid CanUserAddRows="False"
-                  EnableRowVirtualization="True"
-                  ItemsSource="{Binding Items}"/>-->
+        <!--
+            <DataGrid CanUserAddRows="False"
+            EnableRowVirtualization="True"
+            ItemsSource="{Binding Items}"/>
+        -->
 
     </DockPanel>
 </Window>

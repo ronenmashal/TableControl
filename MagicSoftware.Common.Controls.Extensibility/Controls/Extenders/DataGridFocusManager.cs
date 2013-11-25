@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace MagicSoftware.Common.Controls.Extenders
+namespace MagicSoftware.Common.Controls.ExtendersX
 {
    public class DataGridFocusManager : FocusManagerBase
    {

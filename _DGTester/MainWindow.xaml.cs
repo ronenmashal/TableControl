@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using _DGTester.Data;
-using MagicSoftware.Common.Controls.Proxies;
+using MagicSoftware.Common.Controls.ProxiesX;
 
 namespace _DGTester
 {

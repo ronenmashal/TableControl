@@ -6,8 +6,13 @@ using System.Windows;
 using System.Windows.Media;
 using System.Diagnostics;
 
-namespace MagicSoftware.Common.Controls.Extenders
+namespace MagicSoftware.Common.Controls.ExtendersX
 {
+   public class DataGridExtendersCollection : List<DataGridExtenderBase>
+   {
+
+   }
+
    public static class BehaviorExtensions
    {
       #region Keyboard Handler Attached Property
@@ -108,19 +113,59 @@ namespace MagicSoftware.Common.Controls.Extenders
 
       #endregion
 
+      #region Validation Extender Attached Property
+
+
+      public static DataGridExtendersCollection GetExtenders(DependencyObject obj)
+      {
+         return (DataGridExtendersCollection)obj.GetValue(ExtendersProperty);
+      }
+
+      public static void SetExtenders(DependencyObject obj, DataGridExtendersCollection value)
+      {
+         obj.SetValue(ExtendersProperty, value);
+      }
+
+      // Using a DependencyProperty as the backing store for ValidationExtender.  This enables animation, styling, binding, etc...
+      public static readonly DependencyProperty ExtendersProperty =
+          DependencyProperty.RegisterAttached("Extenders", typeof(DataGridExtendersCollection), typeof(BehaviorExtensions), new UIPropertyMetadata(null, ExtendersChanged));
+
+      static void ExtendersChanged(DependencyObject obj, DependencyPropertyChangedEventArgs eventArgs)
+      {
+         var oldList = eventArgs.OldValue as DataGridExtendersCollection;
+         var newList = eventArgs.NewValue as DataGridExtendersCollection;
+
+         if (oldList != null)
+            foreach (var extender in oldList)
+               DetachExtender(obj, extender);
+
+         if (newList != null)
+            foreach (var extender in newList)
+               AttachExtender(obj, extender);
+      }
+
+      #endregion
+
       static void ReplaceExtender<T>(DependencyObject obj, object oldExtender, object newExtender)
          where T : BehaviorExtenderBase
       {
-         if (oldExtender != null)
-         {
-            Debug.Assert(oldExtender is T);
-            ((T)oldExtender).Dispose();
-         }
          if (newExtender != null)
-         {
             Debug.Assert(newExtender is T);
-            ((T)newExtender).AttachToElement((UIElement)obj);
-         }
+
+         DetachExtender(obj, (T)oldExtender);
+         AttachExtender(obj, (T)newExtender);
+      }
+
+      static void AttachExtender(DependencyObject obj, BehaviorExtenderBase newExtender)
+      {
+         if (newExtender != null)
+            newExtender.AttachToElement((UIElement)obj);
+      }
+
+      static void DetachExtender(DependencyObject obj, BehaviorExtenderBase oldExtender)
+      {
+         if (oldExtender != null)
+            oldExtender.Dispose();
       }
    }
 }

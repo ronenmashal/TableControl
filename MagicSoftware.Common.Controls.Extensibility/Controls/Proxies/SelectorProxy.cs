@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 using MagicSoftware.Common.Controls.Extensibility.Controls;
 
-namespace MagicSoftware.Common.Controls.Proxies
+namespace MagicSoftware.Common.Controls.ProxiesX
 {
    public abstract class SelectorProxy : ElementProxy
    {

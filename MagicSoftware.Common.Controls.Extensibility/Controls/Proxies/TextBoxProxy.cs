@@ -6,7 +6,7 @@ using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows;
 
-namespace MagicSoftware.Common.Controls.Proxies
+namespace MagicSoftware.Common.Controls.ProxiesX
 {
    public class TextBoxProxy : ElementProxy
    {

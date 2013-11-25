@@ -6,12 +6,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-using MagicSoftware.Common.Controls.Proxies;
+using MagicSoftware.Common.Controls.ProxiesX;
 using MagicSoftware.Common.Controls.Extensibility.Controls.Extenders;
 using _DGTester.Validation;
 using MagicSoftware.Common.Controls.Extensibility.Controls;
 
-namespace MagicSoftware.Common.Controls.Extenders
+namespace MagicSoftware.Common.Controls.ExtendersX
 {
    public class DataGridValidationExtender : DataGridExtenderBase
    {
@@ -96,7 +96,7 @@ namespace MagicSoftware.Common.Controls.Extenders
                if (result.ShouldShowIndication)
                {
                   if (AdornerFactory != null)
-                     adornerLayer.Add(AdornerFactory.CreateAdorner(result, e.EditingElement));
+                     adornerLayer.Add(AdornerFactory.CreateAdorner(result, UIUtils.GetAncestor<DataGridCell>(e.EditingElement)));
                }
                if (result.ShouldBlock)
                {

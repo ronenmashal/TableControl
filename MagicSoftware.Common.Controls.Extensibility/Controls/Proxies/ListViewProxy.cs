@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 
-namespace MagicSoftware.Common.Controls.Proxies
+namespace MagicSoftware.Common.Controls.ProxiesX
 {
    public class ListBoxProxy : SelectorProxy
    {

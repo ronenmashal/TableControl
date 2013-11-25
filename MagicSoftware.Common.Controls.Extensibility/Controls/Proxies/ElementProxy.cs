@@ -9,7 +9,7 @@ using System.Windows.Threading;
 using System.Windows.Input;
 using MagicSoftware.Common.Controls.Extensibility.Controls;
 
-namespace MagicSoftware.Common.Controls.Proxies
+namespace MagicSoftware.Common.Controls.ProxiesX
 {
    public abstract class ElementProxy : IDisposable
    {

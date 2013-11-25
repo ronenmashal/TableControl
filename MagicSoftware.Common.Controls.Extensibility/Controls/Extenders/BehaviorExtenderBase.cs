@@ -7,9 +7,9 @@ using System.Diagnostics;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Reflection;
-using MagicSoftware.Common.Controls.Proxies;
+using MagicSoftware.Common.Controls.ProxiesX;
 
-namespace MagicSoftware.Common.Controls.Extenders
+namespace MagicSoftware.Common.Controls.ExtendersX
 {
    public abstract class BehaviorExtenderBase : IDisposable
    {

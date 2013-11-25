@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Windows;
 using System.ComponentModel.Composition;
 
-namespace MagicSoftware.Common.Controls.Proxies
+namespace MagicSoftware.Common.Controls.ProxiesX
 {
    public class ElementProxyFactory : IElementProxyFactory
    {

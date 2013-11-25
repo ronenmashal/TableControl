@@ -57,4 +57,4 @@ using System.Windows.Markup;
 
 [assembly: XmlnsPrefix("http://schemas.magicsoftware.com/common/2011/controls", "mg")]
 
-[assembly: XmlnsDefinition("http://schemas.magicsoftware.com/common/2011/controls", "MagicSoftware.Common.Controls.Extenders")]
+[assembly: XmlnsDefinition("http://schemas.magicsoftware.com/common/2011/controls", "MagicSoftware.Common.Controls.ExtendersX")]

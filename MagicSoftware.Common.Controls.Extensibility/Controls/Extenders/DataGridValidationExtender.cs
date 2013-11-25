@@ -69,7 +69,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
 
       void AttachedDG_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
       {
-         Trace.WriteLine("Finished editing cell: " + e.EditAction + ", " + e.EditingElement);
+         Trace.WriteLine("Finished editing cell: " + e.EditAction + ", " + e.EditingElement + "(" + e.GetHashCode() + ")");
          var container = UIUtils.GetAncestor<DataGridRow>(e.EditingElement);
          var adornerLayer = AdornerLayer.GetAdornerLayer(container);
          Adorner[] adorners = adornerLayer.GetAdorners(e.EditingElement);

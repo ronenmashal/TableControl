@@ -77,7 +77,7 @@
     <Compile Include="Controls\Extenders\IValidationAdornerFactory.cs" />
     <Compile Include="Controls\Extenders\ItemsControlKeyboardHandlerBase.cs" />
     <Compile Include="Controls\Extenders\KeyboardHandlerBase.cs" />
-    <Compile Include="Controls\Extenders\MouseHandler.cs" />
+    <Compile Include="Controls\Extenders\DataGridMouseHandler.cs" />
     <Compile Include="Controls\Extenders\MouseHandlerBase.cs" />
     <Compile Include="Controls\KeyExtensions.cs" />
     <Compile Include="Controls\Proxies\CheckBoxProxy.cs" />

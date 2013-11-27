@@ -20,6 +20,8 @@ namespace _DGTester
          var container = new CompositionContainer(catalog);
          var batch = new CompositionBatch();
          container.Compose(batch);
+
+         log4net.Config.XmlConfigurator.Configure();
       }
    }
 }

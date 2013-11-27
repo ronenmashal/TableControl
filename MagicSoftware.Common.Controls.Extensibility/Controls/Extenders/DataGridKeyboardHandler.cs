@@ -30,47 +30,47 @@ namespace MagicSoftware.Common.Controls.ExtendersX
          base.RegisterKeyboardEvents(element);
       }
 
-      //protected override void HandlePreviewKeyDown(object sender, KeyEventArgs e)
-      //{
-      //   Trace.WriteLine(String.Format("Preview key down on {0}: {1}, {2}", sender, e.Key, e.OriginalSource));
+      protected override void HandlePreviewKeyDown(object sender, KeyEventArgs e)
+      {
+         log.DebugFormat("Preview key down on {0}: {1}, {2}", sender, e.Key, e.OriginalSource);
 
-      //   //   switch (e.Key)
-      //   //   {
-      //   //      case Key.Enter:
-      //   //         if (proxy.IsInEdit)
-      //   //         {
-      //   //            proxy.CommitEdit(DataGridEditingUnit.Cell, true);
-      //   //         }
-      //   //         else
-      //   //         {
-      //   //            proxy.BeginEdit();
-      //   //         }
-      //   //         e.Handled = true;
-      //   //         break;
+         switch (e.Key)
+         {
+            //   //      case Key.Enter:
+            //   //         if (proxy.IsInEdit)
+            //   //         {
+            //   //            proxy.CommitEdit(DataGridEditingUnit.Cell, true);
+            //   //         }
+            //   //         else
+            //   //         {
+            //   //            proxy.BeginEdit();
+            //   //         }
+            //   //         e.Handled = true;
+            //   //         break;
 
-      //   //      case Key.Up:
-      //   //      case Key.Down:
-      //   //      case Key.PageDown:
-      //   //      case Key.PageUp:
-      //   //         if (proxy.IsInEdit)
-      //   //         {
-      //   //            if (!proxy.CommitEdit(DataGridEditingUnit.Cell, true))
-      //   //               e.Handled = true;
-      //   //         }
-      //   //         break;
+            //   //      case Key.Up:
+            //   //      case Key.Down:
+            //   //      case Key.PageDown:
+            //   //      case Key.PageUp:
+            //   //         if (proxy.IsInEdit)
+            //   //         {
+            //   //            if (!proxy.CommitEdit(DataGridEditingUnit.Cell, true))
+            //   //               e.Handled = true;
+            //   //         }
+            //   //         break;
 
-      //   //      case Key.Tab:
-      //   //         if (proxy.IsInEdit)
-      //   //         {
-      //   //            if (!proxy.CommitEdit(DataGridEditingUnit.Cell, false))
-      //   //               e.Handled = true;
-      //   //         }
-      //   //         break;
+            case Key.Tab:
+               if (DataGridProxy.IsInEdit)
+               {
+                  if (!DataGridProxy.CommitEdit(DataGridEditingUnit.Cell, false))
+                     e.Handled = true;
+               }
+               break;
 
-      //   //      default:
-      //   //         break;
-      //   //   }
-      //   //}
+            //   //      default:
+            //   //         break;
+         }
+      }
 
       //   ///// <summary>
       //   ///// handle keyboard events, implement non-standard navigation

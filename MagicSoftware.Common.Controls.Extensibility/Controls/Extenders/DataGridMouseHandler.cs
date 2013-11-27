@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 using MagicSoftware.Common.Controls.ProxiesX;
 using System.Windows.Media;
+using System.Windows.Controls.Primitives;
 
 namespace MagicSoftware.Common.Controls.ExtendersX
 {
@@ -46,7 +47,13 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       {
          Trace.WriteLine(String.Format("Mouse down on {0}: {1}, {2}", sender, e.OriginalSource, e.ClickCount));
 
-         if (e.OriginalSource == Keyboard.FocusedElement)
+         bool bClickedWithinFocusedElement = (VisualTreeHelper.HitTest(Keyboard.FocusedElement as Visual, e.GetPosition(Keyboard.FocusedElement)) != null);
+         
+         if (bClickedWithinFocusedElement)
+            return;
+
+         DataGridRow clickedRow = UIUtils.GetAncestor<DataGridRow>(e.OriginalSource as Visual) as DataGridRow;
+         if (clickedRow == null)
             return;
 
          if (DataGridProxy.IsInEdit && !DataGridProxy.CommitEdit(DataGridEditingUnit.Row, true))
@@ -54,10 +61,6 @@ namespace MagicSoftware.Common.Controls.ExtendersX
             e.Handled = true;
             return;
          }
-
-         DataGridRow clickedRow = UIUtils.GetAncestor<DataGridRow>(e.OriginalSource as Visual) as DataGridRow;
-         if (clickedRow == null)
-            return;
 
          DataGridProxy.Items.MoveCurrentTo(clickedRow.Item);
       }

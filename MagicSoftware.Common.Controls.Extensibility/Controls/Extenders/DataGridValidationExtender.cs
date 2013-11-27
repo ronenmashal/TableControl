@@ -10,11 +10,14 @@ using MagicSoftware.Common.Controls.ProxiesX;
 using MagicSoftware.Common.Controls.Extensibility.Controls.Extenders;
 using _DGTester.Validation;
 using MagicSoftware.Common.Controls.Extensibility.Controls;
+using log4net;
 
 namespace MagicSoftware.Common.Controls.ExtendersX
 {
    public class DataGridValidationExtender : DataGridExtenderBase
    {
+      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodInfo.GetCurrentMethod().DeclaringType);
+
       Dictionary<object, Adorner[]> itemValidationAdorners = new Dictionary<object, Adorner[]>();
 
       public IValidationAdornerFactory AdornerFactory { get; set; }
@@ -69,10 +72,12 @@ namespace MagicSoftware.Common.Controls.ExtendersX
 
       void AttachedDG_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
       {
-         Trace.WriteLine("Finished editing cell: " + e.EditAction + ", " + e.EditingElement + "(" + e.GetHashCode() + ")");
-         var container = UIUtils.GetAncestor<DataGridRow>(e.EditingElement);
-         var adornerLayer = AdornerLayer.GetAdornerLayer(container);
-         Adorner[] adorners = adornerLayer.GetAdorners(e.EditingElement);
+         log.DebugFormat("Executing {0} on element {1}.", e.EditAction, e.EditingElement);
+         var cell = UIUtils.GetAncestor<DataGridCell>(e.EditingElement);
+         var row = UIUtils.GetAncestor<DataGridRow>(cell);
+         log.DebugFormat("Element container is {0}", row.GetHashCode());
+         var adornerLayer = AdornerLayer.GetAdornerLayer(row);
+         Adorner[] adorners = adornerLayer.GetAdorners(cell);
 
          if (adorners != null)
          {
@@ -96,7 +101,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
                if (result.ShouldShowIndication)
                {
                   if (AdornerFactory != null)
-                     adornerLayer.Add(AdornerFactory.CreateAdorner(result, UIUtils.GetAncestor<DataGridCell>(e.EditingElement)));
+                     adornerLayer.Add(AdornerFactory.CreateAdorner(result, cell));
                }
                if (result.ShouldBlock)
                {

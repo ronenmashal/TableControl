@@ -46,7 +46,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       protected override void PerformFocusUpdate()
       {
          int itemIndex = monitoredElement.Items.CurrentPosition;
-         monitoredElement.SelectedIndex = itemIndex;
+         //monitoredElement.SelectedIndex = itemIndex;
          
          FrameworkElement itemContainer = monitoredElement.ItemContainerGenerator.ContainerFromIndex(itemIndex) as FrameworkElement;
          if (itemContainer != null )

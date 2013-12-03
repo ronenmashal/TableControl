@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="CustomControl1.cs" />
     <Compile Include="EnhancedDataGrid.cs" />
+    <Compile Include="ObjectEqualityConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

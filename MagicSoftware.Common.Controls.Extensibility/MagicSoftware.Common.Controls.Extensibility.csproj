@@ -108,6 +108,7 @@
     <Compile Include="Validation\IValidatingObject.cs" />
     <Compile Include="Validation\ResultType.cs" />
     <Compile Include="Validation\ValidationActions.cs" />
+    <Compile Include="VisualExtensions.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

@@ -7,7 +7,7 @@
         xmlns:mg="http://schemas.magicsoftware.com/common/2011/controls"
         Title="MainWindow"
         Width="525"
-        Height="150">
+        Height="400">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

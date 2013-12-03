@@ -77,8 +77,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       {
          if (Keyboard.Modifiers == ModifierKeys.None)
          {
-            if (SelectorProxy.Items.CurrentPosition < SelectorProxy.Items.Count - 1)
-               SelectorProxy.Items.MoveCurrentToNext();
+            SelectorProxy.MoveCurrentToNext();
             e.Handled = true;
          }
       }
@@ -91,8 +90,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       {
          if (Keyboard.Modifiers == ModifierKeys.None)
          {
-            if (SelectorProxy.Items.CurrentPosition > 0)
-               SelectorProxy.Items.MoveCurrentToPrevious();
+            SelectorProxy.MoveCurrentToPrevious();
             e.Handled = true;
          }
       }

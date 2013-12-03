@@ -259,7 +259,7 @@
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
                 <!--  Background of a selected line  -->
-                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" /> 
+                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
                 <!--  Value="#FFB1E1AF"  -->
                 <Setter Property="Foreground" Value="#FF000000" />
                 <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
@@ -301,7 +301,8 @@
                         <Binding Path="CurrentItem" RelativeSource="{RelativeSource FindAncestor, AncestorType=DataGrid}" />
                     </MultiBinding>
                 </DataTrigger.Binding>
-                <Setter Property="Background" Value="Red" />
+                <Setter Property="BorderBrush" Value="Red" />
+                <Setter Property="BorderThickness" Value="1" />
             </DataTrigger>
         </Style.Triggers>
     </Style>

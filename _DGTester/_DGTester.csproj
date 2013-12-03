@@ -41,6 +41,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="MagicSoftware.Common, Version=2.0.0.691, Culture=neutral, PublicKeyToken=7dc14d2003666719, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MagicSoftware.Common.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
@@ -67,7 +70,6 @@
     <Compile Include="MyWarningAdorner.cs" />
     <Compile Include="RowStyleSelector.cs" />
     <Compile Include="Data\MyHeaderView.cs" />
-    <Compile Include="LoggingExtensions.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

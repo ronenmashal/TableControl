@@ -144,6 +144,35 @@ namespace MagicSoftware.Common.Controls.ProxiesX
          return true;
       }
 
+      public override bool MoveCurrentToNext()
+      {
+         bool moved = base.MoveCurrentToNext();
+         if (moved)
+            DataGrid.CurrentItem = DataGrid.SelectedItem;
+         return moved;
+      }
+
+      public override bool MoveCurrentToPrevious()
+      {
+         bool moved = base.MoveCurrentToPrevious();
+         if (moved)
+            DataGrid.CurrentItem = DataGrid.SelectedItem;
+         return moved;
+      }
+
+
+      public object CurrentItem
+      {
+         get
+         {
+            return DataGrid.CurrentItem;
+         }
+         set
+         {
+            DataGrid.CurrentItem = value;
+         }
+      }
+
       private class EditStatePreserver : IDisposable
       {
          DataGridProxy proxy;

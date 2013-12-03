@@ -31,10 +31,11 @@
                             <Border x:Name="brdr"
                                     Background="{TemplateBinding Background}"
                                     BorderBrush="Black"
-                                    BorderThickness="0,0,0,1">
+                                    BorderThickness="0,0,0,1"
+                                    Focusable="True">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBox Text="{Binding StringValue}" />
-                                    <TextBox Text="{Binding IntValue}" />
+                                    <TextBlock Text="{Binding StringValue}" />
+                                    <TextBlock Text="{Binding IntValue}" />
                                 </StackPanel>
                             </Border>
                         </ControlTemplate>
@@ -42,6 +43,24 @@
                 </Setter>
                 <!--  <Setter Property="mg:BehaviorExtensions.FocusManager" Value="{StaticResource FolderFocusManager}"/>  -->
                 <Style.Triggers>
+                    <Trigger Property="IsEditing" Value="True">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="DataGridRow">
+                                    <Border x:Name="brdr"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="Black"
+                                            BorderThickness="0,0,0,1">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBox Text="{Binding StringValue}" />
+                                            <TextBox Text="{Binding IntValue}" />
+                                        </StackPanel>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Trigger>
+
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="Background" Value="#FFE5F1F1" />
                     </Trigger>
@@ -49,15 +68,54 @@
                     <Trigger Property="IsSelected" Value="True">
                         <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
                     </Trigger>
+
+                    <DataTrigger Value="True">
+                        <DataTrigger.Binding>
+                            <MultiBinding Converter="{StaticResource EqualityConverter}">
+                                <Binding Path="Item" RelativeSource="{x:Static RelativeSource.Self}" />
+                                <Binding Path="CurrentItem" RelativeSource="{RelativeSource FindAncestor, AncestorType=DataGrid}" />
+                            </MultiBinding>
+                        </DataTrigger.Binding>
+                        <Setter Property="Background" Value="Red" />
+                    </DataTrigger>
                 </Style.Triggers>
+            </Style>
+
+            <Style TargetType="{x:Type HeaderedContentControl}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="HeaderedContentControl">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100" MinWidth="50" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Grid.Column="0" ContentSource="Header" />
+                                <ContentPresenter Grid.Column="1" ContentSource="Content" />
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
         </ResourceDictionary>
     </Window.Resources>
     <DockPanel>
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
-            <Button Name="ChangeColumnVisibility" Click="ChangeColumnVisibility_Click">Column Visibility</Button>
+        <StackPanel DockPanel.Dock="Bottom">
+            <HeaderedContentControl Header="VM Current Item:">
+                <TextBlock Text="{Binding CurrentItem}" />
+            </HeaderedContentControl>
+            <HeaderedContentControl Header="DG Current Item:">
+                <TextBlock Text="{Binding CurrentItem, ElementName=DG}" />
+            </HeaderedContentControl>
+            <HeaderedContentControl Header="Selected Item:">
+                <TextBlock Text="{Binding SelectedItem, ElementName=DG}" />
+            </HeaderedContentControl>
+            <StackPanel Orientation="Horizontal">
+                <Button Name="ChangeColumnVisibility" Click="ChangeColumnVisibility_Click">Column Visibility</Button>
+            </StackPanel>
         </StackPanel>
-        <dg:EnhancedDataGrid CanUserAddRows="False"
+        <dg:EnhancedDataGrid x:Name="DG"
+                             CanUserAddRows="False"
                              EnableRowVirtualization="True"
                              ItemsSource="{Binding Items}"
                              Loaded="DataGrid_Loaded"

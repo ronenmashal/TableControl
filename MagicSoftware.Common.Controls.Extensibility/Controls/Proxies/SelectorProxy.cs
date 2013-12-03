@@ -158,5 +158,32 @@ namespace MagicSoftware.Common.Controls.ProxiesX
 
       protected abstract void ScrollIntoView(object item);
 
+      public virtual bool MoveCurrentToPrevious()
+      {
+         if (Items.CurrentPosition > 0)
+            return Items.MoveCurrentToPrevious();
+
+         return Items.CurrentItem != null;
+      }
+
+      public virtual bool MoveCurrentToNext()
+      {
+         if (Items.CurrentPosition < Items.Count - 1)
+            return Items.MoveCurrentToNext();
+
+         return Items.CurrentItem != null;
+      }
+
+      public virtual object SelectedItem
+      {
+         get
+         {
+            return Selector.SelectedItem;
+         }
+         set
+         {
+            Selector.SelectedItem = value;
+         }
+      }
    }
 }

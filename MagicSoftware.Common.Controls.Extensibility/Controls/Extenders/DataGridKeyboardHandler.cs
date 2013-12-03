@@ -28,6 +28,19 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       {
          Debug.Assert(element is System.Windows.Controls.DataGrid);
          base.RegisterKeyboardEvents(element);
+         //element.KeyDown += new KeyEventHandler(element_KeyDown);
+         element.AddHandler(FrameworkElement.KeyDownEvent, new RoutedEventHandler(element_KeyDown), true);
+      }
+
+      protected override void UnregisterKeyboardEvents(UIElement element)
+      {
+         base.UnregisterKeyboardEvents(element);
+         element.RemoveHandler(FrameworkElement.KeyDownEvent, new RoutedEventHandler(element_KeyDown));
+      }
+
+      void element_KeyDown(object sender, RoutedEventArgs e)
+      {
+         EndMove();
       }
 
       protected override void HandlePreviewKeyDown(object sender, KeyEventArgs e)
@@ -36,29 +49,6 @@ namespace MagicSoftware.Common.Controls.ExtendersX
 
          switch (e.Key)
          {
-            //   //      case Key.Enter:
-            //   //         if (proxy.IsInEdit)
-            //   //         {
-            //   //            proxy.CommitEdit(DataGridEditingUnit.Cell, true);
-            //   //         }
-            //   //         else
-            //   //         {
-            //   //            proxy.BeginEdit();
-            //   //         }
-            //   //         e.Handled = true;
-            //   //         break;
-
-            //   //      case Key.Up:
-            //   //      case Key.Down:
-            //   //      case Key.PageDown:
-            //   //      case Key.PageUp:
-            //   //         if (proxy.IsInEdit)
-            //   //         {
-            //   //            if (!proxy.CommitEdit(DataGridEditingUnit.Cell, true))
-            //   //               e.Handled = true;
-            //   //         }
-            //   //         break;
-
             case Key.Tab:
                if (DataGridProxy.IsInEdit)
                {
@@ -67,8 +57,25 @@ namespace MagicSoftware.Common.Controls.ExtendersX
                }
                break;
 
-            //   //      default:
-            //   //         break;
+            default:
+               base.HandlePreviewKeyDown(sender, e);
+               break;
+         }
+      }
+
+      object itemBeforeMoving;
+      void BeginMove()
+      {
+         itemBeforeMoving = this.DataGridProxy.CurrentItem;
+      }
+
+      void EndMove()
+      {
+         object currentItem = this.DataGridProxy.CurrentItem;
+         if (object.Equals(currentItem, itemBeforeMoving))
+         {
+            // Failed to move.
+            DataGridProxy.CurrentItem = DataGridProxy.SelectedItem;
          }
       }
 
@@ -163,13 +170,13 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       //   }
       //}
 
-      ///// <summary>
-      ///// DOWN arrow should move to next row even if in edit state
-      ///// DOWN arrow should also move to headers
-      ///// CTRL + DOWN - move to next folder
-      ///// </summary>
-      ///// <param name="e"></param>
-      //protected virtual void OnPreviewDOWNKeyDown(KeyEventArgs e)
+      /// <summary>
+      /// DOWN arrow should move to next row even if in edit state
+      /// DOWN arrow should also move to headers
+      /// CTRL + DOWN - move to next folder
+      /// </summary>
+      /// <param name="e"></param>
+      //protected override void OnPreviewDOWNKeyDown(KeyEventArgs e)
       //{
       //   if (!DataGridProxy.CommitEdit(DataGridEditingUnit.Row, true))
       //      e.Handled = true;
@@ -189,14 +196,15 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       //   }
       //}
 
-      ///// <summary>
-      ///// UP arrow should move to previous row even if in edit state
-      ///// UP arrow should also move to headers
-      ///// CTRL + UP - move to preceding header 
-      ///// </summary>
-      ///// <param name="e"></param>
-      //protected virtual void OnPreviewUPKeyDown(KeyEventArgs e)
+      /// <summary>
+      /// UP arrow should move to previous row even if in edit state
+      /// UP arrow should also move to headers
+      /// CTRL + UP - move to preceding header 
+      /// </summary>
+      /// <param name="e"></param>
+      //protected override void OnPreviewUPKeyDown(KeyEventArgs e)
       //{
+      //   base.OnPreviewDOWNKeyDown(e);
       //   if (!DataGridProxy.CommitEdit(DataGridEditingUnit.Row, true))
       //      e.Handled = true;
       //   else

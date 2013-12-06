@@ -21,12 +21,16 @@ namespace _DGTester
    /// </summary>
    public partial class MainWindow : Window
    {
-      public MainWindow()
+      static MainWindow()
       {
          ElementProxyFactory.Instance.RegisterProxyType(typeof(DataGridProxy), typeof(DataGrid));
          ElementProxyFactory.Instance.RegisterProxyType(typeof(TextBoxProxy), typeof(TextBox));
          ElementProxyFactory.Instance.RegisterProxyType(typeof(CheckBoxProxy), typeof(CheckBox));
          ElementProxyFactory.Instance.RegisterProxyType(typeof(ComboBoxProxy), typeof(ComboBox));
+      }
+
+      public MainWindow()
+      {
          InitializeComponent();
          DataContext = new View1();
       }
@@ -53,7 +57,7 @@ namespace _DGTester
          ColVisibility = (Visibility)(((int)ColVisibility + 1) % 3);
       }
 
-      
+
 
    }
 }

@@ -161,6 +161,10 @@ namespace MagicSoftware.Common.Controls.ProxiesX
       }
 
 
+      /// <summary>
+      /// Gets or sets the data grid's current item (the item with the cursor).
+      /// Does not necessarily comply with the view model's current item.
+      /// </summary>
       public object CurrentItem
       {
          get
@@ -169,8 +173,19 @@ namespace MagicSoftware.Common.Controls.ProxiesX
          }
          set
          {
+            ScrollIntoView(value);
             DataGrid.CurrentItem = value;
          }
+      }
+
+      /// <summary>
+      /// Sets current item on the specified position. Does not change
+      /// the view model's current item.
+      /// </summary>
+      public int CurrentPosition
+      {
+         get { return Items.IndexOf(CurrentItem); }
+         set { CurrentItem = Items[value]; }
       }
 
       private class EditStatePreserver : IDisposable

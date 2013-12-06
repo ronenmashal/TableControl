@@ -40,7 +40,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
 
       void element_KeyDown(object sender, RoutedEventArgs e)
       {
-         EndMove();
+         HandleKeyDown(sender, (KeyEventArgs)e);
       }
 
       protected override void HandlePreviewKeyDown(object sender, KeyEventArgs e)
@@ -49,6 +49,13 @@ namespace MagicSoftware.Common.Controls.ExtendersX
 
          switch (e.Key)
          {
+            case Key.Up:
+            case Key.Down:
+            case Key.PageDown:
+            case Key.PageUp:
+               BeginMove(e);
+               break;
+
             case Key.Tab:
                if (DataGridProxy.IsInEdit)
                {
@@ -63,19 +70,72 @@ namespace MagicSoftware.Common.Controls.ExtendersX
          }
       }
 
-      object itemBeforeMoving;
-      void BeginMove()
+      protected void HandleKeyDown(object sender, KeyEventArgs e)
       {
-         itemBeforeMoving = this.DataGridProxy.CurrentItem;
+         switch (e.Key)
+         {
+            case Key.Up:
+            case Key.Down:
+            case Key.PageDown:
+            case Key.PageUp:
+               EndMove(e as KeyEventArgs);
+               break;
+         }
       }
 
-      void EndMove()
+      object expectedItemAfterMoving;
+      void BeginMove(KeyEventArgs eventArgs)
+      {
+         expectedItemAfterMoving = null;
+         switch (eventArgs.Key)
+         {
+            case Key.Up:
+               expectedItemAfterMoving = GetItemFromRelativeIndex(-1);
+               break;
+
+            case Key.Down:
+               expectedItemAfterMoving = GetItemFromRelativeIndex(1);
+               break;
+
+            case Key.PageUp:
+               expectedItemAfterMoving = GetItemFromRelativeIndex(-DataGridProxy.RowsPerPage);
+               break;
+
+            case Key.PageDown:
+               expectedItemAfterMoving = GetItemFromRelativeIndex(DataGridProxy.RowsPerPage);
+               break;
+         }
+      }
+
+      object GetItemFromRelativeIndex(int indexOffset)
+      {
+         if (DataGridProxy.Items.Count == 0)
+            return null;
+
+         int currentPosition = DataGridProxy.Items.IndexOf(DataGridProxy.CurrentItem);
+         int itemIndex = currentPosition + indexOffset;
+         if (indexOffset >= 0 && itemIndex >= DataGridProxy.Items.Count)
+         {
+            itemIndex = DataGridProxy.Items.Count - 1;
+         }
+         else if (indexOffset < 0 && itemIndex < 0)
+         {
+            itemIndex = 0;
+         }
+         return DataGridProxy.Items[itemIndex];
+      }
+
+      void EndMove(KeyEventArgs eventArgs)
       {
          object currentItem = this.DataGridProxy.CurrentItem;
-         if (object.Equals(currentItem, itemBeforeMoving))
+
+         if (expectedItemAfterMoving != null && !object.Equals(currentItem, expectedItemAfterMoving))
          {
             // Failed to move.
-            DataGridProxy.CurrentItem = DataGridProxy.SelectedItem;
+            if (eventArgs.KeyboardDevice.Modifiers == ModifierKeys.None)
+               DataGridProxy.SelectedItem = expectedItemAfterMoving;
+            DataGridProxy.CurrentItem = expectedItemAfterMoving;
+            eventArgs.Handled = true;
          }
       }
 

@@ -75,11 +75,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       /// <param name="e"></param>
       protected virtual void OnPreviewDOWNKeyDown(KeyEventArgs e)
       {
-         if (Keyboard.Modifiers == ModifierKeys.None)
-         {
-            SelectorProxy.MoveCurrentToNext();
-            e.Handled = true;
-         }
+            //SelectorProxy.MoveCurrentToNext();
       }
 
       /// <summary>
@@ -88,11 +84,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       /// <param name="e"></param>
       protected virtual void OnPreviewUPKeyDown(KeyEventArgs e)
       {
-         if (Keyboard.Modifiers == ModifierKeys.None)
-         {
-            SelectorProxy.MoveCurrentToPrevious();
-            e.Handled = true;
-         }
+            //SelectorProxy.MoveCurrentToPrevious();
       }
 
       /// <summary>

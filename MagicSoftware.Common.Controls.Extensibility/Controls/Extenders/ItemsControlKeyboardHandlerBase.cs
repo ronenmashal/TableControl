@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using MagicSoftware.Common.Utils;
-using System.Diagnostics;
 using MagicSoftware.Common.Controls.ProxiesX;
+using MagicSoftware.Common.Utils;
+using LogLevel = log4net.Core.Level;
+
 
 namespace MagicSoftware.Common.Controls.ExtendersX
 {
@@ -17,7 +15,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
 
       protected override void HandlePreviewKeyDown(object sender, KeyEventArgs e)
       {
-         Trace.WriteLine(String.Format("Preview key down on {0}: {1}, {2}", sender, e.Key, e.OriginalSource));
+         log.LogMessage(LogLevel.Finer, "Preview key down on {0}: {1}, {2}", sender, e.Key, e.OriginalSource);
 
          if (e.Key.IsPrintable() && log.IsDebugEnabled)
          {

@@ -8,11 +8,14 @@ using System.Windows;
 using System.ComponentModel;
 using System.Windows.Controls;
 using System.Windows.Input;
+using log4net;
 
 namespace MagicSoftware.Common.Controls.ExtendersX
 {
    public class DataGridFocusManager : FocusManagerBase
    {
+      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
       Selector monitoredElement;
 
       ItemCollection currentItemCollection;
@@ -31,7 +34,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
 
       void monitoredElement_SelectionChanged(object sender, SelectionChangedEventArgs e)
       {
-         Trace.WriteLine("Selection changed on " + sender);
+         log.DebugFormat("Selection changed on " + sender);
          using (InhibitFocusUpdates())
          {
             Items.MoveCurrentTo(monitoredElement.SelectedItem);
@@ -47,7 +50,9 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       {
          int itemIndex = monitoredElement.Items.CurrentPosition;
          //monitoredElement.SelectedIndex = itemIndex;
-         
+         if (itemIndex < 0)
+            return;
+
          FrameworkElement itemContainer = monitoredElement.ItemContainerGenerator.ContainerFromIndex(itemIndex) as FrameworkElement;
          if (itemContainer != null )
          {
@@ -59,12 +64,12 @@ namespace MagicSoftware.Common.Controls.ExtendersX
 
       void Items_CurrentChanging(object sender, CurrentChangingEventArgs e)
       {
-         Trace.WriteLine("CurrentItem is changing");
+         log.DebugFormat("CurrentItem is changing");
       }
 
       void Items_CurrentChanged(object sender, EventArgs e)
       {
-         Trace.WriteLine("CurrentItem was changed.");
+         log.DebugFormat("CurrentItem was changed.");
          UpdateFocus();
       }
 

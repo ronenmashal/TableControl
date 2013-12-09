@@ -14,9 +14,8 @@ using DataGrid = System.Windows.Controls.DataGrid;
 namespace MagicSoftware.Common.Controls.ProxiesX
 {
    [Export(typeof(ElementProxy))]
-   public class DataGridProxy : SelectorProxy
+   public class DataGridProxy : MultiSelectorProxy
    {
-
       private System.Windows.Controls.DataGrid DataGrid { get { return (System.Windows.Controls.DataGrid)Element; } }
 
       #region DataGrid State Properties
@@ -52,12 +51,12 @@ namespace MagicSoftware.Common.Controls.ProxiesX
 
       void dg_PreparingCellForEdit(object sender, DataGridPreparingCellForEditEventArgs e)
       {
-         Trace.WriteLine("Preparing cell for edit: " + e.Row.Item);
+         log.DebugFormat("Preparing cell for edit: " + e.Row.Item);
       }
 
       void dg_LoadingRow(object sender, DataGridRowEventArgs e)
       {
-         Trace.WriteLine("Loading row " + e.Row.Item + " style " + e.Row.Style);
+         log.DebugFormat("Loading row " + e.Row.Item + " style " + e.Row.Style);
       }
 
       public IDisposable PreserveEditState()

@@ -38,7 +38,7 @@
                                         BorderBrush="Black"
                                         BorderThickness="0,0,0,1"
                                         Focusable="True">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                         <TextBlock Text="{Binding StringValue}" />
                                         <TextBlock Text="{Binding IntValue}" />
                                     </StackPanel>
@@ -62,7 +62,7 @@
                                                 Background="{TemplateBinding Background}"
                                                 BorderBrush="Black"
                                                 BorderThickness="0,0,0,1">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                                 <TextBox Text="{Binding StringValue}" />
                                                 <TextBox Text="{Binding IntValue}" />
                                             </StackPanel>
@@ -126,6 +126,7 @@
             </HeaderedContentControl>
             <StackPanel Orientation="Horizontal">
                 <Button Name="ChangeColumnVisibility" Click="ChangeColumnVisibility_Click">Column Visibility</Button>
+                <Button Name="GetSelection" Click="GetSelection_Click">Show Selection</Button>
             </StackPanel>
         </StackPanel>
         <Grid>
@@ -144,7 +145,8 @@
                                  mg:BehaviorExtensions.MouseHandler="{StaticResource DGMouseHandler}"
                                  mg:BehaviorExtensions.ValidationExtender="{StaticResource DGValidationExtender}"
                                  RowStyleSelector="{StaticResource TemplateSelector}"
-                                 SelectionMode="Extended">
+                                 SelectionMode="Extended"
+                                 SelectionUnit="FullRow">
                 <DataGrid.Columns>
                     <DataGridTextColumn Width="70"
                                         MinWidth="10"
@@ -164,7 +166,7 @@
                 </DataGrid.Columns>
             </dg:EnhancedDataGrid>
 
-            <ListBox Grid.Column="1" ItemsSource="{Binding SelectedItems, ElementName=DG}" />
+            <ListBox Grid.Column="1" ItemsSource="{Binding SelectedItems, ElementName=DG}" SelectionMode="Extended" />
         </Grid>
         <!--
             <DataGrid CanUserAddRows="False"

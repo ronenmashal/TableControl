@@ -21,6 +21,7 @@ namespace _DGTester
    /// </summary>
    public partial class MainWindow : Window
    {
+
       static MainWindow()
       {
          ElementProxyFactory.Instance.RegisterProxyType(typeof(DataGridProxy), typeof(DataGrid));
@@ -55,6 +56,15 @@ namespace _DGTester
       private void ChangeColumnVisibility_Click(object sender, RoutedEventArgs e)
       {
          ColVisibility = (Visibility)(((int)ColVisibility + 1) % 3);
+      }
+
+      private void GetSelection_Click(object sender, RoutedEventArgs e)
+      {
+         var proxy = ElementProxyFactory.Instance.GetProxy(DG) as MultiSelectorProxy;
+         StringBuilder selection = new StringBuilder();
+         foreach (var item in proxy.SelectedItems)
+            selection.Append(item.ToString() + Environment.NewLine);
+         MessageBox.Show(selection.ToString());
       }
 
 

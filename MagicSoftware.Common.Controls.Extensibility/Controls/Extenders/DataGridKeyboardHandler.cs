@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Input;
-using System.Windows.Controls;
-using System.Diagnostics;
-using log4net;
-using LogLevel = log4net.Core.Level;
+﻿using System.Diagnostics;
 using System.Windows;
-using System.Windows.Media;
-using MagicSoftware.Common.Utils;
-using System.ComponentModel;
+using System.Windows.Controls;
+using System.Windows.Input;
 using MagicSoftware.Common.Controls.ProxiesX;
+using MagicSoftware.Common.Utils;
+using LogLevel = log4net.Core.Level;
 
 namespace MagicSoftware.Common.Controls.ExtendersX
 {
@@ -28,7 +21,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       {
          Debug.Assert(element is System.Windows.Controls.DataGrid);
          base.RegisterKeyboardEvents(element);
-         //element.KeyDown += new KeyEventHandler(element_KeyDown);
+         // Register the key down handler, in a way that it will be executed even if the event was already handled.
          element.AddHandler(FrameworkElement.KeyDownEvent, new RoutedEventHandler(element_KeyDown), true);
       }
 
@@ -45,7 +38,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
 
       protected override void HandlePreviewKeyDown(object sender, KeyEventArgs e)
       {
-         log.DebugFormat("Preview key down on {0}: {1}, {2}", sender, e.Key, e.OriginalSource);
+         log.LogMessage(LogLevel.Finer, "Preview key down on {0}: {1}, {2}", sender, e.Key, e.OriginalSource);
 
          switch (e.Key)
          {
@@ -86,6 +79,7 @@ namespace MagicSoftware.Common.Controls.ExtendersX
       object expectedItemAfterMoving;
       void BeginMove(KeyEventArgs eventArgs)
       {
+         log.DebugFormat("Beginning move on {0} using key {1}", eventArgs.Source, eventArgs.Key);
          expectedItemAfterMoving = null;
          switch (eventArgs.Key)
          {
@@ -127,14 +121,24 @@ namespace MagicSoftware.Common.Controls.ExtendersX
 
       void EndMove(KeyEventArgs eventArgs)
       {
+         log.DebugFormat("Ending move on {0} using key {1}", eventArgs.Source, eventArgs.Key);
          object currentItem = this.DataGridProxy.CurrentItem;
 
          if (expectedItemAfterMoving != null && !object.Equals(currentItem, expectedItemAfterMoving))
          {
             // Failed to move.
-            if (eventArgs.KeyboardDevice.Modifiers == ModifierKeys.None)
-               DataGridProxy.SelectedItem = expectedItemAfterMoving;
+            log.Debug("Updating current item.");
             DataGridProxy.CurrentItem = expectedItemAfterMoving;
+            if (eventArgs.KeyboardDevice.Modifiers == ModifierKeys.None)
+            {
+               log.Debug("Updating selection.");
+               DataGridProxy.SelectedItem = expectedItemAfterMoving;
+            }
+            else if (eventArgs.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift))
+            {
+               log.Debug("Adding item to selected items.");
+               DataGridProxy.ToggleSelection(expectedItemAfterMoving);
+            }
             eventArgs.Handled = true;
          }
       }

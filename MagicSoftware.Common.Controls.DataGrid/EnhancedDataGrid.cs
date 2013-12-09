@@ -6,11 +6,14 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Diagnostics;
 using System.Windows.Documents;
+using log4net;
 
 namespace MagicSoftware.Common.Controls.DataGrid
 {
    public class EnhancedDataGrid : System.Windows.Controls.DataGrid
    {
+      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
       static EnhancedDataGrid()
       {
          DefaultStyleKeyProperty.OverrideMetadata(typeof(EnhancedDataGrid), new FrameworkPropertyMetadata(typeof(EnhancedDataGrid)));
@@ -18,7 +21,7 @@ namespace MagicSoftware.Common.Controls.DataGrid
 
       protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
       {
-         Trace.WriteLine("Preparing container for item " + item);
+         log.DebugFormat("Preparing container for item {0}", item);
          base.PrepareContainerForItemOverride(element, item);
          if (RowStyleSelector != null)
          {

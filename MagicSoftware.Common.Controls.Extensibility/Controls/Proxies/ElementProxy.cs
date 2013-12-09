@@ -8,11 +8,14 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using System.Windows.Input;
 using MagicSoftware.Common.Controls.Extensibility.Controls;
+using log4net;
 
 namespace MagicSoftware.Common.Controls.ProxiesX
 {
    public abstract class ElementProxy : IDisposable
    {
+      protected ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
       bool isDisposed = false;
 
       protected UIElement Element { get; private set; }

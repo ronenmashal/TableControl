@@ -87,6 +87,7 @@
     <Compile Include="Controls\Proxies\ElementProxyFactory.cs" />
     <Compile Include="Controls\Proxies\IElementProxyFactory.cs" />
     <Compile Include="Controls\Proxies\ListViewProxy.cs" />
+    <Compile Include="Controls\Proxies\MultiSelectorProxy.cs" />
     <Compile Include="Controls\Proxies\SelectorProxy.cs" />
     <Compile Include="Controls\Proxies\TextBoxProxy.cs" />
     <Compile Include="Controls\ProxyCommand.cs" />

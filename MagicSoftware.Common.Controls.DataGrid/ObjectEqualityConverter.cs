@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows.Data;
 using System.Diagnostics;
 
-namespace MagicSoftware.Common.Controls.DataGrid
+namespace MagicSoftware.Common.Controls.Table
 {
    class ObjectEqualityConverter : IMultiValueConverter
    {

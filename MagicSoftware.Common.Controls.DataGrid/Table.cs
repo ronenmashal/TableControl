@@ -8,15 +8,15 @@ using System.Diagnostics;
 using System.Windows.Documents;
 using log4net;
 
-namespace MagicSoftware.Common.Controls.DataGrid
+namespace MagicSoftware.Common.Controls.Table
 {
-   public class EnhancedDataGrid : System.Windows.Controls.DataGrid
+   public class Table : System.Windows.Controls.DataGrid
    {
       ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-      static EnhancedDataGrid()
+      static Table()
       {
-         DefaultStyleKeyProperty.OverrideMetadata(typeof(EnhancedDataGrid), new FrameworkPropertyMetadata(typeof(EnhancedDataGrid)));
+         DefaultStyleKeyProperty.OverrideMetadata(typeof(Table), new FrameworkPropertyMetadata(typeof(Table)));
       }
 
       protected override void PrepareContainerForItemOverride(DependencyObject element, object item)

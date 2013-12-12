@@ -134,20 +134,20 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <dg:Table x:Name="DG"
-                                 CanUserAddRows="False"
-                                 CurrentItem="{Binding CurrentItem}"
-                                 EnableRowVirtualization="True"
-                                 ItemsSource="{Binding Items}"
-                                 Loaded="DataGrid_Loaded"
-                                 mg:BehaviorExtensions.FocusManager="{StaticResource DGFocusManager}"
-                                 mg:BehaviorExtensions.KeyboardHandler="{StaticResource DGKeyboardHandler}"
-                                 mg:BehaviorExtensions.MouseHandler="{StaticResource DGMouseHandler}"
-                                 mg:BehaviorExtensions.ValidationExtender="{StaticResource DGValidationExtender}"
-                                 RowStyleSelector="{StaticResource TemplateSelector}"
-                                 SelectionMode="Extended"
-                                 SelectionUnit="FullRow">
-                <dg:Table.Columns>
+            <dg:Table x:Name="DG">
+                      <!--CanUserAddRows="False"
+                      CurrentItem="{Binding CurrentItem}"
+                      EnableRowVirtualization="True"
+                      ItemsSource="{Binding Items}"
+                      Loaded="DataGrid_Loaded"
+                      mg:BehaviorExtensions.FocusManager="{StaticResource DGFocusManager}"
+                      mg:BehaviorExtensions.KeyboardHandler="{StaticResource DGKeyboardHandler}"
+                      mg:BehaviorExtensions.MouseHandler="{StaticResource DGMouseHandler}"
+                      mg:BehaviorExtensions.ValidationExtender="{StaticResource DGValidationExtender}"
+                      RowStyleSelector="{StaticResource TemplateSelector}"
+                      SelectionMode="Extended"
+                      SelectionUnit="FullRow">-->
+                <!--<dg:Table.Columns>
                     <DataGridTextColumn Width="70"
                                         MinWidth="10"
                                         MaxWidth="200"
@@ -163,10 +163,13 @@
                             </Binding>
                         </DataGridTextColumn.Binding>
                     </DataGridTextColumn>
-                </dg:Table.Columns>
+                </dg:Table.Columns>-->
             </dg:Table>
 
-            <ListBox Grid.Column="1" ItemsSource="{Binding SelectedItems, ElementName=DG}" SelectionMode="Extended" />
+            <ListBox Grid.Column="1"
+                     ItemsSource="{Binding SelectedItems,
+                                           ElementName=DG}"
+                     SelectionMode="Extended" />
         </Grid>
         <!--
             <DataGrid CanUserAddRows="False"

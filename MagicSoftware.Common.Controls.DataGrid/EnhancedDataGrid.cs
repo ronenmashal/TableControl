@@ -10,13 +10,13 @@ using log4net;
 
 namespace MagicSoftware.Common.Controls.Table
 {
-   public class Table : System.Windows.Controls.DataGrid
+   public class EnhancedDataGrid : System.Windows.Controls.DataGrid
    {
       ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-      static Table()
+      static EnhancedDataGrid()
       {
-         DefaultStyleKeyProperty.OverrideMetadata(typeof(Table), new FrameworkPropertyMetadata(typeof(Table)));
+         DefaultStyleKeyProperty.OverrideMetadata(typeof(EnhancedDataGrid), new FrameworkPropertyMetadata(typeof(EnhancedDataGrid)));
       }
 
       protected override void PrepareContainerForItemOverride(DependencyObject element, object item)

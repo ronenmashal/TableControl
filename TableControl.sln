@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicSoftware.Common.Controls.DataGrid", "MagicSoftware.Common.Controls.DataGrid\MagicSoftware.Common.Controls.DataGrid.csproj", "{C3C28FAF-DFE9-4DB3-A021-881EE6939633}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicSoftware.Common.Controls.Table", "MagicSoftware.Common.Controls.DataGrid\MagicSoftware.Common.Controls.Table.csproj", "{C3C28FAF-DFE9-4DB3-A021-881EE6939633}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_DGTester", "_DGTester\_DGTester.csproj", "{86336AA2-D4B3-4BC6-82C8-0BB44005D809}"
 EndProject

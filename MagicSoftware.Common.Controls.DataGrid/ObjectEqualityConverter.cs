@@ -16,11 +16,11 @@ namespace MagicSoftware.Common.Controls.DataGrid
          Debug.Assert(values.Length == 2);
          if (parameter != null && parameter.Equals("byref"))
          {
-            return object.ReferenceEquals(values[0], values[1]);
+            return object.Equals(values[0], values[1]);
          }
          else
          {
-            return object.Equals(values[0], values[1]);
+            return object.ReferenceEquals(values[0], values[1]);
          }
       }
 

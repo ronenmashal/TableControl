@@ -43,6 +43,8 @@
                     <lext:DataGridSelectionExtender />
 
                     <lext:DataGridEditingExtender />
+
+                    <lext:DataGridFocusManagementExtender />
                 </ext:ExtendersCollection>
             </ext:ElementExtensions.Extenders>
             <pxy:FrameworkElementProxy.Proxy>

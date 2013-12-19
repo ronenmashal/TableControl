@@ -39,31 +39,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
    }
 
-   interface ICurrentItemProvider : INotifyPropertyChanged
-   {
-      object CurrentItem { get; }
-      int CurrentItemIndex { get; }
-   }
-
-   class DGProxyAsCurrentItemProvider : ObservableObject, ICurrentItemProvider, IWeakEventListener
-   {
-      private EnhancedDGProxy dgProxy;
-      public DGProxyAsCurrentItemProvider(EnhancedDGProxy dgProxy)
-      {
-         this.dgProxy = dgProxy;
-         PropertyChangedEventManager.AddListener(dgProxy, this, "CurrentItem");
-      }
-
-      public object CurrentItem { get { return dgProxy.CurrentItem; } }
-      public int CurrentItemIndex { get { return dgProxy.CurrentPosition; } }
-
-      public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
-      {
-         OnPropertyChanged("CurrentItem");
-         return true;
-      }
-   }
-
    class SelectionModeManager : IDisposable
    {
       public static readonly SingleSelectionMode SingleSelectionMode = new SingleSelectionMode();

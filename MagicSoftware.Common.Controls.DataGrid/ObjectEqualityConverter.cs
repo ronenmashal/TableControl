@@ -14,7 +14,7 @@ namespace MagicSoftware.Common.Controls.Table
       public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
       {
          Debug.Assert(values.Length == 2);
-         if (parameter != null && parameter.Equals("byref"))
+         if (parameter == null || parameter.Equals("byref"))
          {
             return object.Equals(values[0], values[1]);
          }

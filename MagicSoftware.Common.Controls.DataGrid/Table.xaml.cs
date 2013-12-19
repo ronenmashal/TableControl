@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Collections;
 
 namespace MagicSoftware.Common.Controls.Table
 {
@@ -19,6 +20,31 @@ namespace MagicSoftware.Common.Controls.Table
    /// </summary>
    public partial class Table : UserControl
    {
+
+
+      public StyleSelector RowStyleSelector
+      {
+         get { return (StyleSelector)GetValue(RowStyleSelectorProperty); }
+         set { SetValue(RowStyleSelectorProperty, value); }
+      }
+
+      public static readonly DependencyProperty RowStyleSelectorProperty =
+          DependencyProperty.Register("RowStyleSelector", typeof(StyleSelector), typeof(Table), new UIPropertyMetadata(null));
+
+
+
+      public IEnumerable ItemsSource
+      {
+         get { return (IEnumerable)GetValue(ItemsSourceProperty); }
+         set { SetValue(ItemsSourceProperty, value); }
+      }
+
+      // Using a DependencyProperty as the backing store for ItemsSource.  This enables animation, styling, binding, etc...
+      public static readonly DependencyProperty ItemsSourceProperty =
+          DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(Table), new UIPropertyMetadata(null));
+
+      
+      
       public Table()
       {
          InitializeComponent();

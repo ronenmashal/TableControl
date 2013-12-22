@@ -1,5 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cells="clr-namespace:MagicSoftware.Common.Controls.Table.CellTypes"
                     xmlns:local="clr-namespace:MagicSoftware.Common.Controls.Table"
                     xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero">
 
@@ -620,13 +621,13 @@
 
     <Style BasedOn="{StaticResource {x:Type DataGrid}}" TargetType="{x:Type local:EnhancedDataGrid}" />
 
-    <local:VirtualTableCellTemplateSelector x:Key="VirtualTableCellTemplateSelector" />
+    <cells:VirtualTableCellTemplateSelector x:Key="VirtualTableCellTemplateSelector" />
 
-    <Style TargetType="{x:Type local:VirtualTableCell}">
+    <Style TargetType="{x:Type cells:VirtualTableCell}">
         <Setter Property="ContentTemplateSelector" Value="{StaticResource VirtualTableCellTemplateSelector}" />
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:VirtualTableCell}">
+                <ControlTemplate TargetType="{x:Type cells:VirtualTableCell}">
                     <Border BorderBrush="Blue" BorderThickness="1">
                         <!--  <TextBlock Text="Basic"/>  -->
                         <ContentPresenter ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
@@ -637,12 +638,12 @@
     </Style>
 
 
-    <Style BasedOn="{StaticResource {x:Type local:VirtualTableCell}}" TargetType="{x:Type local:VirtualTextTableCell}">
+    <Style BasedOn="{StaticResource {x:Type cells:VirtualTableCell}}" TargetType="{x:Type cells:VirtualTextTableCell}">
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
                     <!--  <TextBlock Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
-                    <TextBlock local:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" Text="Smashing" />
+                    <TextBlock cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" Text="Smashing" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -651,18 +652,18 @@
             <Setter.Value>
                 <DataTemplate>
                     <!--  <TextBox Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
-                    <TextBox local:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" Text="Hello" />
+                    <TextBox cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" Text="Hello" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <Style BasedOn="{StaticResource {x:Type local:VirtualTableCell}}" TargetType="{x:Type local:ComboBoxVirtualTableCell}">
+    <Style BasedOn="{StaticResource {x:Type cells:VirtualTableCell}}" TargetType="{x:Type cells:ComboBoxVirtualTableCell}">
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
                     <!--  <TextBlock Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
-                    <TextBlock local:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" Text="Smashing" />
+                    <TextBlock cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" Text="Smashing" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -670,7 +671,7 @@
         <Setter Property="EditingElement">
             <Setter.Value>
                 <DataTemplate>
-                    <ComboBox IsEditable="False" local:VirtualTableCell.BindingTargetProperty="{x:Static ComboBox.SelectedItemProperty}" />
+                    <ComboBox cells:VirtualTableCell.BindingTargetProperty="{x:Static ComboBox.SelectedItemProperty}" IsEditable="False" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -684,7 +685,7 @@
                 <Setter Property="EditingElement">
                     <Setter.Value>
                         <DataTemplate>
-                            <ComboBox IsEditable="True" local:VirtualTableCell.BindingTargetProperty="{x:Static ComboBox.TextProperty}" />
+                            <ComboBox cells:VirtualTableCell.BindingTargetProperty="{x:Static ComboBox.TextProperty}" IsEditable="True" />
                         </DataTemplate>
                     </Setter.Value>
                 </Setter>

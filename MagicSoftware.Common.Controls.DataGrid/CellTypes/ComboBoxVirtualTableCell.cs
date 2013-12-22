@@ -8,7 +8,7 @@ using MagicSoftware.Common.Utils;
 using System.Windows.Data;
 using System.Windows.Controls;
 
-namespace MagicSoftware.Common.Controls.Table
+namespace MagicSoftware.Common.Controls.Table.CellTypes
 {
    public class ComboBoxVirtualTableCell : VirtualTableCell
    {

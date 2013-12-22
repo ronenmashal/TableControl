@@ -70,7 +70,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ComboBoxVirtualTableCell.cs" />
+    <Compile Include="CellTypes\ComboBoxVirtualTableCell.cs" />
     <Compile Include="EnhancedDataGrid.cs" />
     <Compile Include="Extensions\DataGridEditingExtender.cs" />
     <Compile Include="Extensions\DataGridFocusManagementExtender.cs" />
@@ -97,8 +97,8 @@
     <Compile Include="Table.xaml.cs">
       <DependentUpon>Table.xaml</DependentUpon>
     </Compile>
-    <Compile Include="VirtualTableCell.cs" />
-    <Compile Include="VirtualTextTableCell.cs" />
+    <Compile Include="CellTypes\VirtualTableCell.cs" />
+    <Compile Include="CellTypes\VirtualTextTableCell.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows;
 
-namespace MagicSoftware.Common.Controls.Table
+namespace MagicSoftware.Common.Controls.Table.CellTypes
 {
    public class VirtualTextTableCell : VirtualTableCell
    {

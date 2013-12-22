@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 using MagicSoftware.Common.Utils;
 using System.ComponentModel;
 
-namespace MagicSoftware.Common.Controls.Table
+namespace MagicSoftware.Common.Controls.Table.CellTypes
 {
    public abstract class VirtualTableCell : ContentControl
    {

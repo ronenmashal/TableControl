@@ -56,3 +56,6 @@ using System.Windows.Markup;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
+[assembly: XmlnsPrefix("http://schemas.magicsoftware.com/common/controls/table", "tbl")]
+[assembly: XmlnsDefinition("http://schemas.magicsoftware.com/common/controls/table", "MagicSoftware.Common.Controls.Table")]
+[assembly: XmlnsDefinition("http://schemas.magicsoftware.com/common/controls/table", "MagicSoftware.Common.Controls.Table.CellTypes")]

@@ -6,6 +6,7 @@
         xmlns:l="clr-namespace:_DGTester"
         xmlns:mg="http://schemas.magicsoftware.com/common/2011/controls"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:tbl="http://schemas.magicsoftware.com/common/controls/table"
         Title="MainWindow"
         Width="1000"
         Height="400">
@@ -47,16 +48,16 @@
                                         BorderThickness="0,0,0,1"
                                         Focusable="True">
                                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                        <dg:VirtualTextTableCell Binding="{Binding StringValue}" />
-                                        <dg:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" />
-                                        <dg:ComboBoxVirtualTableCell Margin="5,0,0,0"
-                                                                     Binding="{Binding Animal}"
-                                                                     IsEditable="True"
-                                                                     ItemsSource="{Binding Source={StaticResource Animals}}" />
-                                        <dg:ComboBoxVirtualTableCell Margin="5,0,0,0"
-                                                                     Binding="{Binding Animal}"
-                                                                     IsEditable="False"
-                                                                     ItemsSource="{Binding Source={StaticResource Animals}}" />
+                                        <tbl:VirtualTextTableCell Binding="{Binding StringValue}" />
+                                        <tbl:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" />
+                                        <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
+                                                                      Binding="{Binding Animal}"
+                                                                      IsEditable="True"
+                                                                      ItemsSource="{Binding Source={StaticResource Animals}}" />
+                                        <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
+                                                                      Binding="{Binding Animal}"
+                                                                      IsEditable="False"
+                                                                      ItemsSource="{Binding Source={StaticResource Animals}}" />
                                         <!--
                                             <dg:VirtualTableCell ContentBinding="{Binding StringValue}">
                                             <dg:VirtualTableCell.Element>

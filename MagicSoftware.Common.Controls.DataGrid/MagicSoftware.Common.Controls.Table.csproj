@@ -70,6 +70,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CellTypes\CheckBoxVirtualTableCell.cs" />
     <Compile Include="CellTypes\ComboBoxVirtualTableCell.cs" />
     <Compile Include="EnhancedDataGrid.cs" />
     <Compile Include="Extensions\DataGridEditingExtender.cs" />

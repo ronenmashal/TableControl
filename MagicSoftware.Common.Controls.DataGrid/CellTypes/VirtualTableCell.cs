@@ -29,7 +29,7 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          private set { SetValue(IsEditingPropertyKey, value); }
       }
 
-      static DependencyPropertyKey IsEditingPropertyKey = DependencyProperty.RegisterReadOnly("IsEditing", typeof(bool), typeof(VirtualTableCell), new UIPropertyMetadata(true, OnIsEditingChanged));
+      static DependencyPropertyKey IsEditingPropertyKey = DependencyProperty.RegisterReadOnly("IsEditing", typeof(bool), typeof(VirtualTableCell), new UIPropertyMetadata(false, OnIsEditingChanged));
       public static readonly DependencyProperty IsEditingProperty = IsEditingPropertyKey.DependencyProperty;
 
       static void OnIsEditingChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)

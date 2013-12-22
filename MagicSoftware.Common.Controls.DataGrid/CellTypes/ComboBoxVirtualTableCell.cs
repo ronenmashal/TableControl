@@ -12,6 +12,11 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
 {
    public class ComboBoxVirtualTableCell : VirtualTableCell
    {
+      static ComboBoxVirtualTableCell()
+      {
+         DefaultStyleKeyProperty.OverrideMetadata(typeof(ComboBoxVirtualTableCell), new FrameworkPropertyMetadata(typeof(ComboBoxVirtualTableCell)));
+      }
+
       public bool IsEditable
       {
          get { return (bool)GetValue(IsEditableProperty); }

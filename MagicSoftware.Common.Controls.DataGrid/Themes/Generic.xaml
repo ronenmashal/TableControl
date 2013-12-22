@@ -630,7 +630,7 @@
                 <ControlTemplate TargetType="{x:Type cells:VirtualTableCell}">
                     <Border BorderBrush="Blue" BorderThickness="1">
                         <!--  <TextBlock Text="Basic"/>  -->
-                        <ContentPresenter ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
+                        <ContentPresenter ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" VerticalAlignment="Center"/>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -691,5 +691,25 @@
                 </Setter>
             </MultiTrigger>
         </Style.Triggers>
+    </Style>
+
+    <Style BasedOn="{StaticResource {x:Type cells:VirtualTableCell}}" TargetType="{x:Type cells:CheckBoxVirtualTableCell}">
+        <Setter Property="Element">
+            <Setter.Value>
+                <DataTemplate>
+                    <!--  <TextBlock Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
+                    <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}" IsHitTestVisible="False" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="EditingElement">
+            <Setter.Value>
+                <DataTemplate>
+                    <!--  <TextBox Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
+                    <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

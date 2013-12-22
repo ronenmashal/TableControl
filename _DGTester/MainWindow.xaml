@@ -58,6 +58,8 @@
                                                                       Binding="{Binding Animal}"
                                                                       IsEditable="False"
                                                                       ItemsSource="{Binding Source={StaticResource Animals}}" />
+                                        <tbl:CheckBoxVirtualTableCell Margin="5,0,0,0" Binding="{Binding BoolValue}" />
+
                                         <!--
                                             <dg:VirtualTableCell ContentBinding="{Binding StringValue}">
                                             <dg:VirtualTableCell.Element>

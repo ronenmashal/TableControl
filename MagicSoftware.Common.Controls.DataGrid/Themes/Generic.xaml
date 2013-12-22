@@ -656,4 +656,39 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style BasedOn="{StaticResource {x:Type local:VirtualTableCell}}" TargetType="{x:Type local:ComboBoxVirtualTableCell}">
+        <Setter Property="Element">
+            <Setter.Value>
+                <DataTemplate>
+                    <!--  <TextBlock Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
+                    <TextBlock local:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" Text="Smashing" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="EditingElement">
+            <Setter.Value>
+                <DataTemplate>
+                    <ComboBox IsEditable="False" local:VirtualTableCell.BindingTargetProperty="{x:Static ComboBox.SelectedItemProperty}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Style.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsEditing" Value="True" />
+                    <Condition Property="IsEditable" Value="True" />
+                </MultiTrigger.Conditions>
+                <Setter Property="EditingElement">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <ComboBox IsEditable="True" local:VirtualTableCell.BindingTargetProperty="{x:Static ComboBox.TextProperty}" />
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
 </ResourceDictionary>

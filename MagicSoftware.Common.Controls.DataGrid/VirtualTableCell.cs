@@ -108,6 +108,14 @@ namespace MagicSoftware.Common.Controls.Table
 
       void contentPresenter_Loaded(object sender, RoutedEventArgs e)
       {
+         // Set Data Context on the template's root element.
+         var topMostElement = UIUtils.GetVisualChild<FrameworkElement>(contentPresenter);
+         if (topMostElement != null)
+         {
+            topMostElement.SetValue(FrameworkElement.DataContextProperty, this.DataContext);
+         }
+
+         // Get the primary binding target, to which the binding will be transferred.
          var bindingTarget = UIUtils.GetVisualChild<FrameworkElement>(contentPresenter, (fe) => { return GetBindingTargetProperty(fe) != null; }, SearchOrder.FirstToLast);
          if (bindingTarget != null)
          {
@@ -118,13 +126,14 @@ namespace MagicSoftware.Common.Controls.Table
                ((Binding)appliedBinding).Mode = IsEditing ? BindingMode.TwoWay : BindingMode.OneWay;
             }
             BindingOperations.SetBinding(bindingTarget, bindingTargetProperty, appliedBinding);
-         }
 
-         var topMostElement = UIUtils.GetVisualChild<FrameworkElement>(contentPresenter);
-         if (topMostElement != null)
-         {
-            topMostElement.SetValue(FrameworkElement.DataContextProperty, this.DataContext);
+            SetBindings(bindingTarget);
          }
+      }
+
+      protected virtual void SetBindings(FrameworkElement primaryBindingTarget)
+      {
+         
       }
 
       internal bool BeginEdit()

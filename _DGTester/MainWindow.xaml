@@ -5,6 +5,7 @@
         xmlns:dg="clr-namespace:MagicSoftware.Common.Controls.Table;assembly=MagicSoftware.Common.Controls.Table"
         xmlns:l="clr-namespace:_DGTester"
         xmlns:mg="http://schemas.magicsoftware.com/common/2011/controls"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="MainWindow"
         Width="1000"
         Height="400">
@@ -21,6 +22,13 @@
             <mg:DataGridMouseHandler x:Key="DGMouseHandler" />
             <l:MyValidationAdornerFactory x:Key="MyAdornerFactory" />
             <mg:DataGridValidationExtender x:Key="DGValidationExtender" AdornerFactory="{StaticResource MyAdornerFactory}" />
+            <ObjectDataProvider x:Key="Animals"
+                                MethodName="GetNames"
+                                ObjectType="{x:Type sys:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:TypeExtension TypeName="data:Animal" />
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
 
             <Style x:Key="{x:Type data:MyHeaderView}"
                    BasedOn="{StaticResource {x:Type DataGridRow}}"
@@ -41,6 +49,14 @@
                                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                         <dg:VirtualTextTableCell Binding="{Binding StringValue}" />
                                         <dg:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" />
+                                        <dg:ComboBoxVirtualTableCell Margin="5,0,0,0"
+                                                                     Binding="{Binding Animal}"
+                                                                     IsEditable="True"
+                                                                     ItemsSource="{Binding Source={StaticResource Animals}}" />
+                                        <dg:ComboBoxVirtualTableCell Margin="5,0,0,0"
+                                                                     Binding="{Binding Animal}"
+                                                                     IsEditable="False"
+                                                                     ItemsSource="{Binding Source={StaticResource Animals}}" />
                                         <!--
                                             <dg:VirtualTableCell ContentBinding="{Binding StringValue}">
                                             <dg:VirtualTableCell.Element>

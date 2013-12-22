@@ -39,8 +39,26 @@
                                         BorderThickness="0,0,0,1"
                                         Focusable="True">
                                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                        <TextBlock Text="{Binding StringValue}" />
-                                        <TextBlock Text="{Binding IntValue}" />
+                                        <dg:VirtualTextTableCell Binding="{Binding StringValue}" />
+                                        <dg:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" />
+                                        <!--
+                                            <dg:VirtualTableCell ContentBinding="{Binding StringValue}">
+                                            <dg:VirtualTableCell.Element>
+                                            <TextBlock Text="{Binding StringValue}" />
+                                            </dg:VirtualTableCell.Element>
+                                            <dg:VirtualTableCell.EditingElement>
+                                            <TextBox Text="{Binding StringValue}" />
+                                            </dg:VirtualTableCell.EditingElement>
+                                            </dg:VirtualTableCell>
+                                            <dg:VirtualTableCell>
+                                            <dg:VirtualTableCell.Element>
+                                            <TextBlock Text="{Binding IntValue}" />
+                                            </dg:VirtualTableCell.Element>
+                                            <dg:VirtualTableCell.EditingElement>
+                                            <TextBox Text="{Binding IntValue}" />
+                                            </dg:VirtualTableCell.EditingElement>
+                                            </dg:VirtualTableCell>
+                                        -->
                                     </StackPanel>
                                 </Border>
                             </Border>
@@ -49,29 +67,31 @@
                 </Setter>
                 <!--  <Setter Property="mg:BehaviorExtensions.FocusManager" Value="{StaticResource FolderFocusManager}"/>  -->
                 <Style.Triggers>
-                    <Trigger Property="IsEditing" Value="True">
+                    <!--
+                        <Trigger Property="IsEditing" Value="True">
                         <Setter Property="MinHeight" Value="20" />
                         <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="DataGridRow">
-                                    <Border x:Name="brdr"
-                                            Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}">
-                                        <Border x:Name="underline"
-                                                Background="{TemplateBinding Background}"
-                                                BorderBrush="Black"
-                                                BorderThickness="0,0,0,1">
-                                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                                <TextBox Text="{Binding StringValue}" />
-                                                <TextBox Text="{Binding IntValue}" />
-                                            </StackPanel>
-                                        </Border>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
+                        <Setter.Value>
+                        <ControlTemplate TargetType="DataGridRow">
+                        <Border x:Name="brdr"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                        <Border x:Name="underline"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="Black"
+                        BorderThickness="0,0,0,1">
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBox Text="{Binding StringValue}" />
+                        <TextBox Text="{Binding IntValue}" />
+                        </StackPanel>
+                        </Border>
+                        </Border>
+                        </ControlTemplate>
+                        </Setter.Value>
                         </Setter>
-                    </Trigger>
+                        </Trigger>
+                    -->
 
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="Background" Value="#FFE5F1F1" />

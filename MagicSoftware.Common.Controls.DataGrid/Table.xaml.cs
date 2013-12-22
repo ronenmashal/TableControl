@@ -43,8 +43,8 @@ namespace MagicSoftware.Common.Controls.Table
       public static readonly DependencyProperty ItemsSourceProperty =
           DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(Table), new UIPropertyMetadata(null));
 
-      
-      
+
+
       public Table()
       {
          InitializeComponent();

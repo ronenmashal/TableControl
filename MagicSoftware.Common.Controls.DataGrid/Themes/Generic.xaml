@@ -619,4 +619,41 @@
     </Style>
 
     <Style BasedOn="{StaticResource {x:Type DataGrid}}" TargetType="{x:Type local:EnhancedDataGrid}" />
+
+    <local:VirtualTableCellTemplateSelector x:Key="VirtualTableCellTemplateSelector" />
+
+    <Style TargetType="{x:Type local:VirtualTableCell}">
+        <Setter Property="ContentTemplateSelector" Value="{StaticResource VirtualTableCellTemplateSelector}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:VirtualTableCell}">
+                    <Border BorderBrush="Blue" BorderThickness="1">
+                        <!--  <TextBlock Text="Basic"/>  -->
+                        <ContentPresenter ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <Style BasedOn="{StaticResource {x:Type local:VirtualTableCell}}" TargetType="{x:Type local:VirtualTextTableCell}">
+        <Setter Property="Element">
+            <Setter.Value>
+                <DataTemplate>
+                    <!--  <TextBlock Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
+                    <TextBlock local:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" Text="Smashing" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="EditingElement">
+            <Setter.Value>
+                <DataTemplate>
+                    <!--  <TextBox Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
+                    <TextBox local:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" Text="Hello" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

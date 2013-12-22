@@ -96,6 +96,8 @@
     <Compile Include="Table.xaml.cs">
       <DependentUpon>Table.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VirtualTableCell.cs" />
+    <Compile Include="VirtualTextTableCell.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

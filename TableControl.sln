@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_DGTester", "_DGTester\_DGT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicSoftware.Common.Controls.Extensibility", "MagicSoftware.Common.Controls.Extensibility\MagicSoftware.Common.Controls.Extensibility.csproj", "{44B6574A-5DE1-41E9-BC71-78427A7A8C44}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z_Exp_CurrentChangingAttachedEvent", "z_Exp_CurrentChangingAttachedEvent\z_Exp_CurrentChangingAttachedEvent.csproj", "{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,16 @@ Global
 		{44B6574A-5DE1-41E9-BC71-78427A7A8C44}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{44B6574A-5DE1-41E9-BC71-78427A7A8C44}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{44B6574A-5DE1-41E9-BC71-78427A7A8C44}.Release|x86.ActiveCfg = Release|Any CPU
+		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Debug|x86.ActiveCfg = Debug|x86
+		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Debug|x86.Build.0 = Debug|x86
+		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Release|Any CPU.ActiveCfg = Release|x86
+		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Release|Mixed Platforms.Build.0 = Release|x86
+		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Release|x86.ActiveCfg = Release|x86
+		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

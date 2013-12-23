@@ -1,0 +1,11 @@
+﻿<Window x:Class="z_Exp_CurrentChangingAttachedEvent.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="clr-namespace:z_Exp_CurrentChangingAttachedEvent"
+        Title="MainWindow"
+        Width="525"
+        Height="350">
+    <Grid>
+        <DataGrid x:Name="dg" ItemsSource="{x:Static l:MainWindow.Items}" />
+    </Grid>
+</Window>

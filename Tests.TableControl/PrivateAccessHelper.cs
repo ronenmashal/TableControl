@@ -8,13 +8,19 @@ namespace Tests.TableControl
       where A : BaseShadow
    {
       public T Target { get; private set; }
-      public PrivateObject PrivateObject { get; private set; }
+      private PrivateObject PrivateObject { get; set; }
       public A Accessor { get; private set; }
 
       public PrivateAccessHelper(T target)
       {
+         Target = target;
          PrivateObject = new PrivateObject(target);
          Accessor = (A)Activator.CreateInstance(typeof(A), this.PrivateObject);
+      }
+
+      public object Invoke(string methodName, params object[] args)
+      {
+         return PrivateObject.Invoke(methodName, args);
       }
    }
 }

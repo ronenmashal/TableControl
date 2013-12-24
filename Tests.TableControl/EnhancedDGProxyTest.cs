@@ -74,7 +74,7 @@ namespace Tests.TableControl
       {
          DataGrid dg = new DataGrid();
          PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
-         helper.PrivateObject.Invoke("AttachTo", dg);
+         helper.Invoke("AttachTo", dg);
          var target = helper.Accessor;
          
          //Type adapterType = null; 

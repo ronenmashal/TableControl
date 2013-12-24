@@ -80,7 +80,7 @@ class DataGridAsEditingAdapter : IElementEditStateProxy
 
    public bool CommitEdit()
    {
-      dataGridProxy.ExecuteCommand(DataGrid.CommitEditCommand, null);
+      dataGridProxy.ExecuteCommand(DataGrid.CommitEditCommand, DataGridEditingUnit.Row);
       return !IsEditing;
    }
 

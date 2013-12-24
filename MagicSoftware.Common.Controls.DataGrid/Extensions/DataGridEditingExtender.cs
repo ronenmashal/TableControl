@@ -255,7 +255,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             if (editProxy.IsEditing)
             {
-               return false; // editProxy.CommitEdit();
+               return editProxy.CommitEdit();
             }
             return true;
          }

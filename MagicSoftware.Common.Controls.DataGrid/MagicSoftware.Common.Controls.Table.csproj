@@ -74,7 +74,7 @@
     <Compile Include="CellTypes\ComboBoxVirtualTableCell.cs" />
     <Compile Include="EnhancedDataGrid.cs" />
     <Compile Include="Extensions\CancelableRoutedEventArgs.cs" />
-    <Compile Include="Extensions\DataGridAsEditingItemsControlProxy.cs" />
+    <Compile Include="Extensions\DataGridAsEditingAdapter.cs" />
     <Compile Include="Extensions\DataGridEditingExtender.cs" />
     <Compile Include="Extensions\DataGridFocusManagementExtender.cs" />
     <Compile Include="Extensions\DataGridNavigationExtender.cs" />

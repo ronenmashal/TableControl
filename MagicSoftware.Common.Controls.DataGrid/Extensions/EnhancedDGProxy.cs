@@ -176,7 +176,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             return new DGProxyAsCurrentItemProvider(this);
 
          if (adapterType == typeof(IElementEditStateProxy))
-            return new DataGridAsEditingItemsControlProxy(DataGridElement, this);
+            return new DataGridAsEditingAdapter(DataGridElement, this);
 
          return base.GetAdapter(adapterType);
       }

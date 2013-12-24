@@ -3,12 +3,12 @@ using MagicSoftware.Common.Controls.Proxies;
 using MagicSoftware.Common.Controls.Table.Extensions;
 using System.Windows.Controls;
 
-class DataGridAsEditingItemsControlProxy : IElementEditStateProxy
+class DataGridAsEditingAdapter : IElementEditStateProxy
 {
    EnhancedDGProxy dataGridProxy;
    DataGrid dataGrid;
 
-   public DataGridAsEditingItemsControlProxy(DataGrid dataGrid, EnhancedDGProxy dataGridProxy)
+   public DataGridAsEditingAdapter(DataGrid dataGrid, EnhancedDGProxy dataGridProxy)
    {
       this.dataGrid = dataGrid;
       dataGrid.BeginningEdit += dataGrid_BeginningEdit;

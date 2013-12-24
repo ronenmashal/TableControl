@@ -1,15 +1,16 @@
 ﻿using MagicSoftware.Common.Controls.Table.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Windows.Controls;
 
 namespace Tests.TableControl
 {
-    
-    
-    /// <summary>
-    ///This is a test class for EnhancedDGProxyTest and is intended
-    ///to contain all EnhancedDGProxyTest Unit Tests
-    ///</summary>
+
+
+   /// <summary>
+   ///This is a test class for EnhancedDGProxyTest and is intended
+   ///to contain all EnhancedDGProxyTest Unit Tests
+   ///</summary>
    [TestClass()]
    public class EnhancedDGProxyTest
    {
@@ -71,13 +72,20 @@ namespace Tests.TableControl
       [DeploymentItem("MagicSoftware.Common.Controls.Table.dll")]
       public void GetAdapterTest()
       {
-         EnhancedDGProxy_Accessor target = new EnhancedDGProxy_Accessor(); // TODO: Initialize to an appropriate value
-         Type adapterType = null; // TODO: Initialize to an appropriate value
-         object expected = null; // TODO: Initialize to an appropriate value
-         object actual;
-         actual = target.GetAdapter(adapterType);
-         Assert.AreEqual(expected, actual);
+         DataGrid dg = new DataGrid();
+         PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
+         helper.PrivateObject.Invoke("AttachTo", dg);
+         var target = helper.Accessor;
+         
+         //Type adapterType = null; 
+         //object expected = null; 
+         //object actual;
+         //actual = target.GetAdapter(adapterType);
+         //Assert.AreEqual(expected, actual);
          Assert.Inconclusive("Verify the correctness of this test method.");
       }
+
    }
+
+
 }

@@ -630,7 +630,7 @@
                 <ControlTemplate TargetType="{x:Type cells:VirtualTableCell}">
                     <Border BorderBrush="Blue" BorderThickness="1">
                         <!--  <TextBlock Text="Basic"/>  -->
-                        <ContentPresenter ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" VerticalAlignment="Center"/>
+                        <ContentPresenter VerticalAlignment="Center" ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

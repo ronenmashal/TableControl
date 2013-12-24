@@ -3,15 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using MagicSoftware.Common.ViewModel;
 
 namespace _DGTester.Data
 {
-   class MyDataView : IEditableObject
+   class MyDataView : ObservableObject, IEditableObject
    {
+      private string stringVal = "";
+
       public string StringVal 
-      { 
-         get; 
-         set; 
+      {
+         get { return stringVal; }
+         set
+         {
+            if (value == "XXX")
+               throw new ArgumentException("Value cannot be XXX");
+            stringVal = value;
+            OnPropertyChanged("StringVal");
+         }
       }
       public bool BoolVal { get; set; }
       public int IntVal { get; set; }

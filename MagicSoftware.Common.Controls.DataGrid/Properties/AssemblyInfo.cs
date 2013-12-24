@@ -59,3 +59,5 @@ using System.Windows.Markup;
 [assembly: XmlnsPrefix("http://schemas.magicsoftware.com/common/controls/table", "tbl")]
 [assembly: XmlnsDefinition("http://schemas.magicsoftware.com/common/controls/table", "MagicSoftware.Common.Controls.Table")]
 [assembly: XmlnsDefinition("http://schemas.magicsoftware.com/common/controls/table", "MagicSoftware.Common.Controls.Table.CellTypes")]
+
+[assembly: InternalsVisibleTo("Tests.TableControl")]

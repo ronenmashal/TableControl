@@ -23,7 +23,7 @@ namespace _DGTester.Data
                items.Add(new MyHeaderView() { StringValue = "Header " + i, IntValue = i });
             items.Add(new MyDataView() { StringVal = "String " + i, BoolVal = i % 2 == 0, FloatVal = (float)i / 5, IntVal = i });
          }
-         items.Insert(1, new MyDataView() { StringVal = "XXX", BoolVal = true, FloatVal = 0, IntVal = 0 });
+         //items.Insert(1, new MyDataView() { StringVal = "XXX", BoolVal = true, FloatVal = 0, IntVal = 0 });
 
          Items = new ListCollectionView(items);
 

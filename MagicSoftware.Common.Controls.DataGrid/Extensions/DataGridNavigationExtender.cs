@@ -128,6 +128,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             case Key.PageDown:
             case Key.Home:
             case Key.End:
+            case Key.Tab:
                return true;
          }
 

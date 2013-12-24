@@ -6,6 +6,8 @@ using MagicSoftware.Common.Controls.Proxies;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.ComponentModel;
+using System.Windows;
+using System.Windows.Input;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -14,6 +16,61 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       //TODO: This should move up to FrameworkElementProxy
       public event PropertyChangedEventHandler PropertyChanged;
 
+      //TODO: Move up to ItemsControlProxy.
+      #region CurrentChanging attached event.
+
+      public static readonly RoutedEvent PreviewCurrentChangingEvent = EventManager.RegisterRoutedEvent("PreviewCurrentChanging", RoutingStrategy.Tunnel, typeof(CancelableRoutedEventArgs), typeof(EnhancedDGProxy));
+
+      public static void AddPreviewCurrentChangingEventHandler(DependencyObject d, CancelableRoutedEventHandler handler)
+      {
+         UIElement uie = d as UIElement;
+         if (uie != null)
+         {
+            uie.AddHandler(EnhancedDGProxy.PreviewCurrentChangingEvent, new RoutedEventHandler((obj, args) => { handler(obj, (CancelableRoutedEventArgs)args); }));
+         }
+      }
+
+      public static void RemovePreviewCurrentChangingHandler(DependencyObject d, CancelableRoutedEventHandler handler)
+      {
+         UIElement uie = d as UIElement;
+         if (uie != null)
+         {
+            uie.RemoveHandler(EnhancedDGProxy.PreviewCurrentChangingEvent, handler);
+         }
+      }
+
+      /// <summary>
+      /// Event raised before changing the 'current item' indicator on the items control.
+      /// </summary>
+      public event CancelableRoutedEventHandler PreviewCurrentChanging
+      {
+         add { AddPreviewCurrentChangingEventHandler(this.ProxiedElement, value); }
+         remove { RemovePreviewCurrentChangingHandler(this.ProxiedElement, value); }
+      }
+
+      public void RaisePreviewCurrentChangingEvent(out bool canceled)
+      {
+         CancelableRoutedEventArgs eventArgs = new CancelableRoutedEventArgs(PreviewCurrentChangingEvent, ProxiedElement);
+         ProxiedElement.RaiseEvent(eventArgs);
+         canceled = eventArgs.Canceled;
+      }
+
+      #endregion
+
+      #region Commands
+
+      public event CanExecuteRoutedEventHandler PreviewCanExecute
+      {
+         add { CommandManager.AddPreviewCanExecuteHandler(ProxiedElement, value); }
+         remove { CommandManager.RemovePreviewCanExecuteHandler(ProxiedElement, value); }
+      }
+
+      public void ExecuteCommand(RoutedCommand command, object commandParameter)
+      {
+         command.Execute(commandParameter, ProxiedElement);
+      }
+
+      #endregion
 
       private DataGrid DataGridElement { get { return (DataGrid)ProxiedElement; } }
 
@@ -86,6 +143,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool MoveCurrent(ICollectionViewMoveAction moveAction)
       {
+         bool canceled;
+         RaisePreviewCurrentChangingEvent(out canceled);
+         
+         if (canceled)
+            return false;
+
          return moveAction.Move(currentItemView);
       }
 
@@ -105,6 +168,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public ICollectionViewMoveAction GetMoveToLastItemAction()
       {
          return new MoveCurrentToPositionAction() { NewPosition = DataGridElement.Items.Count - 1 };
+      }
+
+      protected override object GetAdapter(Type adapterType)
+      {
+         if (adapterType == typeof(ICurrentItemProvider))
+            return new DGProxyAsCurrentItemProvider(this);
+
+         if (adapterType == typeof(IElementEditStateProxy))
+            return new DataGridAsEditingItemsControlProxy(DataGridElement, this);
+
+         return base.GetAdapter(adapterType);
       }
    }
 }

@@ -73,6 +73,8 @@
     <Compile Include="CellTypes\CheckBoxVirtualTableCell.cs" />
     <Compile Include="CellTypes\ComboBoxVirtualTableCell.cs" />
     <Compile Include="EnhancedDataGrid.cs" />
+    <Compile Include="Extensions\CancelableRoutedEventArgs.cs" />
+    <Compile Include="Extensions\DataGridAsEditingItemsControlProxy.cs" />
     <Compile Include="Extensions\DataGridEditingExtender.cs" />
     <Compile Include="Extensions\DataGridFocusManagementExtender.cs" />
     <Compile Include="Extensions\DataGridNavigationExtender.cs" />
@@ -80,7 +82,9 @@
     <Compile Include="Extensions\DGProxyAsCurrentItemProvider.cs" />
     <Compile Include="Extensions\EnhancedDGProxy.cs" />
     <Compile Include="Extensions\ICollectionViewMoveAction.cs" />
-    <Compile Include="Extensions\ICurrentItemProvider.cs" />
+    <Compile Include="Extensions\ICurrentItemTracker.cs" />
+    <Compile Include="Extensions\IElementEditStateProxy.cs" />
+    <Compile Include="Extensions\ItemsControlCurrentItemTracker.cs" />
     <Compile Include="ObjectEqualityConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

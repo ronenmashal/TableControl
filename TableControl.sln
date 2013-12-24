@@ -9,7 +9,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicSoftware.Common.Contro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z_Exp_CurrentChangingAttachedEvent", "z_Exp_CurrentChangingAttachedEvent\z_Exp_CurrentChangingAttachedEvent.csproj", "{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.TableControl", "Tests.TableControl\Tests.TableControl.csproj", "{DB45DC60-5E68-4949-822C-B19D2BAB4145}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5EF91C4D-5BEB-4410-8C92-8F2905B89B91}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		TableControl.vsmdi = TableControl.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = TableControl.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -59,6 +71,16 @@ Global
 		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Release|Mixed Platforms.Build.0 = Release|x86
 		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Release|x86.ActiveCfg = Release|x86
 		{7CE2FCF9-BF68-41E0-85B2-AA6A85A72065}.Release|x86.Build.0 = Release|x86
+		{DB45DC60-5E68-4949-822C-B19D2BAB4145}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB45DC60-5E68-4949-822C-B19D2BAB4145}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB45DC60-5E68-4949-822C-B19D2BAB4145}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DB45DC60-5E68-4949-822C-B19D2BAB4145}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DB45DC60-5E68-4949-822C-B19D2BAB4145}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DB45DC60-5E68-4949-822C-B19D2BAB4145}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB45DC60-5E68-4949-822C-B19D2BAB4145}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB45DC60-5E68-4949-822C-B19D2BAB4145}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DB45DC60-5E68-4949-822C-B19D2BAB4145}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DB45DC60-5E68-4949-822C-B19D2BAB4145}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

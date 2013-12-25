@@ -27,6 +27,7 @@ class DataGridAsEditingAdapter : IElementEditStateProxy
       dataGrid.BeginningEdit -= dataGrid_BeginningEdit;
       dataGrid.CellEditEnding -= dataGrid_CellEditEnding;
       dataGrid.RowEditEnding -= dataGrid_RowEditEnding;
+      CurrentEdit = null;
       this.dataGrid = null;
    }
 
@@ -38,8 +39,6 @@ class DataGridAsEditingAdapter : IElementEditStateProxy
 
    void dataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
    {
-      CurrentEdit = null;
-      IsEditing = false;
    }
 
    void dataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
@@ -86,7 +85,7 @@ class DataGridAsEditingAdapter : IElementEditStateProxy
 
    public bool CancelEdit()
    {
-      dataGridProxy.ExecuteCommand(DataGrid.CancelEditCommand, null);
+      dataGridProxy.ExecuteCommand(DataGrid.CancelEditCommand, DataGridEditingUnit.Row);
       return !IsEditing;
    }
 

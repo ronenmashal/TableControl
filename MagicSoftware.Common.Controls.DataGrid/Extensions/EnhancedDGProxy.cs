@@ -97,8 +97,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       protected override void Cleanup()
       {
-         currentItemView.CurrentChanged -= currentItemView_CurrentChanged;
-         currentItemPropDesc.RemoveValueChanged(DataGridElement, DataGrid_CurrentItemChanged);
+         if (currentItemView != null)
+         {
+            currentItemView.CurrentChanged -= currentItemView_CurrentChanged;
+            currentItemPropDesc.RemoveValueChanged(DataGridElement, DataGrid_CurrentItemChanged);
+         }
          base.Cleanup();
       }
 

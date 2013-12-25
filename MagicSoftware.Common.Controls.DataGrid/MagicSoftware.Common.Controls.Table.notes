@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Notes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Note Project="c3c28faf-dfe9-4db3-a021-881ee6939633" Date="2013-12-24T23:42:14.8193309+02:00">
+    <Region StartLine="79" EndLine="79" StartColumn="0" EndColumn="27" />
+    <Item>Extensions\DataGridAsEditingAdapter.cs</Item>
+    <User>rmashal</User>
+    <Content>Must determine what to do with this: DataGrid has two Commit and Cancel types: Row and Cell. Need to be able to work with both and respond correctly.</Content>
+  </Note>
+</Notes>

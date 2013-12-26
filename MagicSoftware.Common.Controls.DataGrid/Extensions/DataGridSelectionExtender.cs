@@ -30,7 +30,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       protected override void Setup()
       {
          EditProxy = DataGridProxy.GetAdapter<IEditingItemsControlProxy>();
-         selectionModeManager = new SelectionModeManager(TargetElement, new DGProxyAsCurrentItemProvider(DataGridProxy));
+         var currentItemProvider = DataGridProxy.GetAdapter<ICurrentItemProvider>();
+         selectionModeManager = new SelectionModeManager(TargetElement, currentItemProvider);
       }
 
       protected override void Cleanup()
@@ -55,7 +56,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          Element = element;
          CurrentItemTracker = currentItemTracker;
-         CurrentItemTracker.PropertyChanged += CurrentItemTracker_PropertyChanged;
+         CurrentItemTracker.CurrentChanged += CurrentItemTracker_CurrentChanged;
 
          Element.AddHandler(FrameworkElement.PreviewKeyDownEvent, new RoutedEventHandler(TargetElement_PreviewKeyDown), true);
          Element.AddHandler(FrameworkElement.PreviewKeyUpEvent, new RoutedEventHandler(TargetElement_PreviewKeyUp), true);
@@ -100,10 +101,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          SetCurrentSelectionMode(currentSelectionMode.HandleInputEvent(sender, e as InputEventArgs));
       }
 
-      void CurrentItemTracker_PropertyChanged(object sender, PropertyChangedEventArgs args)
+      void CurrentItemTracker_CurrentChanged(object sender, RoutedEventArgs args)
       {
-         if (args.PropertyName == "CurrentItem")
-            currentSelectionMode.OnCurrentItemChanged();
+         currentSelectionMode.OnCurrentItemChanged();
       }
 
       public static bool IsMultiSelectionKey(Key key)
@@ -243,7 +243,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             {
                log.Debug("Toggling current item's selection");
                ToggleItemSelection();
-               
+
             }
          }
 
@@ -276,7 +276,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          UpdateKeyboardStatus();
          if (!ctrlIsDown || shiftIsDown)
          {
-            int newDistanceFromSelectionAnchor = CurrentItemTracker.CurrentItemIndex - Element.SelectedIndex;
+            int newDistanceFromSelectionAnchor = CurrentItemTracker.CurrentPosition - Element.SelectedIndex;
             log.DebugFormat("New distance to anchor: {0}", newDistanceFromSelectionAnchor);
 
             if (Math.Sign(newDistanceFromSelectionAnchor) != Math.Sign(lastDistanceFromSelectionAnchor))

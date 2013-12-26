@@ -22,10 +22,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
       protected IEditingItemsControlProxy EditProxy { get; private set; }
+      
+      ICurrentItemProvider currentItemProvider;
 
       protected override void Setup()
       {
          EditProxy = DataGridProxy.GetAdapter<IEditingItemsControlProxy>();
+         currentItemProvider = DataGridProxy.GetAdapter<ICurrentItemProvider>();
+
          TargetElement.PreviewKeyDown += TargetElement_PreviewKeyDown;
          TargetElement.PreviewMouseDown += TargetElement_PreviewMouseDown;
       }
@@ -39,11 +43,23 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       protected void TargetElement_PreviewKeyDown(object sender, KeyEventArgs e)
       {
          log.LogMessage(LogLevel.Finer, "Preview key down on {0}: {1}, {2}", sender, e.Key, e.OriginalSource);
-         if (IsNavigationKey(e.Key))
-            MoveByKeyboard(e);
+         if (IsVerticalNavigationKey(e.Key))
+            MoveToLineByKeyboard(e);
+         else if (IsHorizontalNavigationKey(e.Key))
+            MoveToFieldByKeyboard(e);
       }
 
-      void MoveByKeyboard(KeyEventArgs eventArgs)
+      private void MoveToFieldByKeyboard(KeyEventArgs e)
+      {
+         switch (e.Key)
+         {
+            case Key.Tab:
+               //DataGridProxy.GetCurrentLineProxy();
+               break;
+         }
+      }
+
+      void MoveToLineByKeyboard(KeyEventArgs eventArgs)
       {
          log.DebugFormat("Beginning move on {0} using key \"{1}\"", eventArgs.Source, eventArgs.Key);
          ICollectionViewMoveAction moveAction;
@@ -67,9 +83,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             default:
                return;
          }
-         DataGridProxy.MoveCurrent(moveAction);
+         currentItemProvider.MoveCurrent(moveAction);
          eventArgs.Handled = true;
-         DataGridProxy.ScrollIntoView(DataGridProxy.CurrentItem);
+         DataGridProxy.ScrollIntoView(currentItemProvider.CurrentItem);
       }
 
       ICollectionViewMoveAction GetRelativeMoveAction(Key key)
@@ -115,10 +131,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             return;
          }
 
-         DataGridProxy.MoveCurrent(new MoveCurrentToItemAction() { Item = clickedRow.Item });
+         currentItemProvider.MoveCurrent(new MoveCurrentToItemAction() { Item = clickedRow.Item });
       }
 
       public static bool IsNavigationKey(Key key)
+      {
+         return IsVerticalNavigationKey(key) || IsHorizontalNavigationKey(key);
+      }
+      
+      public static bool IsVerticalNavigationKey(Key key)
       {
          switch (key)
          {
@@ -128,6 +149,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             case Key.PageDown:
             case Key.Home:
             case Key.End:
+               return true;
+         }
+         return false;
+      }
+
+      public static bool IsHorizontalNavigationKey(Key key)
+      {
+         switch (key)
+         {
+            case Key.Left:
+            case Key.Right:
             case Key.Tab:
                return true;
          }

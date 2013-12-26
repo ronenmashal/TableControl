@@ -11,6 +11,8 @@ using MagicSoftware.Common.Utils;
 using LogLevel = log4net.Core.Level;
 using MagicSoftware.Common.Controls.Proxies;
 using System.Collections;
+using System.Timers;
+using System.Windows.Threading;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -114,7 +116,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                return new SingleLineEditMode();
 
             case ItemsControlEditMode.AlwaysInEdit:
-               break;
+               return new AlwaysEditMode();
+
             case ItemsControlEditMode.Persistent:
                break;
             default:
@@ -147,17 +150,19 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    abstract class IDataGridEditMode
    {
       public EnhancedDGProxy TargetElementProxy { get; set; }
+      protected ICurrentItemProvider CurrentItemProvider { get; private set; }
 
       public virtual void Setup()
       {
+         CurrentItemProvider = TargetElementProxy.GetAdapter<ICurrentItemProvider>();
          TargetElementProxy.PreviewCanExecute += PreviewCanExecuteCommand;
-         ((EnhancedDGProxy)this.TargetElementProxy).PreviewCurrentChanging += DataGridEditingExtender_PreviewCurrentChanging;
+         CurrentItemProvider.PreviewCurrentChanging += DataGridEditingExtender_PreviewCurrentChanging;
       }
 
       public virtual void Cleanup()
       {
          TargetElementProxy.PreviewCanExecute -= PreviewCanExecuteCommand;
-         ((EnhancedDGProxy)this.TargetElementProxy).PreviewCurrentChanging -= DataGridEditingExtender_PreviewCurrentChanging;
+         CurrentItemProvider.PreviewCurrentChanging -= DataGridEditingExtender_PreviewCurrentChanging;
       }
 
       void DataGridEditingExtender_PreviewCurrentChanging(object sender, CancelableRoutedEventArgs e)
@@ -190,7 +195,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       internal override void ProcessKey(KeyEventArgs e)
       {
-         if (!DataGridNavigationExtender.IsNavigationKey(e.Key))
+         if (!DataGridNavigationExtender.IsVerticalNavigationKey(e.Key))
             e.Handled = true;
       }
 
@@ -262,31 +267,96 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
    }
 
-   //enum EditStateId
-   //{
-   //   NotEditing,
-   //   Editing
-   //}
+   class AlwaysEditMode : IDataGridEditMode
+   {
+      DispatcherTimer beginEditTimer;
+      IElementEditStateProxy editProxy;
 
-   //abstract class EditState
-   //{
-   //   public DataGridProxy Proxy { get; set; }
-   //   public FrameworkElement TargetElement { get; set; }
-   //   public abstract EditStateId ProcessKey(Key key);
-   //}
+      public override void Setup()
+      {
+         base.Setup();
+         editProxy = TargetElementProxy.GetAdapter<IElementEditStateProxy>();
 
-   //class NotEditingState : EditState
-   //{
-   //   public override EditStateId ProcessKey(Key key)
-   //   {
-   //   }
-   //}
+         CurrentItemProvider.CurrentChanged += TargetElementProxy_CurrentChanged;
 
-   //class EditingState : EditState
-   //{
-   //   public override EditStateId ProcessKey(Key key)
-   //   {
+         beginEditTimer = new DispatcherTimer(DispatcherPriority.ContextIdle, this.TargetElementProxy.GetDispatcher());
+         beginEditTimer.Interval = TimeSpan.FromMilliseconds(10);
+         beginEditTimer.Tick += beginEditTimer_Tick;
+         beginEditTimer.Start();
+      }
 
-   //   }
-   //}
+      public override void Cleanup()
+      {
+         editProxy.Dispose();
+         beginEditTimer.Stop();
+         beginEditTimer.Tick -= beginEditTimer_Tick;
+         CurrentItemProvider.CurrentChanged -= TargetElementProxy_CurrentChanged;
+         base.Cleanup();
+      }
+
+      void TargetElementProxy_CurrentChanged(object sender, RoutedEventArgs e)
+      {
+         StartBeginEditTimer();
+      }
+
+      void StartBeginEditTimer()
+      {
+         beginEditTimer.Start();
+      }
+
+      void beginEditTimer_Tick(object sender, EventArgs e)
+      {
+         if (!editProxy.IsEditing)
+         {
+            if (editProxy.BeginEdit())
+               beginEditTimer.Stop();
+         }
+      }
+
+      protected override void PreviewCanExecuteCommand(object commandTarget, CanExecuteRoutedEventArgs args)
+      {
+         args.CanExecute = true;
+         args.Handled = true;
+      }
+
+      internal override void ProcessKey(KeyEventArgs e)
+      {
+         switch (e.Key)
+         {
+            case Key.Enter:
+               if (editProxy.IsEditing)
+                  editProxy.CommitEdit();
+               else
+                  editProxy.BeginEdit();
+               e.Handled = true;
+               break;
+
+            case Key.F2:
+               if (!editProxy.IsEditing)
+                  editProxy.BeginEdit();
+               e.Handled = true;
+               break;
+
+            case Key.Escape:
+               if (editProxy.IsEditing)
+                  editProxy.CancelEdit();
+               e.Handled = true;
+               break;
+
+            default:
+               break;
+         }
+         if (!editProxy.IsEditing)
+            StartBeginEditTimer();
+      }
+
+      protected override bool CanLeaveCurrentLine()
+      {
+         if (editProxy.IsEditing)
+            return editProxy.CommitEdit();
+
+         return true;
+      }
+   }
+
 }

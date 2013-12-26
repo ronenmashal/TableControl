@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MagicSoftware.Common.Controls.Extensibility;
 using System.Windows.Controls;
+using System.Windows;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -14,17 +15,16 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       protected override void Setup()
       {
-         CurrentItemTracker = new DGProxyAsCurrentItemProvider(DataGridProxy);
-         CurrentItemTracker.PropertyChanged += CurrentItemTracker_PropertyChanged;
+         CurrentItemTracker = DataGridProxy.GetAdapter<ICurrentItemProvider>();
+         CurrentItemTracker.CurrentChanged += CurrentItemTracker_PropertyChanged;
       }
 
       protected override void Cleanup()
       {
-         CurrentItemTracker.PropertyChanged -= CurrentItemTracker_PropertyChanged;
-         CurrentItemTracker = null;
+         CurrentItemTracker.CurrentChanged -= CurrentItemTracker_PropertyChanged;
       }
 
-      void CurrentItemTracker_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+      void CurrentItemTracker_PropertyChanged(object sender, RoutedEventArgs e)
       {
       }
    }

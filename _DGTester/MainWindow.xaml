@@ -2,7 +2,6 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:data="clr-namespace:_DGTester.Data"
-        xmlns:dg="clr-namespace:MagicSoftware.Common.Controls.Table;assembly=MagicSoftware.Common.Controls.Table"
         xmlns:l="clr-namespace:_DGTester"
         xmlns:mg="http://schemas.magicsoftware.com/common/2011/controls"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -173,10 +172,10 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <dg:Table x:Name="DG"
-                      ItemsSource="{Binding Items}"
-                      Loaded="DataGrid_Loaded"
-                      RowStyleSelector="{StaticResource TemplateSelector}">
+            <tbl:Table x:Name="DG"
+                       ItemsSource="{Binding Items}"
+                       Loaded="DataGrid_Loaded"
+                       RowStyleSelector="{StaticResource TemplateSelector}">
                 <!--  SelectionMode="Extended"  -->
                 <!--
                     <dg:Table.Columns>
@@ -197,7 +196,7 @@
                     </DataGridTextColumn>
                     </dg:Table.Columns>
                 -->
-            </dg:Table>
+            </tbl:Table>
 
             <ListBox Grid.Column="1"
                      ItemsSource="{Binding SelectedItems,

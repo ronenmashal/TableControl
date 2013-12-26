@@ -8,55 +8,12 @@ using System.Windows.Data;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class EnhancedDGProxy : DataGridProxy, INotifyPropertyChanged
+   class EnhancedDGProxy : ItemsControlProxy
    {
-      //TODO: This should move up to FrameworkElementProxy
-      public event PropertyChangedEventHandler PropertyChanged;
-
-      //TODO: Move up to ItemsControlProxy.
-      #region CurrentChanging attached event.
-
-      public static readonly RoutedEvent PreviewCurrentChangingEvent = EventManager.RegisterRoutedEvent("PreviewCurrentChanging", RoutingStrategy.Tunnel, typeof(CancelableRoutedEventArgs), typeof(EnhancedDGProxy));
-
-      public static void AddPreviewCurrentChangingEventHandler(DependencyObject d, CancelableRoutedEventHandler handler)
-      {
-         UIElement uie = d as UIElement;
-         if (uie != null)
-         {
-            uie.AddHandler(EnhancedDGProxy.PreviewCurrentChangingEvent, new RoutedEventHandler((obj, args) => { handler(obj, (CancelableRoutedEventArgs)args); }));
-         }
-      }
-
-      public static void RemovePreviewCurrentChangingHandler(DependencyObject d, CancelableRoutedEventHandler handler)
-      {
-         UIElement uie = d as UIElement;
-         if (uie != null)
-         {
-            uie.RemoveHandler(EnhancedDGProxy.PreviewCurrentChangingEvent, handler);
-         }
-      }
-
-      /// <summary>
-      /// Event raised before changing the 'current item' indicator on the items control.
-      /// </summary>
-      public event CancelableRoutedEventHandler PreviewCurrentChanging
-      {
-         add { AddPreviewCurrentChangingEventHandler(this.ProxiedElement, value); }
-         remove { RemovePreviewCurrentChangingHandler(this.ProxiedElement, value); }
-      }
-
-      public void RaisePreviewCurrentChangingEvent(out bool canceled)
-      {
-         CancelableRoutedEventArgs eventArgs = new CancelableRoutedEventArgs(PreviewCurrentChangingEvent, ProxiedElement);
-         ProxiedElement.RaiseEvent(eventArgs);
-         canceled = eventArgs.Canceled;
-      }
-
-      #endregion
-
       #region Commands
 
       public event CanExecuteRoutedEventHandler PreviewCanExecute
@@ -72,70 +29,30 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       #endregion
 
+      public object ElementAsEventSource { get { return ProxiedElement; } }
+
       private DataGrid DataGridElement { get { return (DataGrid)ProxiedElement; } }
 
-      CollectionView currentItemView;
-      DependencyPropertyDescriptor currentItemPropDesc;
+      public CollectionView ItemsView { get; private set; }
 
       protected override void Initialize()
       {
          base.Initialize();
-         DataGridElement.Loaded += DataGridElement_Loaded;
-         currentItemPropDesc = DependencyPropertyDescriptor.FromProperty(DataGrid.CurrentItemProperty, typeof(DataGrid));
-      }
-
-      void DataGridElement_Loaded(object sender, System.Windows.RoutedEventArgs e)
-      {
-         DataGridElement.Loaded -= DataGridElement_Loaded;
-         if (DataGridElement.ItemsSource != null)
-         {
-            currentItemView = new CollectionView(DataGridElement.ItemsSource);
-            currentItemView.CurrentChanged += currentItemView_CurrentChanged;
-            currentItemPropDesc.AddValueChanged(DataGridElement, DataGrid_CurrentItemChanged);
-         }
       }
 
       protected override void Cleanup()
       {
-         if (currentItemView != null)
-         {
-            currentItemView.CurrentChanged -= currentItemView_CurrentChanged;
-            currentItemPropDesc.RemoveValueChanged(DataGridElement, DataGrid_CurrentItemChanged);
-         }
          base.Cleanup();
       }
 
-      void currentItemView_CurrentChanged(object sender, EventArgs e)
+      public void AddRoutedEventHandler(RoutedEvent routedEvent, RoutedEventHandler handler)
       {
-         DataGridElement.CurrentItem = currentItemView.CurrentItem;
-         OnPropertyChanged("CurrentItem");
+         ProxiedElement.AddHandler(routedEvent, handler);
       }
 
-      private void DataGrid_CurrentItemChanged(object sender, EventArgs args)
+      public void RemoveRoutedEventHandler(RoutedEvent routedEvent, RoutedEventHandler handler)
       {
-         currentItemView.MoveCurrentTo(DataGridElement.CurrentItem);
-      }
-
-      public object CurrentItem
-      {
-         get
-         {
-            if (currentItemView == null)
-               return null;
-            return currentItemView.CurrentItem;
-         }
-      }
-
-      public int CurrentPosition
-      {
-         get
-         {
-            return currentItemView.CurrentPosition;
-         }
-         set
-         {
-            currentItemView.MoveCurrentToPosition(value);
-         }
+         ProxiedElement.RemoveHandler(routedEvent, handler);
       }
 
       public override void ScrollIntoView(object item)
@@ -144,23 +61,44 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             DataGridElement.ScrollIntoView(item);
       }
 
-      public bool MoveCurrent(ICollectionViewMoveAction moveAction)
-      {
-         bool canceled;
-         RaisePreviewCurrentChangingEvent(out canceled);
-         
-         if (canceled)
-            return false;
+      ICurrentItemProvider currentItemProvider = null;
 
-         return moveAction.Move(currentItemView);
+      protected override object GetAdapter(Type adapterType)
+      {
+         if (adapterType == typeof(ICurrentItemProvider))
+         {
+            if (currentItemProvider == null)
+               currentItemProvider = new DataGridAsCurrentItemProvider(DataGridElement);
+            return currentItemProvider;
+         }
+
+         if (adapterType == typeof(IElementEditStateProxy))
+            return new DataGridAsEditingAdapter(DataGridElement, this);
+
+         return base.GetAdapter(adapterType);
       }
 
-      protected virtual void OnPropertyChanged(string propertyName)
+      public object SelectedItemContainer()
       {
-         if (PropertyChanged != null)
-         {
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-         }
+         if (DataGridElement.SelectedIndex >= 0)
+            return DataGridElement.ItemContainerGenerator.ContainerFromIndex(DataGridElement.SelectedIndex);
+
+         else return null;
+      }
+
+      //TODO: Move to FrameworkElementProxy.
+      /// <summary>
+      /// Gets the proxied element's dispatcher.
+      /// </summary>
+      /// <returns>Dispatcher for UI operations.</returns>
+      internal Dispatcher GetDispatcher()
+      {
+         return this.ProxiedElement.Dispatcher;
+      }
+
+      internal void RaiseEvent(RoutedEventArgs eventArgs)
+      {
+         ProxiedElement.RaiseEvent(eventArgs);
       }
 
       public ICollectionViewMoveAction GetMoveToFirstItemAction()
@@ -173,15 +111,5 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return new MoveCurrentToPositionAction() { NewPosition = DataGridElement.Items.Count - 1 };
       }
 
-      protected override object GetAdapter(Type adapterType)
-      {
-         if (adapterType == typeof(ICurrentItemProvider))
-            return new DGProxyAsCurrentItemProvider(this);
-
-         if (adapterType == typeof(IElementEditStateProxy))
-            return new DataGridAsEditingAdapter(DataGridElement, this);
-
-         return base.GetAdapter(adapterType);
-      }
    }
 }

@@ -51,9 +51,16 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="TestApiCore">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Addon for VC\TestApi\BinariesAndAcceptanceTests\TestApiCore.dll</HintPath>
+    </Reference>
+    <Reference Include="TestApiWpf">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Addon for VC\TestApi\BinariesAndAcceptanceTests\TestApiWpf.dll</HintPath>
+    </Reference>
     <Reference Include="Tests.Common">
       <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Studio\Tests.Common\bin\Debug\Tests.Common.dll</HintPath>
     </Reference>

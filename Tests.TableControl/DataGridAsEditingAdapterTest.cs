@@ -308,6 +308,7 @@ namespace Tests.TableControl
          if (!condition)
             Assert.Inconclusive(message);
       }
+
       /// <summary>
       ///A test for CurrentEdit
       ///</summary>
@@ -375,6 +376,11 @@ namespace Tests.TableControl
       }
 
       #endregion
+
+      public override string ToString()
+      {
+         return String.Format("{{TestData: {0}, {1}}}", StrValue, IntValue);
+      }
    }
 
    /// <summary>

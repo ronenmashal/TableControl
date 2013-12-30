@@ -6,6 +6,9 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using Tests.Common;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using MagicSoftware.Common.Controls.Proxies;
+using Microsoft.Test.Input;
 
 namespace Tests.TableControl
 {
@@ -145,18 +148,6 @@ namespace Tests.TableControl
       }
 
       /// <summary>
-      ///A test for Dispose
-      ///</summary>
-      [TestMethod()]
-      public void DisposeTest()
-      {
-         DataGrid dataGrid = null; // TODO: Initialize to an appropriate value
-         DataGridAsCurrentItemProvider target = new DataGridAsCurrentItemProvider(dataGrid); // TODO: Initialize to an appropriate value
-         target.Dispose();
-         Assert.Inconclusive("A method that does not return a value cannot be verified.");
-      }
-
-      /// <summary>
       ///A test for MoveCurrent
       ///</summary>
       [TestMethod()]
@@ -265,22 +256,58 @@ namespace Tests.TableControl
       [TestMethod()]
       public void CurrentItemTest()
       {
-         // This test should verify that the provider's CurrentItem follows the data grid's state:
-         // 1) Immediately after creation
-         // 2) When changing the current item using the provider (MoveCurrent())
-         // 3) When the data grid changes the current item.
-         Assert.Inconclusive("Verify the correctness of this test method.");
-      }
+         ObservableCollection<TestData> dataList = new ObservableCollection<TestData>()
+         {
+            new TestData() { StrValue = "A" },
+            new TestData() { StrValue = "B" },
+            new TestData() { StrValue = "C" }
+         };
 
-      /// <summary>
-      ///A test for CurrentPosition
-      ///</summary>
-      [TestMethod()]
-      public void CurrentPositionTest()
-      {
-         // Same as CurrentItemTest. Maybe should be consolidated.
-         Assert.Inconclusive("Verify the correctness of this test method.");
+         var w = new TestWindow();
+         w.DataContext = new ListCollectionView(dataList);
+
+         using (TestUtils.AutoCloseWindow(w))
+         {
+            var dataGrid = w.MainDataGrid;
+            dataGrid.Items.MoveCurrentTo(null);
+            var helper = new PrivateAccessHelper<DataGridAsCurrentItemProvider, DataGridAsCurrentItemProvider_Accessor>(new DataGridAsCurrentItemProvider(dataGrid));
+            var provider = helper.Target;
+
+            Assert.IsNull(provider.CurrentItem);
+            Assert.AreEqual(-1, provider.CurrentPosition);
+
+            Assert.IsTrue(provider.MoveCurrentToFirst());
+            Assert.AreSame(dataList[0], provider.CurrentItem);
+            Assert.AreSame(dataGrid.CurrentItem, provider.CurrentItem);
+            Assert.AreEqual(0, provider.CurrentPosition);
+
+            Assert.IsTrue(provider.MoveCurrentToNext());
+            Assert.AreSame(dataList[1], provider.CurrentItem);
+            Assert.AreSame(dataGrid.CurrentItem, provider.CurrentItem);
+            Assert.AreEqual(1, provider.CurrentPosition);
+
+            Assert.IsTrue(provider.MoveCurrentToLast());
+            Assert.AreSame(dataList[2], provider.CurrentItem);
+            Assert.AreSame(dataGrid.CurrentItem, provider.CurrentItem);
+            Assert.AreEqual(2, provider.CurrentPosition);
+
+            Assert.IsFalse(provider.MoveCurrentToNext());
+            Assert.IsNull(provider.CurrentItem);
+            Assert.AreSame(dataGrid.CurrentItem, provider.CurrentItem);
+            Assert.AreEqual(dataGrid.Items.Count, provider.CurrentPosition);
+
+            dataGrid.CurrentItem = dataList[1];
+            Assert.AreSame(dataList[1], provider.CurrentItem);
+            Assert.AreSame(dataGrid.CurrentItem, provider.CurrentItem);
+            Assert.AreEqual(1, provider.CurrentPosition);
+
+            dataGrid.CurrentItem = null;
+            Assert.IsNull(provider.CurrentItem);
+            Assert.AreSame(dataGrid.CurrentItem, provider.CurrentItem);
+            Assert.AreEqual(-1, provider.CurrentPosition);
+         }
       }
+ 
    }
 
 

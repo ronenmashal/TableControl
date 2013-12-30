@@ -8,7 +8,9 @@
         Width="300"
         Height="300">
     <Grid>
-        <DataGrid x:Name="dataGrid" ItemsSource="{Binding}">
+        <DataGrid x:Name="dataGrid"
+                  CanUserAddRows="False"
+                  ItemsSource="{Binding}">
             <pxy:FrameworkElementProxy.Proxy>
                 <tblext:EnhancedDGProxy />
             </pxy:FrameworkElementProxy.Proxy>

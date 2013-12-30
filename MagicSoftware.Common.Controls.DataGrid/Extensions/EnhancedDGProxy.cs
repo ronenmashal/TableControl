@@ -12,7 +12,7 @@ using System.Windows.Threading;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class EnhancedDGProxy : ItemsControlProxy
+   public class EnhancedDGProxy : ItemsControlProxy
    {
       #region Commands
 
@@ -100,16 +100,5 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          ProxiedElement.RaiseEvent(eventArgs);
       }
-
-      public ICollectionViewMoveAction GetMoveToFirstItemAction()
-      {
-         return new MoveCurrentToPositionAction() { NewPosition = 0 };
-      }
-
-      public ICollectionViewMoveAction GetMoveToLastItemAction()
-      {
-         return new MoveCurrentToPositionAction() { NewPosition = DataGridElement.Items.Count - 1 };
-      }
-
    }
 }

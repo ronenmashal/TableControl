@@ -12,9 +12,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       event CancelableRoutedEventHandler PreviewCurrentChanging;
       event RoutedEventHandler CurrentChanged;
 
-      bool MoveCurrent(ICollectionViewMoveAction moveAction);
-
       object CurrentItem { get; }
       int CurrentPosition { get; }
+
+      bool MoveCurrentTo(object item);
+      bool MoveCurrentToFirst();
+      bool MoveCurrentToNext();
+      bool MoveCurrentToPrevious();
+      bool MoveCurrentToLast();
+      bool MoveCurrentToPosition(int position);
+      bool MoveCurrentToRelativePosition(int offset);
    }
 }

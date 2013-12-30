@@ -355,6 +355,7 @@ namespace Tests.TableControl
    class TestData : IEditableObject
    {
       public string StrValue { get; set; }
+      public int IntValue { get; set; }
 
       #region IEditableObject Members
 

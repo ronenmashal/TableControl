@@ -65,6 +65,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataGridAsCurrentItemProviderTest.cs" />
     <Compile Include="DataGridAsEditingAdapterTest.cs" />
     <Compile Include="PrivateAccessHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -88,6 +89,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventHandlerTestHelper.cs" />
     <None Include="Tests.TableControl.notes" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

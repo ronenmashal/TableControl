@@ -8,10 +8,12 @@ using System.ComponentModel;
 using System.Windows.Controls;
 using System.Windows.Data;
 using MagicSoftware.Common.Controls.Proxies;
+using System.Diagnostics;
+using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class DataGridAsCurrentItemProvider : ObservableObject, ICurrentItemProvider, IWeakEventListener
+   class DataGridAsCurrentItemProvider : ObservableObject, ICurrentItemProvider
    {
       // TODO: SHould be ItemsControlPRoxy or FrameworkElementProxy.
       private EnhancedDGProxy dgProxy;
@@ -34,19 +36,34 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             dgProxy.AddRoutedEventHandler(PreviewCurrentChangingEvent, handler);
             currentChangingEventHandlers.Add(value, handler);
          }
-         remove 
+         remove
          {
             RoutedEventHandler handler;
             if (currentChangingEventHandlers.TryGetValue(value, out handler))
-               dgProxy.RemoveRoutedEventHandler(PreviewCurrentChangingEvent, handler); 
+               dgProxy.RemoveRoutedEventHandler(PreviewCurrentChangingEvent, handler);
          }
       }
 
-      private void RaisePreviewCurrentChangingEvent(out bool canceled)
+      /// <summary>
+      /// Raises the PreviewCurrentChangingEvent, allowing the handlers to cancel it,
+      /// returning the result in 'canceled'
+      /// </summary>
+      /// <param name="targetItem">The item on which the current item pointer will refer after the change.</param>
+      /// <param name="canceled">Returns whether any of the event handlers canceled the event.</param>
+      private void RaisePreviewCurrentChangingEvent(object targetItem, out bool canceled)
       {
          CancelableRoutedEventArgs eventArgs = new CancelableRoutedEventArgs(PreviewCurrentChangingEvent, dgProxy.ElementAsEventSource);
          dgProxy.RaiseEvent(eventArgs);
          canceled = eventArgs.Canceled;
+      }
+
+      /// <summary>
+      /// Raises the PreviewCurrentChangingEvent without allowing canceling of the event.
+      /// </summary>
+      private void RaiseNonCancelablePreviewCurrentChangingEvent()
+      {
+         CancelableRoutedEventArgs eventArgs = new CancelableRoutedEventArgs(PreviewCurrentChangingEvent, dgProxy.ElementAsEventSource, false);
+         dgProxy.RaiseEvent(eventArgs);
       }
 
       #endregion
@@ -75,13 +92,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       DependencyPropertyDescriptor currentItemPropDesc;
       DataGrid DataGridElement;
-      CollectionView currentItemView;
+      //CollectionView currentItemView;
+      AutoResetFlag isSelfInducedChange = new AutoResetFlag();
 
 
       public DataGridAsCurrentItemProvider(DataGrid dataGrid)
       {
          this.DataGridElement = dataGrid;
          this.dgProxy = (EnhancedDGProxy)FrameworkElementProxy.GetProxy(dataGrid);
+         Debug.Assert(dgProxy != null, "The attached element must have a proxy");
          currentItemPropDesc = DependencyPropertyDescriptor.FromProperty(DataGrid.CurrentItemProperty, typeof(DataGrid));
 
          if (DataGridElement.IsLoaded)
@@ -89,22 +108,21 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          else
          {
             RoutedEventHandler handler = null;
-            handler = (sender, e) => 
-            { 
+            handler = (sender, e) =>
+            {
                DataGridElement.Loaded -= handler;
-               RegisterEventHandlers(); 
+               RegisterEventHandlers();
             };
             DataGridElement.Loaded += handler;
          }
       }
 
-
       void RegisterEventHandlers()
       {
          if (DataGridElement.ItemsSource != null)
          {
-            currentItemView = new CollectionView(DataGridElement.ItemsSource);
-            currentItemView.CurrentChanged += currentItemView_CurrentChanged;
+            //currentItemView = new CollectionView(DataGridElement.ItemsSource);
+            //currentItemView.CurrentChanged += currentItemView_CurrentChanged;
             currentItemPropDesc.AddValueChanged(DataGridElement, DataGrid_CurrentItemChanged);
          }
       }
@@ -113,50 +131,35 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          if (dgProxy.ItemsView != null)
          {
-            currentItemView.CurrentChanged -= currentItemView_CurrentChanged;
+            //currentItemView.CurrentChanged -= currentItemView_CurrentChanged;
             currentItemPropDesc.RemoveValueChanged(DataGridElement, DataGrid_CurrentItemChanged);
          }
       }
 
       void currentItemView_CurrentChanged(object sender, EventArgs e)
       {
-         DataGridElement.CurrentItem = currentItemView.CurrentItem;
-         OnPropertyChanged("CurrentItem");
+         //DataGridElement.CurrentItem = currentItemView.CurrentItem;
          RaiseCurrentChangedEvent();
-      }
-
-
-      public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
-      {
          OnPropertyChanged("CurrentItem");
-         return true;
       }
 
-
-
-      public bool MoveCurrent(ICollectionViewMoveAction moveAction)
-      {
-         bool canceled;
-         RaisePreviewCurrentChangingEvent(out canceled);
-
-         if (canceled)
-            return false;
-
-         return moveAction.Move(currentItemView);
-      }
 
       private void DataGrid_CurrentItemChanged(object sender, EventArgs args)
       {
-         currentItemView.MoveCurrentTo(DataGridElement.CurrentItem);
+         if (!isSelfInducedChange.IsSet)
+         {
+            RaiseNonCancelablePreviewCurrentChangingEvent();
+         }
+         RaiseCurrentChangedEvent();
+         OnPropertyChanged("CurrentItem");
+         OnPropertyChanged("CurrentPosition");
       }
 
       public object CurrentItem
       {
          get
          {
-            if (currentItemView == null)
-               return null;
-            return currentItemView.CurrentItem;
+            return DataGridElement.CurrentItem;
          }
       }
 
@@ -164,14 +167,85 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          get
          {
-            return currentItemView.CurrentPosition;
-         }
-         set
-         {
-            currentItemView.MoveCurrentToPosition(value);
+            if (CurrentItem == null)
+               return -1;
+
+            return DataGridElement.Items.IndexOf(CurrentItem);
          }
       }
 
+
+      #region ICurrentItemProvider Members
+
+
+      public bool MoveCurrentTo(object item)
+      {
+         if (object.ReferenceEquals(item, CurrentItem))
+            return true;
+
+         bool canceled;
+         RaisePreviewCurrentChangingEvent(item, out canceled);
+
+         if (canceled)
+            return false;
+
+         using (isSelfInducedChange.Set())
+         {
+            var currentCell = DataGridElement.CurrentCell;
+            var nextColumn = currentCell.Column;
+            if (nextColumn == null)
+               nextColumn = DataGridElement.ColumnFromDisplayIndex(0);
+            var newCell = new DataGridCellInfo(item, nextColumn);
+            DataGridElement.CurrentCell = newCell;
+            return object.ReferenceEquals(DataGridElement.CurrentItem, item);
+         }
+      }
+
+      public bool MoveCurrentToFirst()
+      {
+         if (DataGridElement.Items.Count > 0)
+            return MoveCurrentTo(DataGridElement.Items[0]);
+         else
+            return MoveCurrentTo(null);
+      }
+
+      public bool MoveCurrentToNext()
+      {
+         return MoveCurrentToRelativePosition(+1);
+      }
+
+      public bool MoveCurrentToPrevious()
+      {
+         return MoveCurrentToRelativePosition(-1);
+      }
+
+      public bool MoveCurrentToLast()
+      {
+         return MoveCurrentToPosition(DataGridElement.Items.Count - 1);
+      }
+
+      public bool MoveCurrentToPosition(int position)
+      {
+         Object itemAtPosition = null;
+         if (position >= DataGridElement.Items.Count)
+            position = DataGridElement.Items.Count - 1;
+         if (position >= 0)
+            itemAtPosition = DataGridElement.Items.GetItemAt(position);
+         return MoveCurrentTo(itemAtPosition);
+      }
+
+      public bool MoveCurrentToRelativePosition(int offset)
+      {
+         var currentItemPosition = -1;
+         if (DataGridElement.CurrentItem != null)
+         {
+            currentItemPosition = DataGridElement.Items.IndexOf(DataGridElement.CurrentItem);
+         }
+         int newPosition = currentItemPosition + offset;
+         return MoveCurrentToPosition(newPosition);
+      }
+
+      #endregion
    }
 
 }

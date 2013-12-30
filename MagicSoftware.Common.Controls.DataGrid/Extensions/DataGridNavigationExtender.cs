@@ -22,7 +22,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
       protected IEditingItemsControlProxy EditProxy { get; private set; }
-      
+
       ICurrentItemProvider currentItemProvider;
 
       protected override void Setup()
@@ -62,54 +62,38 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       void MoveToLineByKeyboard(KeyEventArgs eventArgs)
       {
          log.DebugFormat("Beginning move on {0} using key \"{1}\"", eventArgs.Source, eventArgs.Key);
-         ICollectionViewMoveAction moveAction;
+         bool bMoved;
          switch (eventArgs.Key)
          {
             case Key.Up:
+               bMoved = currentItemProvider.MoveCurrentToPrevious();
+               break;
+
             case Key.Down:
+               bMoved = currentItemProvider.MoveCurrentToNext();
+               break;
+
             case Key.PageUp:
+               bMoved = currentItemProvider.MoveCurrentToRelativePosition(-DataGridProxy.RowsPerPage);
+               break;
+
             case Key.PageDown:
-               moveAction = GetRelativeMoveAction(eventArgs.Key);
+               bMoved = currentItemProvider.MoveCurrentToRelativePosition(DataGridProxy.RowsPerPage);
                break;
 
             case Key.Home:
-               moveAction = DataGridProxy.GetMoveToFirstItemAction();
+               bMoved = currentItemProvider.MoveCurrentToFirst();
                break;
 
             case Key.End:
-               moveAction = DataGridProxy.GetMoveToLastItemAction();
+               bMoved = currentItemProvider.MoveCurrentToLast();
                break;
 
             default:
                return;
          }
-         currentItemProvider.MoveCurrent(moveAction);
          eventArgs.Handled = true;
          DataGridProxy.ScrollIntoView(currentItemProvider.CurrentItem);
-      }
-
-      ICollectionViewMoveAction GetRelativeMoveAction(Key key)
-      {
-         var moveAction = new MoveCurrentToRelativePosition() { UpperBoundary = TargetElement.Items.Count - 1 };
-         switch (key)
-         {
-            case Key.Up:
-               moveAction.PositionOffset = -1;
-               break;
-
-            case Key.Down:
-               moveAction.PositionOffset = 1;
-               break;
-
-            case Key.PageUp:
-               moveAction.PositionOffset = -DataGridProxy.RowsPerPage;
-               break;
-
-            case Key.PageDown:
-               moveAction.PositionOffset = DataGridProxy.RowsPerPage;
-               break;
-         }
-         return moveAction;
       }
 
       void TargetElement_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -131,14 +115,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             return;
          }
 
-         currentItemProvider.MoveCurrent(new MoveCurrentToItemAction() { Item = clickedRow.Item });
+         currentItemProvider.MoveCurrentTo(clickedRow.Item);
       }
 
       public static bool IsNavigationKey(Key key)
       {
          return IsVerticalNavigationKey(key) || IsHorizontalNavigationKey(key);
       }
-      
+
       public static bool IsVerticalNavigationKey(Key key)
       {
          switch (key)

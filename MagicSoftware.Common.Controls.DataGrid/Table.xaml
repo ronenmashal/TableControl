@@ -25,7 +25,7 @@
                               ItemsSource="{Binding ItemsSource,
                                                     RelativeSource={RelativeSource FindAncestor,
                                                                                    AncestorType=UserControl}}"
-                              lext:DataGridEditingExtender.EditMode="AlwaysInEdit"
+                              lext:DataGridEditingExtender.EditMode="SingleLine"
                               RowStyleSelector="{Binding RowStyleSelector,
                                                          RelativeSource={RelativeSource FindAncestor,
                                                                                         AncestorType=UserControl}}"

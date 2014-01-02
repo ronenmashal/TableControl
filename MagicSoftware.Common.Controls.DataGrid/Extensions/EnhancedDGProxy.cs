@@ -9,6 +9,9 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using System.Diagnostics;
+using System.Windows.Documents;
+using MagicSoftware.Common.Controls.Table.CellTypes;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -68,6 +71,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public FrameworkElementProxy GetItemContainerProxy(FrameworkElement container)
       {
+         if (container == null)
+            return null;
          var proxy = FrameworkElementProxy.GetProxy(container);
          if (proxy == null)
          {
@@ -82,11 +87,47 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          var itemContainerProxy = new FrameworkElementProxy();
          return itemContainerProxy;
       }
+
    }
 
    public class EnhancedDGProxy : ImprovedItemsControlProxy
    {
       private DataGrid DataGridElement { get { return (DataGrid)ProxiedElement; } }
+
+      public static readonly DependencyProperty SelectAllButtonTemplateProperty = DependencyProperty.RegisterAttached("SelectAllButtonTemplate", typeof(Style), typeof(EnhancedDataGrid), new UIPropertyMetadata(null, OnSelectAllButtonTemplateChanged));
+
+      public static Style GetSelectAllButtonTemplate(DataGrid obj)
+      {
+         return (Style)obj.GetValue(SelectAllButtonTemplateProperty);
+      }
+
+      public static void SetSelectAllButtonTemplate(DataGrid obj, Style value)
+      {
+         obj.SetValue(SelectAllButtonTemplateProperty, value);
+      }
+
+      private static void OnSelectAllButtonTemplateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+      {
+         DataGrid dataGrid = d as DataGrid;
+         if (dataGrid == null)
+         {
+            return;
+         }
+
+         EventHandler handler = null;
+         handler = delegate
+         {
+            dataGrid.LayoutUpdated -= handler;
+            var button = UIUtils.GetVisualChild<Button>(dataGrid);
+            if (button != null)
+            {
+               Style template = GetSelectAllButtonTemplate(dataGrid);
+               button.Style = template;
+            }
+         };
+
+         dataGrid.LayoutUpdated += handler;
+      }
 
       public override void ScrollIntoView(object item)
       {
@@ -127,6 +168,66 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
          return base.CreateItemContainerProxy(itemContainer);
       }
+
+      Style defaultRowStyle;
+
+      protected override void Initialize()
+      {
+         base.Initialize();
+
+         DataGridElement.LoadingRow += DataGridElement_LoadingRow;
+         DataGridElement.UnloadingRow += DataGridElement_UnloadingRow;
+         defaultRowStyle = DataGridElement.FindResource(typeof(DataGridRow)) as Style;
+      }
+
+
+
+      public static bool GetIsCustomRow(DependencyObject obj)
+      {
+         return (bool)obj.GetValue(IsCustomRowProperty);
+      }
+
+      public static void SetIsCustomRow(DependencyObject obj, bool value)
+      {
+         obj.SetValue(IsCustomRowProperty, value);
+      }
+
+      // Using a DependencyProperty as the backing store for IsCustomRow.  This enables animation, styling, binding, etc...
+      public static readonly DependencyProperty IsCustomRowProperty =
+          DependencyProperty.RegisterAttached("IsCustomRow", typeof(bool), typeof(EnhancedDGProxy), new UIPropertyMetadata(false));
+
+
+      void DataGridElement_LoadingRow(object sender, DataGridRowEventArgs eventArgs)
+      {
+         Trace.WriteLine("Loading row for " + eventArgs.Row.Item);
+         if (DataGridElement.RowStyleSelector != null)
+         {
+            Style rowStyle = DataGridElement.RowStyleSelector.SelectStyle(eventArgs.Row.Item, eventArgs.Row);
+            if (rowStyle != null)
+               SetIsCustomRow(eventArgs.Row, true);
+         }
+      }
+
+      void DataGridElement_UnloadingRow(object sender, DataGridRowEventArgs e)
+      {
+         unloadedRows.Add(e.Row);
+         var container = e.Row;
+         if (container != null)
+         {
+            var adornerLayer = AdornerLayer.GetAdornerLayer(container);
+            if (adornerLayer != null)
+            {
+               Adorner[] adorners = adornerLayer.GetAdorners(container);
+               if (adorners != null)
+               {
+                  foreach (var adorner in adorners)
+                     adornerLayer.Remove(adorner);
+               }
+            }
+         }
+      }
+
+      HashSet<DataGridRow> unloadedRows = new HashSet<DataGridRow>();
    }
 
    class ItemsContainerProxy : FrameworkElementProxy
@@ -141,7 +242,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (ProxiedElement is DataGridRow)
          {
             if (adapterType == typeof(ICurrentItemProvider))
+            {
+               var row = ProxiedElement as DataGridRow;
+               if (EnhancedDGProxy.GetIsCustomRow(row) != null)
+               {
+                  return new CustomRowAsCurrentItemProvider(ProxiedElement as DataGridRow);
+               }
                return new DataGridRowAsCurrentItemProvider(ProxiedElement as DataGridRow);
+            }
+
          }
          return base.GetAdapter(adapterType);
       }
@@ -167,17 +276,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             if (owner.CurrentColumn == null)
                return null;
-            return owner.CurrentColumn.GetCellContent(dataGridRow); 
+            return owner.CurrentColumn.GetCellContent(dataGridRow);
          }
       }
 
       public int CurrentPosition
       {
-         get 
+         get
          {
             if (owner.CurrentColumn == null)
                return -1;
-            return owner.CurrentColumn.DisplayIndex; 
+            return owner.CurrentColumn.DisplayIndex;
          }
       }
 
@@ -239,4 +348,89 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
    }
 
+   class CustomRowAsCurrentItemProvider : ICurrentItemProvider
+   {
+      #region ICurrentItemProvider Members
+
+      public event CancelableRoutedEventHandler PreviewCurrentChanging;
+
+      public event RoutedEventHandler CurrentChanged;
+
+      List<VirtualTableCell> cells;
+      int currentPosition = -1;
+      public CustomRowAsCurrentItemProvider(DataGridRow row)
+      {
+         cells = UIUtils.GetVisualChildren<VirtualTableCell>(row, (cell) => true);
+         if (cells.Count > 0)
+            currentPosition = 0;
+      }
+
+      public object CurrentItem
+      {
+         get
+         {
+            if (CurrentPosition < 0 || CurrentPosition >= cells.Count)
+               return null;
+            return cells[CurrentPosition];
+         }
+      }
+
+      public int CurrentPosition
+      {
+         get { return currentPosition; }
+      }
+
+      public bool MoveCurrentTo(object item)
+      {
+         if (item == null)
+            return false;
+
+         var cell = UIUtils.GetAncestor<VirtualTableCell>(item as UIElement);
+         if (cell == null)
+            return false;
+
+         int cellIndex = cells.IndexOf(cell);
+         return MoveCurrentToPosition(cellIndex);
+      }
+
+      public bool MoveCurrentToFirst()
+      {
+         return MoveCurrentToPosition(0);
+      }
+
+      public bool MoveCurrentToNext()
+      {
+         return MoveCurrentToRelativePosition(+1);
+      }
+
+      public bool MoveCurrentToPrevious()
+      {
+         return MoveCurrentToRelativePosition(-1);
+      }
+
+      public bool MoveCurrentToLast()
+      {
+         return MoveCurrentToPosition(cells.Count - 1);
+      }
+
+      public bool MoveCurrentToPosition(int position)
+      {
+         // Preview
+         this.currentPosition = position;
+         bool result = false;
+         if (CurrentItem != null)
+         {
+            result = ((FrameworkElement)CurrentItem).MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+         }
+         // current changed.
+         return result;
+      }
+
+      public bool MoveCurrentToRelativePosition(int offset)
+      {
+         return MoveCurrentToPosition(currentPosition + offset);
+      }
+
+      #endregion
+   }
 }

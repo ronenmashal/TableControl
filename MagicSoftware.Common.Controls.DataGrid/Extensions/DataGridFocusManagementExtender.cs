@@ -12,8 +12,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    class DataGridFocusManagementExtender : ElementExtenderBase<DataGrid>
    {
-
-
       public static IFocusManager GetFocusManager(DependencyObject obj)
       {
          return (IFocusManager)obj.GetValue(FocusManagerProperty);
@@ -45,24 +43,29 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          CurrentItemTracker.CurrentChanged -= CurrentItemTracker_CurrentChanged;
       }
 
-      ICurrentItemProvider previosLineCurrentItemContainer = null;
+      ICurrentItemProvider previousLineCurrentItemContainer = null;
 
       void CurrentItemTracker_PreviewCurrentChanging(object sender, CancelableRoutedEventArgs eventArgs)
       {
          var currentItemContainer = DataGridProxy.CurrentItemContainer();
-         var currentItemContainerProxy = DataGridProxy.GetItemContainerProxy(currentItemContainer);
-         previosLineCurrentItemContainer = currentItemContainerProxy.GetAdapter<ICurrentItemProvider>();
+         if (currentItemContainer != null)
+         {
+            var currentItemContainerProxy = DataGridProxy.GetItemContainerProxy(currentItemContainer);
+            previousLineCurrentItemContainer = currentItemContainerProxy.GetAdapter<ICurrentItemProvider>();
+         }
       }
 
       void CurrentItemTracker_CurrentChanged(object sender, RoutedEventArgs e)
       {
          var currentItemContainer = DataGridProxy.CurrentItemContainer();
+         if (currentItemContainer == null)
+            return;
          var currentItemContainerProxy = DataGridProxy.GetItemContainerProxy(currentItemContainer);
          ICurrentItemProvider container = currentItemContainerProxy.GetAdapter<ICurrentItemProvider>();
-         if (previosLineCurrentItemContainer != null)
+         if (previousLineCurrentItemContainer != null)
          {
-            if (previosLineCurrentItemContainer.CurrentPosition > 0)
-               container.MoveCurrentToPosition(previosLineCurrentItemContainer.CurrentPosition);
+            if (previousLineCurrentItemContainer.CurrentPosition > 0)
+               container.MoveCurrentToPosition(previousLineCurrentItemContainer.CurrentPosition);
             else
                container.MoveCurrentToPosition(0);
          }

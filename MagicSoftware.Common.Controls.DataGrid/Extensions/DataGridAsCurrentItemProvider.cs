@@ -237,6 +237,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool MoveCurrentToPosition(int position)
       {
+         if (position < -1)
+            return false;
+
          using (isSelfInducedChange.Set())
             return itemsView.MoveCurrentToPosition(position);
       }

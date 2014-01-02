@@ -85,6 +85,7 @@
     <Compile Include="Extensions\ICurrentItemProvider.cs" />
     <Compile Include="Extensions\IElementEditStateProxy.cs" />
     <Compile Include="Extensions\ItemsControlCurrentItemTracker.cs" />
+    <Compile Include="Markup\StringWidth.cs" />
     <Compile Include="ObjectEqualityConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

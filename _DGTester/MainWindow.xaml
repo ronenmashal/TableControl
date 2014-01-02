@@ -37,49 +37,52 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="DataGridRow">
-                            <Border x:Name="brdr"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}">
-                                <Border x:Name="underline"
+                            <StackPanel Orientation="Horizontal">
+                                <DataGridRowHeader />
+                                <Border x:Name="brdr"
                                         Background="{TemplateBinding Background}"
-                                        BorderBrush="Black"
-                                        BorderThickness="0,0,0,1"
-                                        Focusable="True">
-                                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                        <tbl:VirtualTextTableCell Binding="{Binding StringValue}" />
-                                        <tbl:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" />
-                                        <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
-                                                                      Binding="{Binding Animal}"
-                                                                      IsEditable="True"
-                                                                      ItemsSource="{Binding Source={StaticResource Animals}}" />
-                                        <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
-                                                                      Binding="{Binding Animal}"
-                                                                      IsEditable="False"
-                                                                      ItemsSource="{Binding Source={StaticResource Animals}}" />
-                                        <tbl:CheckBoxVirtualTableCell Margin="5,0,0,0" Binding="{Binding BoolValue}" />
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                    <Border x:Name="underline"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="Black"
+                                            BorderThickness="0,0,0,1"
+                                            Focusable="True">
+                                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                            <tbl:VirtualTextTableCell Binding="{Binding StringValue}" />
+                                            <tbl:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" />
+                                            <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
+                                                                          Binding="{Binding Animal}"
+                                                                          IsEditable="True"
+                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" />
+                                            <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
+                                                                          Binding="{Binding Animal}"
+                                                                          IsEditable="False"
+                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" />
+                                            <tbl:CheckBoxVirtualTableCell Margin="5,0,0,0" Binding="{Binding BoolValue}" />
 
-                                        <!--
-                                            <dg:VirtualTableCell ContentBinding="{Binding StringValue}">
-                                            <dg:VirtualTableCell.Element>
-                                            <TextBlock Text="{Binding StringValue}" />
-                                            </dg:VirtualTableCell.Element>
-                                            <dg:VirtualTableCell.EditingElement>
-                                            <TextBox Text="{Binding StringValue}" />
-                                            </dg:VirtualTableCell.EditingElement>
-                                            </dg:VirtualTableCell>
-                                            <dg:VirtualTableCell>
-                                            <dg:VirtualTableCell.Element>
-                                            <TextBlock Text="{Binding IntValue}" />
-                                            </dg:VirtualTableCell.Element>
-                                            <dg:VirtualTableCell.EditingElement>
-                                            <TextBox Text="{Binding IntValue}" />
-                                            </dg:VirtualTableCell.EditingElement>
-                                            </dg:VirtualTableCell>
-                                        -->
-                                    </StackPanel>
+                                            <!--
+                                                <dg:VirtualTableCell ContentBinding="{Binding StringValue}">
+                                                <dg:VirtualTableCell.Element>
+                                                <TextBlock Text="{Binding StringValue}" />
+                                                </dg:VirtualTableCell.Element>
+                                                <dg:VirtualTableCell.EditingElement>
+                                                <TextBox Text="{Binding StringValue}" />
+                                                </dg:VirtualTableCell.EditingElement>
+                                                </dg:VirtualTableCell>
+                                                <dg:VirtualTableCell>
+                                                <dg:VirtualTableCell.Element>
+                                                <TextBlock Text="{Binding IntValue}" />
+                                                </dg:VirtualTableCell.Element>
+                                                <dg:VirtualTableCell.EditingElement>
+                                                <TextBox Text="{Binding IntValue}" />
+                                                </dg:VirtualTableCell.EditingElement>
+                                                </dg:VirtualTableCell>
+                                            -->
+                                        </StackPanel>
+                                    </Border>
                                 </Border>
-                            </Border>
+                            </StackPanel>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>

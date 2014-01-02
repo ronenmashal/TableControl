@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ext="clr-namespace:MagicSoftware.Common.Controls.Extensibility;assembly=MagicSoftware.Common"
              xmlns:lext="clr-namespace:MagicSoftware.Common.Controls.Table.Extensions"
+             xmlns:lmrkup="clr-namespace:MagicSoftware.Common.Controls.Table.Markup"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:pxy="clr-namespace:MagicSoftware.Common.Controls.Proxies;assembly=MagicSoftware.Common"
              xmlns:tbl="clr-namespace:MagicSoftware.Common.Controls.Table"
@@ -18,19 +19,27 @@
             mg:BehaviorExtensions.ValidationExtender="{StaticResource DGValidationExtender}"
         -->
 
-        <tbl:EnhancedDataGrid x:Name="DG"
-                              CanUserAddRows="False"
-                              CurrentItem="{Binding CurrentItem}"
-                              EnableRowVirtualization="True"
-                              ItemsSource="{Binding ItemsSource,
-                                                    RelativeSource={RelativeSource FindAncestor,
-                                                                                   AncestorType=UserControl}}"
-                              lext:DataGridEditingExtender.EditMode="SingleLine"
-                              RowStyleSelector="{Binding RowStyleSelector,
-                                                         RelativeSource={RelativeSource FindAncestor,
-                                                                                        AncestorType=UserControl}}"
-                              SelectionMode="Extended"
-                              SelectionUnit="FullRow">
+        <Grid.Resources>
+            <Style x:Key="SelectAllButton" TargetType="Button">
+                <Setter Property="Background" Value="Red" />
+            </Style>
+        </Grid.Resources>
+
+        <DataGrid x:Name="DG"
+                  CanUserAddRows="False"
+                  CurrentItem="{Binding CurrentItem}"
+                  EnableRowVirtualization="True"
+                  ItemsSource="{Binding ItemsSource,
+                                        RelativeSource={RelativeSource FindAncestor,
+                                                                       AncestorType=UserControl}}"
+                  lext:DataGridEditingExtender.EditMode="SingleLine"
+                  lext:EnhancedDGProxy.SelectAllButtonTemplate="{StaticResource SelectAllButton}"
+                  RowHeaderWidth="{lmrkup:TextRenderWidth 88888}"
+                  RowStyleSelector="{Binding RowStyleSelector,
+                                             RelativeSource={RelativeSource FindAncestor,
+                                                                            AncestorType=UserControl}}"
+                  SelectionMode="Extended"
+                  SelectionUnit="FullRow">
             <ext:ElementExtensions.Extenders>
                 <ext:ExtendersCollection>
                     <ext:DataGridColumnLayoutExtender>
@@ -51,25 +60,6 @@
             <pxy:FrameworkElementProxy.Proxy>
                 <lext:EnhancedDGProxy />
             </pxy:FrameworkElementProxy.Proxy>
-            <!--
-                <tbl:EnhancedDataGrid.Columns>
-                <DataGridTextColumn Width="70"
-                MinWidth="10"
-                MaxWidth="200"
-                CanUserResize="True"
-                Visibility="{Binding ColVisibility,
-                RelativeSource={RelativeSource FindAncestor,
-                AncestorType=Window}}">
-                <DataGridTextColumn.Binding>
-                <Binding Path="StringVal">
-                <Binding.ValidationRules>
-                <data:XXXValidationRule />
-                </Binding.ValidationRules>
-                </Binding>
-                </DataGridTextColumn.Binding>
-                </DataGridTextColumn>
-                </tbl:EnhancedDataGrid.Columns>
-            -->
-        </tbl:EnhancedDataGrid>
+        </DataGrid>
     </Grid>
 </UserControl>

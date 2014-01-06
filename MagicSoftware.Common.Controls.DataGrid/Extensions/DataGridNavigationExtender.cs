@@ -54,7 +54,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          switch (e.Key)
          {
             case Key.Tab:
-               //DataGridProxy.GetCurrentLineProxy();
+               var proxy = DataGridProxy.GetItemContainerProxy(DataGridProxy.CurrentItemContainer());
+               var rowCurrentItemProvider = proxy.GetAdapter<ICurrentItemProvider>();
+               int offset = 1;
+               if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
+                  offset = -1;
+               rowCurrentItemProvider.MoveCurrentToRelativePosition(offset);
+               e.Handled = true;
                break;
          }
       }

@@ -88,6 +88,35 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return itemContainerProxy;
       }
 
+      SharedObjectsService sharedObjectsService = new SharedObjectsService();
+
+      protected override object GetAdapter(Type adapterType)
+      {
+         if (adapterType == typeof(SharedObjectsService))
+            return sharedObjectsService;
+
+         return base.GetAdapter(adapterType);
+      }
+   }
+
+   public class SharedObjectsService
+   {
+      Dictionary<string, object> sharedObjects = new Dictionary<string, object>();
+
+      public void SetSharedObject(string identifier, object sharedObject)
+      {
+         sharedObjects[identifier] = sharedObject;
+      }
+
+      public object GetSharedObject(string identifier)
+      {
+         return sharedObjects[identifier];
+      }
+
+      internal bool HasSharedObject(string identifier)
+      {
+         return sharedObjects.ContainsKey(identifier);
+      }
    }
 
    public class EnhancedDGProxy : ImprovedItemsControlProxy
@@ -244,7 +273,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             if (adapterType == typeof(ICurrentItemProvider))
             {
                var row = ProxiedElement as DataGridRow;
-               if (EnhancedDGProxy.GetIsCustomRow(row) != null)
+               if (EnhancedDGProxy.GetIsCustomRow(row))
                {
                   return new CustomRowAsCurrentItemProvider(ProxiedElement as DataGridRow);
                }
@@ -350,6 +379,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
    class CustomRowAsCurrentItemProvider : ICurrentItemProvider
    {
+      const string CurrentPositionIdentifier = "CustomRow.CurrentPosition";
+
       #region ICurrentItemProvider Members
 
       public event CancelableRoutedEventHandler PreviewCurrentChanging;
@@ -357,12 +388,25 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public event RoutedEventHandler CurrentChanged;
 
       List<VirtualTableCell> cells;
-      int currentPosition = -1;
+      SharedObjectsService sharedObjectsService;
+
       public CustomRowAsCurrentItemProvider(DataGridRow row)
       {
+         // Enumerate the virtual table cells in the row.
          cells = UIUtils.GetVisualChildren<VirtualTableCell>(row, (cell) => true);
-         if (cells.Count > 0)
-            currentPosition = 0;
+
+         // Ensure current position shared value exists in the owner's proxy.
+         DataGrid owner = UIUtils.GetAncestor<DataGrid>(row);
+         FrameworkElementProxy ownerProxy = FrameworkElementProxy.GetProxy(owner);
+         sharedObjectsService = ownerProxy.GetAdapter<SharedObjectsService>();
+
+         if (!sharedObjectsService.HasSharedObject(CurrentPositionIdentifier))
+         {
+            if (cells.Count > 0)
+               CurrentPosition = 0;
+            else
+               CurrentPosition = -1;
+         }
       }
 
       public object CurrentItem
@@ -377,7 +421,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public int CurrentPosition
       {
-         get { return currentPosition; }
+         get { return (int)sharedObjectsService.GetSharedObject(CurrentPositionIdentifier); }
+         private set { sharedObjectsService.SetSharedObject(CurrentPositionIdentifier, value); }
       }
 
       public bool MoveCurrentTo(object item)
@@ -416,7 +461,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public bool MoveCurrentToPosition(int position)
       {
          // Preview
-         this.currentPosition = position;
+         this.CurrentPosition = position;
          bool result = false;
          if (CurrentItem != null)
          {
@@ -428,7 +473,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool MoveCurrentToRelativePosition(int offset)
       {
-         return MoveCurrentToPosition(currentPosition + offset);
+         return MoveCurrentToPosition(CurrentPosition + offset);
       }
 
       #endregion

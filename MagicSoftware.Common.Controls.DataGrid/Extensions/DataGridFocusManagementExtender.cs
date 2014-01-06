@@ -33,27 +33,27 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       protected override void Setup()
       {
          CurrentItemTracker = DataGridProxy.GetAdapter<ICurrentItemProvider>();
-         CurrentItemTracker.PreviewCurrentChanging += CurrentItemTracker_PreviewCurrentChanging;
+         //CurrentItemTracker.PreviewCurrentChanging += CurrentItemTracker_PreviewCurrentChanging;
          CurrentItemTracker.CurrentChanged += CurrentItemTracker_CurrentChanged;
       }
 
       protected override void Cleanup()
       {
-         CurrentItemTracker.PreviewCurrentChanging -= CurrentItemTracker_PreviewCurrentChanging;
+         //CurrentItemTracker.PreviewCurrentChanging -= CurrentItemTracker_PreviewCurrentChanging;
          CurrentItemTracker.CurrentChanged -= CurrentItemTracker_CurrentChanged;
       }
 
-      ICurrentItemProvider previousLineCurrentItemContainer = null;
+      //ICurrentItemProvider previousLineCurrentItemContainer = null;
 
-      void CurrentItemTracker_PreviewCurrentChanging(object sender, CancelableRoutedEventArgs eventArgs)
-      {
-         var currentItemContainer = DataGridProxy.CurrentItemContainer();
-         if (currentItemContainer != null)
-         {
-            var currentItemContainerProxy = DataGridProxy.GetItemContainerProxy(currentItemContainer);
-            previousLineCurrentItemContainer = currentItemContainerProxy.GetAdapter<ICurrentItemProvider>();
-         }
-      }
+      //void CurrentItemTracker_PreviewCurrentChanging(object sender, CancelableRoutedEventArgs eventArgs)
+      //{
+      //   var currentItemContainer = DataGridProxy.CurrentItemContainer();
+      //   if (currentItemContainer != null)
+      //   {
+      //      var currentItemContainerProxy = DataGridProxy.GetItemContainerProxy(currentItemContainer);
+      //      previousLineCurrentItemContainer = currentItemContainerProxy.GetAdapter<ICurrentItemProvider>();
+      //   }
+      //}
 
       void CurrentItemTracker_CurrentChanged(object sender, RoutedEventArgs e)
       {
@@ -61,19 +61,22 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (currentItemContainer == null)
             return;
          var currentItemContainerProxy = DataGridProxy.GetItemContainerProxy(currentItemContainer);
-         ICurrentItemProvider container = currentItemContainerProxy.GetAdapter<ICurrentItemProvider>();
-         if (previousLineCurrentItemContainer != null)
+         ICurrentItemProvider currentItemService = currentItemContainerProxy.GetAdapter<ICurrentItemProvider>();
+         //if (previousLineCurrentItemContainer != null)
+         //{
+         //   if (previousLineCurrentItemContainer.CurrentPosition > 0)
+         //      container.MoveCurrentToPosition(previousLineCurrentItemContainer.CurrentPosition);
+         //   else
+         //      container.MoveCurrentToPosition(0);
+         //}
+         //else
+         //{
+         //   container.MoveCurrentToFirst();
+         //}
+         if (currentItemService.CurrentItem != null)
          {
-            if (previousLineCurrentItemContainer.CurrentPosition > 0)
-               container.MoveCurrentToPosition(previousLineCurrentItemContainer.CurrentPosition);
-            else
-               container.MoveCurrentToPosition(0);
+            ((UIElement)currentItemService.CurrentItem).Focus();
          }
-         else
-         {
-            container.MoveCurrentToFirst();
-         }
-         
       }
    }
 }

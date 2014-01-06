@@ -14,82 +14,10 @@ using System.Collections;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class DataGridAsCurrentItemProvider : ObservableObject, ICurrentItemProvider
+   class DataGridAsCurrentItemProvider : CurrentItemServiceBase, ICurrentItemProvider
    {
       // TODO: SHould be ItemsControlPRoxy or FrameworkElementProxy.
       private EnhancedDGProxy dgProxy;
-
-      //TODO: Move up to ItemsControlProxy.
-      #region CurrentChanging attached event.
-
-      public static readonly RoutedEvent PreviewCurrentChangingEvent = EventManager.RegisterRoutedEvent("PreviewCurrentChanging", RoutingStrategy.Tunnel, typeof(CancelableRoutedEventArgs), typeof(DataGridAsCurrentItemProvider));
-
-      Dictionary<CancelableRoutedEventHandler, RoutedEventHandler> currentChangingEventHandlers = new Dictionary<CancelableRoutedEventHandler, RoutedEventHandler>();
-
-      /// <summary>
-      /// Event raised before changing the 'current item' indicator on the items control.
-      /// </summary>
-      public event CancelableRoutedEventHandler PreviewCurrentChanging
-      {
-         add
-         {
-            var handler = new RoutedEventHandler((obj, args) => { value(obj, (CancelableRoutedEventArgs)args); });
-            dgProxy.AddRoutedEventHandler(PreviewCurrentChangingEvent, handler);
-            currentChangingEventHandlers.Add(value, handler);
-         }
-         remove
-         {
-            RoutedEventHandler handler;
-            if (currentChangingEventHandlers.TryGetValue(value, out handler))
-               dgProxy.RemoveRoutedEventHandler(PreviewCurrentChangingEvent, handler);
-         }
-      }
-
-      /// <summary>
-      /// Raises the PreviewCurrentChangingEvent, allowing the handlers to cancel it,
-      /// returning the result in 'canceled'
-      /// </summary>
-      /// 
-      /// <param name="canceled">Returns whether any of the event handlers canceled the event.</param>
-      private void RaisePreviewCurrentChangingEvent(out bool canceled)
-      {
-         CancelableRoutedEventArgs eventArgs = new CancelableRoutedEventArgs(PreviewCurrentChangingEvent, dgProxy.ElementAsEventSource);
-         dgProxy.RaiseEvent(eventArgs);
-         canceled = eventArgs.Canceled;
-      }
-
-      /// <summary>
-      /// Raises the PreviewCurrentChangingEvent without allowing canceling of the event.
-      /// </summary>
-      private void RaiseNonCancelablePreviewCurrentChangingEvent()
-      {
-         CancelableRoutedEventArgs eventArgs = new CancelableRoutedEventArgs(PreviewCurrentChangingEvent, dgProxy.ElementAsEventSource, false);
-         dgProxy.RaiseEvent(eventArgs);
-      }
-
-      #endregion
-
-      //TODO: Move up to ItemsControlProxy.
-      #region CurrentChanging attached event.
-
-      public static readonly RoutedEvent CurrentChangedEvent = EventManager.RegisterRoutedEvent("CurrentChanged", RoutingStrategy.Tunnel, typeof(RoutedEventArgs), typeof(DataGridAsCurrentItemProvider));
-
-      /// <summary>
-      /// Event raised before changing the 'current item' indicator on the items control.
-      /// </summary>
-      public event RoutedEventHandler CurrentChanged
-      {
-         add { dgProxy.AddRoutedEventHandler(CurrentChangedEvent, value); }
-         remove { dgProxy.RemoveRoutedEventHandler(CurrentChangedEvent, value); }
-      }
-
-      private void RaiseCurrentChangedEvent()
-      {
-         RoutedEventArgs eventArgs = new RoutedEventArgs(CurrentChangedEvent, dgProxy.ElementAsEventSource);
-         dgProxy.RaiseEvent(eventArgs);
-      }
-
-      #endregion
 
       DependencyPropertyChangeListener currentItemPropertyChangeListener;
       DataGrid DataGridElement;
@@ -97,7 +25,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       AutoResetFlag isSelfInducedChange = new AutoResetFlag();
 
 
-      public DataGridAsCurrentItemProvider(DataGrid dataGrid)
+      public DataGridAsCurrentItemProvider(DataGrid dataGrid): base(dataGrid)
       {
          this.DataGridElement = dataGrid;
          this.dgProxy = (EnhancedDGProxy)FrameworkElementProxy.GetProxy(dataGrid);
@@ -157,12 +85,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          if (!isSelfInducedChange.IsSet)
          {
-            RaiseNonCancelablePreviewCurrentChangingEvent();
+            RaiseNonCancelablePreviewCurrentChangingEvent(null);
          }
          else
          {
             bool canceled;
-            RaisePreviewCurrentChangingEvent(out canceled);
+            RaisePreviewCurrentChangingEvent(null, out canceled);
             e.Cancel = canceled;
          }
       }
@@ -174,8 +102,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             DataGridElement.CurrentItem = itemsView.CurrentItem;
          }
          RaiseCurrentChangedEvent();
-         OnPropertyChanged("CurrentItem");
-         OnPropertyChanged("CurrentPosition");
       }
 
 
@@ -187,7 +113,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
-      public object CurrentItem
+      public override object CurrentItem
       {
          get
          {
@@ -195,7 +121,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
-      public int CurrentPosition
+      public override int CurrentPosition
       {
          get
          {
@@ -207,35 +133,35 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       #region ICurrentItemProvider Members
 
 
-      public bool MoveCurrentTo(object item)
+      public override bool MoveCurrentTo(object item)
       {
          using (isSelfInducedChange.Set())
             return itemsView.MoveCurrentTo(item);
       }
 
-      public bool MoveCurrentToFirst()
+      public override bool MoveCurrentToFirst()
       {
          using (isSelfInducedChange.Set())
             return itemsView.MoveCurrentToFirst();
       }
 
-      public bool MoveCurrentToNext()
+      public override bool MoveCurrentToNext()
       {
          return MoveCurrentToRelativePosition(+1);
       }
 
-      public bool MoveCurrentToPrevious()
+      public override bool MoveCurrentToPrevious()
       {
          return MoveCurrentToRelativePosition(-1);
       }
 
-      public bool MoveCurrentToLast()
+      public override bool MoveCurrentToLast()
       {
          using (isSelfInducedChange.Set())
             return itemsView.MoveCurrentToLast();
       }
 
-      public bool MoveCurrentToPosition(int position)
+      public override bool MoveCurrentToPosition(int position)
       {
          if (position < -1)
             return false;
@@ -244,7 +170,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             return itemsView.MoveCurrentToPosition(position);
       }
 
-      public bool MoveCurrentToRelativePosition(int offset)
+      public override bool MoveCurrentToRelativePosition(int offset)
       {
          int newPosition = CurrentPosition + offset;
          return MoveCurrentToPosition(newPosition);

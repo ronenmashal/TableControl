@@ -89,13 +89,34 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       SharedObjectsService sharedObjectsService = new SharedObjectsService();
+      PreviewCurrentChangingEventService previewCurrentChangingEventService = null;
+      CurrentChangedEventService currentChangedEventService = null;
 
       protected override object GetAdapter(Type adapterType)
       {
          if (adapterType == typeof(SharedObjectsService))
             return sharedObjectsService;
 
+         if (adapterType == typeof(PreviewCurrentChangingEventService))
+         {
+            if (previewCurrentChangingEventService == null)
+               previewCurrentChangingEventService = new PreviewCurrentChangingEventService(this);
+            return previewCurrentChangingEventService;
+         }
+
+         if (adapterType == typeof(CurrentChangedEventService))
+         {
+            if (currentChangedEventService == null)
+               currentChangedEventService = new CurrentChangedEventService(this);
+            return currentChangedEventService;
+         }
+
          return base.GetAdapter(adapterType);
+      }
+
+      public object GetAdapter_(Type adapterType)
+      {
+         return GetAdapter(adapterType);
       }
    }
 
@@ -275,207 +296,30 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                var row = ProxiedElement as DataGridRow;
                if (EnhancedDGProxy.GetIsCustomRow(row))
                {
-                  return new CustomRowAsCurrentItemProvider(ProxiedElement as DataGridRow);
+                  return new CustomRowCurrentItemService(ProxiedElement as DataGridRow);
                }
-               return new DataGridRowAsCurrentItemProvider(ProxiedElement as DataGridRow);
+               return new DataGridRowCurrentItemService(ProxiedElement as DataGridRow);
             }
 
          }
-         return base.GetAdapter(adapterType);
-      }
-   }
-
-   class DataGridRowAsCurrentItemProvider : ICurrentItemProvider
-   {
-      public event CancelableRoutedEventHandler PreviewCurrentChanging;
-
-      public event RoutedEventHandler CurrentChanged;
-      private DataGridRow dataGridRow;
-      private DataGrid owner;
-
-      public DataGridRowAsCurrentItemProvider(DataGridRow dataGridRow)
-      {
-         this.dataGridRow = dataGridRow;
-         owner = UIUtils.GetAncestor<DataGrid>(dataGridRow);
-      }
-
-      public object CurrentItem
-      {
-         get
+         var service = base.GetAdapter(adapterType);
+         if (service == null)
          {
-            if (owner.CurrentColumn == null)
-               return null;
-            return owner.CurrentColumn.GetCellContent(dataGridRow);
+            if (ProxiedElement is DataGridRow)
+            {
+               var row = ProxiedElement as DataGridRow;
+               var owner = UIUtils.GetAncestor<DataGrid>(row);
+               if (owner != null)
+               {
+                  var ownerProxy = (ImprovedItemsControlProxy)FrameworkElementProxy.GetProxy(owner);
+                  if (ownerProxy != null)
+                  {
+                     return ownerProxy.GetAdapter_(adapterType);
+                  }
+               }
+            }
          }
+         return null;
       }
-
-      public int CurrentPosition
-      {
-         get
-         {
-            if (owner.CurrentColumn == null)
-               return -1;
-            return owner.CurrentColumn.DisplayIndex;
-         }
-      }
-
-      bool MoveToCell(DataGridCell cell)
-      {
-         //HIGH: Should raise preview change event.
-
-         DataGridCellInfo newCellInfo = new DataGridCellInfo(cell);
-         owner.CurrentCell = newCellInfo;
-         return owner.CurrentCell.Column == cell.Column;
-
-         //HIGH: Should raise changed event.
-      }
-
-      public bool MoveCurrentTo(object item)
-      {
-         var cell = UIUtils.GetAncestor<DataGridCell>(item as UIElement);
-         return MoveToCell(cell);
-      }
-
-      public bool MoveCurrentToFirst()
-      {
-         return MoveCurrentToPosition(0);
-      }
-
-      public bool MoveCurrentToNext()
-      {
-         return MoveCurrentToRelativePosition(1);
-      }
-
-      public bool MoveCurrentToPrevious()
-      {
-         return MoveCurrentToRelativePosition(-1);
-      }
-
-      public bool MoveCurrentToLast()
-      {
-         return MoveCurrentToPosition(owner.Columns.Count - 1);
-      }
-
-      public bool MoveCurrentToPosition(int position)
-      {
-         var targetElement = owner.ColumnFromDisplayIndex(position).GetCellContent(dataGridRow);
-         return MoveCurrentTo(targetElement);
-      }
-
-      public bool MoveCurrentToRelativePosition(int offset)
-      {
-         int nextColumnIndex = 0;
-         var currentColumn = owner.CurrentColumn;
-         if (currentColumn != null)
-            nextColumnIndex = currentColumn.DisplayIndex + offset;
-         if (nextColumnIndex < 0)
-            nextColumnIndex = 0;
-         if (nextColumnIndex >= owner.Columns.Count)
-            nextColumnIndex = owner.Columns.Count - 1;
-         var targetElement = owner.ColumnFromDisplayIndex(nextColumnIndex).GetCellContent(dataGridRow);
-         return MoveCurrentTo(targetElement);
-      }
-   }
-
-   class CustomRowAsCurrentItemProvider : ICurrentItemProvider
-   {
-      const string CurrentPositionIdentifier = "CustomRow.CurrentPosition";
-
-      #region ICurrentItemProvider Members
-
-      public event CancelableRoutedEventHandler PreviewCurrentChanging;
-
-      public event RoutedEventHandler CurrentChanged;
-
-      List<VirtualTableCell> cells;
-      SharedObjectsService sharedObjectsService;
-
-      public CustomRowAsCurrentItemProvider(DataGridRow row)
-      {
-         // Enumerate the virtual table cells in the row.
-         cells = UIUtils.GetVisualChildren<VirtualTableCell>(row, (cell) => true);
-
-         // Ensure current position shared value exists in the owner's proxy.
-         DataGrid owner = UIUtils.GetAncestor<DataGrid>(row);
-         FrameworkElementProxy ownerProxy = FrameworkElementProxy.GetProxy(owner);
-         sharedObjectsService = ownerProxy.GetAdapter<SharedObjectsService>();
-
-         if (!sharedObjectsService.HasSharedObject(CurrentPositionIdentifier))
-         {
-            if (cells.Count > 0)
-               CurrentPosition = 0;
-            else
-               CurrentPosition = -1;
-         }
-      }
-
-      public object CurrentItem
-      {
-         get
-         {
-            if (CurrentPosition < 0 || CurrentPosition >= cells.Count)
-               return null;
-            return cells[CurrentPosition];
-         }
-      }
-
-      public int CurrentPosition
-      {
-         get { return (int)sharedObjectsService.GetSharedObject(CurrentPositionIdentifier); }
-         private set { sharedObjectsService.SetSharedObject(CurrentPositionIdentifier, value); }
-      }
-
-      public bool MoveCurrentTo(object item)
-      {
-         if (item == null)
-            return false;
-
-         var cell = UIUtils.GetAncestor<VirtualTableCell>(item as UIElement);
-         if (cell == null)
-            return false;
-
-         int cellIndex = cells.IndexOf(cell);
-         return MoveCurrentToPosition(cellIndex);
-      }
-
-      public bool MoveCurrentToFirst()
-      {
-         return MoveCurrentToPosition(0);
-      }
-
-      public bool MoveCurrentToNext()
-      {
-         return MoveCurrentToRelativePosition(+1);
-      }
-
-      public bool MoveCurrentToPrevious()
-      {
-         return MoveCurrentToRelativePosition(-1);
-      }
-
-      public bool MoveCurrentToLast()
-      {
-         return MoveCurrentToPosition(cells.Count - 1);
-      }
-
-      public bool MoveCurrentToPosition(int position)
-      {
-         // Preview
-         this.CurrentPosition = position;
-         bool result = false;
-         if (CurrentItem != null)
-         {
-            result = ((FrameworkElement)CurrentItem).MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
-         }
-         // current changed.
-         return result;
-      }
-
-      public bool MoveCurrentToRelativePosition(int offset)
-      {
-         return MoveCurrentToPosition(CurrentPosition + offset);
-      }
-
-      #endregion
    }
 }

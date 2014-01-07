@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections;
+using MagicSoftware.Common.Controls.Table.Extensions;
 
 namespace MagicSoftware.Common.Controls.Table
 {
@@ -43,6 +44,14 @@ namespace MagicSoftware.Common.Controls.Table
       public static readonly DependencyProperty ItemsSourceProperty =
           DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(Table), new UIPropertyMetadata(null));
 
+
+
+
+      public ItemsControlEditMode EditMode
+      {
+         get { return (ItemsControlEditMode)DataGridEditingExtender.GetEditMode(rootItemsControl); }
+         set { DataGridEditingExtender.SetEditMode(rootItemsControl, value); }
+      }
 
 
       public Table()

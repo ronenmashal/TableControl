@@ -25,7 +25,7 @@
             </Style>
         </Grid.Resources>
 
-        <DataGrid x:Name="DG"
+        <DataGrid x:Name="rootItemsControl"
                   CanUserAddRows="False"
                   CurrentItem="{Binding CurrentItem}"
                   EnableRowVirtualization="True"

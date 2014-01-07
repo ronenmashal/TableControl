@@ -77,9 +77,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       protected override void Setup()
       {
          UpdateEditMode();
-         editModeWorker.Setup();
          //CommandManager.AddPreviewCanExecuteHandler(TargetElement, PreviewCanExecuteCommand);
-         TargetElement.PreviewKeyDown += TargetElement_PreviewKeyDown;
+         TargetElement.AddHandler(FrameworkElement.PreviewKeyDownEvent, new RoutedEventHandler(TargetElement_PreviewKeyDown), true);
+         //TargetElement.PreviewKeyDown += TargetElement_PreviewKeyDown;
          TargetElement.PreviewMouseDown += TargetElement_PreviewMouseDown;
       }
 
@@ -87,7 +87,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          editModeWorker.Cleanup();
          //CommandManager.RemovePreviewCanExecuteHandler(TargetElement, PreviewCanExecuteCommand);
-         TargetElement.PreviewKeyDown -= TargetElement_PreviewKeyDown;
+         TargetElement.RemoveHandler(FrameworkElement.PreviewKeyDownEvent, new RoutedEventHandler(TargetElement_PreviewKeyDown));
+         //TargetElement.PreviewKeyDown -= TargetElement_PreviewKeyDown;
          TargetElement.PreviewMouseDown -= TargetElement_PreviewMouseDown;
       }
 
@@ -126,9 +127,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return new ReadOnlyEditMode();
       }
 
-      protected void TargetElement_PreviewKeyDown(object sender, KeyEventArgs e)
+      protected void TargetElement_PreviewKeyDown(object sender, RoutedEventArgs e)
       {
-         editModeWorker.ProcessKey(e);
+         editModeWorker.ProcessKey((KeyEventArgs)e);
       }
 
       void TargetElement_PreviewMouseDown(object sender, MouseButtonEventArgs e)

@@ -12,6 +12,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          this.dataGridRow = dataGridRow;
          owner = UIUtils.GetAncestor<DataGrid>(dataGridRow);
+         if (owner.CurrentColumn == null)
+         {
+            owner.CurrentColumn = owner.ColumnFromDisplayIndex(0);
+         }
       }
 
       public override object CurrentItem

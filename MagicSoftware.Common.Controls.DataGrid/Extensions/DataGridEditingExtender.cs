@@ -66,7 +66,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
 
       ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-      IDataGridEditMode editModeWorker = null;
+      DataGridEditStateMachine editModeWorker = null;
 
       protected ItemsControlEditMode EditMode
       {
@@ -97,7 +97,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (editModeWorker != null)
             editModeWorker.Cleanup();
 
-         editModeWorker = CreateEditModeWorker(EditMode);
+         editModeWorker = CreateEditStateMachine(EditMode);
 
          if (editModeWorker != null)
          {
@@ -106,25 +106,25 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
-      private IDataGridEditMode CreateEditModeWorker(ItemsControlEditMode editMode)
+      private DataGridEditStateMachine CreateEditStateMachine(ItemsControlEditMode editMode)
       {
          switch (editMode)
          {
             case ItemsControlEditMode.ReadOnly:
-               return new ReadOnlyEditMode();
+               return new ReadOnlyEditStateMachine();
 
             case ItemsControlEditMode.SingleLine:
-               return new SingleLineEditMode();
+               return new SingleLineEditStateMachine();
 
             case ItemsControlEditMode.AlwaysInEdit:
-               return new AlwaysEditMode();
+               return new AlwaysEditStateMachine();
 
             case ItemsControlEditMode.Persistent:
                break;
             default:
                break;
          }
-         return new ReadOnlyEditMode();
+         return new ReadOnlyEditStateMachine();
       }
 
       protected void TargetElement_PreviewKeyDown(object sender, RoutedEventArgs e)
@@ -148,8 +148,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
    }
 
-   abstract class IDataGridEditMode
+   abstract class DataGridEditStateMachine
    {
+      protected ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
       public EnhancedDGProxy TargetElementProxy { get; set; }
       protected ICurrentItemProvider CurrentItemProvider { get; private set; }
 
@@ -168,7 +170,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       void DataGridEditingExtender_PreviewCurrentChanging(object sender, CancelableRoutedEventArgs e)
       {
+         var args = e as PreviewCurrentChangingEventArgs;
+         var changeType = args.OldValue == null ? args.NewValue.GetType() : args.OldValue.GetType();
+
+         log.DebugFormat("Processing current changing of {0} event on {1}", changeType, this);
          e.Canceled = !CanLeaveCurrentLine();
+         if (e.Canceled)
+         {
+            log.DebugFormat("-- Canceling event.");
+         }
       }
 
 
@@ -177,9 +187,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       internal abstract void ProcessKey(KeyEventArgs e);
 
       protected abstract bool CanLeaveCurrentLine();
+
+      public override string ToString()
+      {
+         return "{" + GetType().Name + "}";
+      }
    }
 
-   class ReadOnlyEditMode : IDataGridEditMode
+   class ReadOnlyEditStateMachine : DataGridEditStateMachine
    {
       ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -206,13 +221,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
    }
 
-   class SingleLineEditMode : IDataGridEditMode
+   class SingleLineEditStateMachine : DataGridEditStateMachine
    {
-      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
       public ICurrentItemProvider CurrentItemTracker { get; set; }
 
-      public SingleLineEditMode()
+      public SingleLineEditStateMachine()
       {
       }
 
@@ -224,6 +237,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       internal override void ProcessKey(KeyEventArgs e)
       {
+         log.DebugFormat("Processing key {0} on {1}", e.Key, this);
          using (var editProxy = TargetElementProxy.GetAdapter<IElementEditStateProxy>())
          {
             switch (e.Key)
@@ -268,7 +282,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
    }
 
-   class AlwaysEditMode : IDataGridEditMode
+   class AlwaysEditStateMachine : DataGridEditStateMachine
    {
       DispatcherTimer beginEditTimer;
       IElementEditStateProxy editProxy;

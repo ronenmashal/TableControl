@@ -37,7 +37,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="DataGridRow">
-                            <StackPanel Orientation="Horizontal">
+                            <StackPanel Focusable="False" Orientation="Horizontal">
                                 <DataGridRowHeader />
                                 <Border x:Name="brdr"
                                         Background="{TemplateBinding Background}"
@@ -202,10 +202,19 @@
                 -->
             </tbl:Table>
 
-            <ListBox Grid.Column="1"
-                     ItemsSource="{Binding SelectedItems,
-                                           ElementName=DG}"
-                     SelectionMode="Extended" />
+            <!--
+                <ListBox Grid.Column="1"
+                ItemsSource="{Binding SelectedItems,
+                ElementName=DG}"
+                SelectionMode="Extended" />
+            -->
+            <tbl:LineEditor Grid.Column="1" ItemsSource="{Binding Items}">
+                <tbl:LineEditor.Resources>
+                    <DataTemplate x:Key="{x:Type data:MyHeaderView}">
+                        <tbl:VirtualTextTableCell Binding="{Binding StringValue}" />
+                    </DataTemplate>
+                </tbl:LineEditor.Resources>
+            </tbl:LineEditor>
         </Grid>
         <!--
             <DataGrid CanUserAddRows="False"

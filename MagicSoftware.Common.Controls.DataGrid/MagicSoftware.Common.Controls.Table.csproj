@@ -60,6 +60,10 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="LineEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Table.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -89,6 +93,9 @@
     <Compile Include="Extensions\ICurrentItemProvider.cs" />
     <Compile Include="Extensions\IElementEditStateProxy.cs" />
     <Compile Include="Extensions\PreviewCurrentChangingEventService.cs" />
+    <Compile Include="LineEditor.xaml.cs">
+      <DependentUpon>LineEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Markup\StringWidth.cs" />
     <Compile Include="ObjectEqualityConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

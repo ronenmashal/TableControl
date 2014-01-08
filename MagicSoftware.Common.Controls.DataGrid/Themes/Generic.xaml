@@ -628,7 +628,9 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type cells:VirtualTableCell}">
-                    <Border BorderBrush="Blue" BorderThickness="1">
+                    <Border Background="Aqua"
+                            BorderBrush="Transparent"
+                            BorderThickness="1">
                         <!--  <TextBlock Text="Basic"/>  -->
                         <ContentPresenter VerticalAlignment="Center" ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
                     </Border>

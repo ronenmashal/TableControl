@@ -38,7 +38,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (element != null)
          {
             // Create a service provider for the element.
-            SetServiceProvider(element, new UIServiceProvider((IEnumerable<IUIService>)changeArgs.NewValue));
+            SetServiceProvider(element, new UIServiceProvider(element, (IEnumerable<IUIService>)changeArgs.NewValue));
          }
       }
 
@@ -65,12 +65,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       Dictionary<Type, IUIService> serviceImplementations = new Dictionary<Type, IUIService>();
 
 
-      private UIServiceProvider(IEnumerable<IUIService> serviceList)
+      private UIServiceProvider(UIElement element, IEnumerable<IUIService> serviceList)
       {
-         SetServiceList(serviceList);
+         SetServiceList(element, serviceList);
       }
 
-      void SetServiceList(IEnumerable<IUIService> serviceList)
+      void SetServiceList(UIElement element, IEnumerable<IUIService> serviceList)
       {
          foreach (var service in serviceList)
          {
@@ -80,11 +80,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             {
                serviceType = ((ImplementedServiceAttribute)customAttrs[0]).ImplementedServiceType;
             }
+            service.SetElement(element);
             serviceImplementations.Add(serviceType, service);
          }
       }
 
-      public IUIService GetService(UIElement element, Type serviceType)
+      public IUIService GetService(Type serviceType)
       {
          if (serviceImplementations.ContainsKey(serviceType))
             return serviceImplementations[serviceType];
@@ -92,10 +93,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return null;
       }
 
-      public T GetService<T>(UIElement element)
+      public T GetService<T>()
          where T : class
       {
-         return GetService(element, typeof(T)) as T;
+         return GetService(typeof(T)) as T;
       }
    }
 }

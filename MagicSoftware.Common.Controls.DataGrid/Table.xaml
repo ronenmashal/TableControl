@@ -42,24 +42,33 @@
                   SelectionUnit="FullRow">
             <ext:ElementExtensions.Extenders>
                 <ext:ExtendersCollection>
-                    <ext:DataGridColumnLayoutExtender>
+                    <!--
+                        <ext:DataGridColumnLayoutExtender>
                         <ext:DataGridColumnLayoutExtender.Distributor>
-                            <ext:ProportionalColumnDistribution />
+                        <ext:ProportionalColumnDistribution />
                         </ext:DataGridColumnLayoutExtender.Distributor>
-                    </ext:DataGridColumnLayoutExtender>
+                        </ext:DataGridColumnLayoutExtender>
+                    -->
 
                     <lext:DataGridNavigationExtender />
 
-                    <lext:DataGridSelectionExtender />
-
-                    <lext:DataGridEditingExtender />
-
-                    <lext:DataGridFocusManagementExtender />
+                    <!--
+                        <lext:DataGridSelectionExtender />
+                        
+                        <lext:DataGridEditingExtender />
+                        
+                        <lext:DataGridFocusManagementExtender />
+                    -->
                 </ext:ExtendersCollection>
             </ext:ElementExtensions.Extenders>
             <pxy:FrameworkElementProxy.Proxy>
                 <lext:EnhancedDGProxy />
             </pxy:FrameworkElementProxy.Proxy>
+            <lext:UIServiceProvider.ServiceList>
+                <lext:UIServiceCollection>
+                    <lext:DataGridCurrentItemService />
+                </lext:UIServiceCollection>
+            </lext:UIServiceProvider.ServiceList>
         </DataGrid>
     </Grid>
 </UserControl>

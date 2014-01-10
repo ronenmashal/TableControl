@@ -95,6 +95,7 @@
     <Compile Include="Extensions\ImplementedServiceAttribute.cs" />
     <Compile Include="Extensions\IUIService.cs" />
     <Compile Include="Extensions\PreviewCurrentChangingEventService.cs" />
+    <Compile Include="Extensions\UIServiceCollection.cs" />
     <Compile Include="Extensions\UIServiceProvider.cs" />
     <Compile Include="LineEditor.xaml.cs">
       <DependentUpon>LineEditor.xaml</DependentUpon>

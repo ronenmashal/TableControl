@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   public interface IUIService : IDisposable
+   public class UIServiceCollection : List<IUIService>
    {
-      void SetElement(UIElement element);
    }
 }

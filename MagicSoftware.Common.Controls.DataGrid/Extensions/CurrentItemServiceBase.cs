@@ -3,10 +3,12 @@ using System.Windows;
 using System.Windows.Controls;
 using MagicSoftware.Common.Controls.Proxies;
 using MagicSoftware.Common.Controls.Table.CellTypes;
+using System;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   abstract class CurrentItemServiceBase : ICurrentItemService
+   [ImplementedServiceAttribute(typeof(ICurrentItemService))]
+   abstract class CurrentItemServiceBase : ICurrentItemService, IUIService
    {
       public event CancelableRoutedEventHandler PreviewCurrentChanging
       {
@@ -26,7 +28,19 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       FrameworkElementProxy proxy;
 
+      public CurrentItemServiceBase()
+      {
+
+      }
+
+      [Obsolete]
       public CurrentItemServiceBase(UIElement servedElement)
+      {
+         SetElement(servedElement);
+
+      }
+
+      public void SetElement(UIElement servedElement)
       {
          proxy = FrameworkElementProxy.GetProxy(servedElement);
          previewCurrentChangingEventService = proxy.GetAdapter<PreviewCurrentChangingEventService>();
@@ -59,6 +73,24 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          currentChangedEventService.RaiseCurrentChangedEvent();
       }
+
+      #region IUIService Members
+
+      void IUIService.SetElement(UIElement element)
+      {
+         SetElement(element);
+      }
+
+      #endregion
+
+      #region IDisposable Members
+
+      void IDisposable.Dispose()
+      {
+         
+      }
+
+      #endregion
    }
 }
 

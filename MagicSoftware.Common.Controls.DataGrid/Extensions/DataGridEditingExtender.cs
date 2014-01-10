@@ -196,8 +196,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
    class ReadOnlyEditStateMachine : DataGridEditStateMachine
    {
-      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
       protected override void PreviewCanExecuteCommand(object commandTarget, CanExecuteRoutedEventArgs args)
       {
          if ((args.Command == DataGrid.BeginEditCommand) || (args.Command == DataGrid.CommitEditCommand) || (args.Command == DataGrid.CancelEditCommand))

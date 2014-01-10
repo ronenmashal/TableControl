@@ -23,12 +23,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
       protected IEditingItemsControlProxy EditProxy { get; private set; }
 
-      ICurrentItemProvider currentItemProvider;
+      ICurrentItemService currentItemProvider;
 
       protected override void Setup()
       {
          EditProxy = DataGridProxy.GetAdapter<IEditingItemsControlProxy>();
-         currentItemProvider = DataGridProxy.GetAdapter<ICurrentItemProvider>();
+         currentItemProvider = DataGridProxy.GetAdapter<ICurrentItemService>();
 
          TargetElement.PreviewKeyDown += TargetElement_PreviewKeyDown;
          TargetElement.PreviewMouseDown += TargetElement_PreviewMouseDown;
@@ -55,7 +55,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             case Key.Tab:
                var proxy = DataGridProxy.GetItemContainerProxy(DataGridProxy.CurrentItemContainer());
-               var rowCurrentItemProvider = proxy.GetAdapter<ICurrentItemProvider>();
+               var rowCurrentItemProvider = proxy.GetAdapter<ICurrentItemService>();
                int offset = 1;
                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
                   offset = -1;

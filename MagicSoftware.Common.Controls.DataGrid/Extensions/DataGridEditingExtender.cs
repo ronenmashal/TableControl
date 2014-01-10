@@ -153,11 +153,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       protected ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
       public EnhancedDGProxy TargetElementProxy { get; set; }
-      protected ICurrentItemProvider CurrentItemProvider { get; private set; }
+      protected ICurrentItemService CurrentItemProvider { get; private set; }
 
       public virtual void Setup()
       {
-         CurrentItemProvider = TargetElementProxy.GetAdapter<ICurrentItemProvider>();
+         CurrentItemProvider = TargetElementProxy.GetAdapter<ICurrentItemService>();
          TargetElementProxy.PreviewCanExecute += PreviewCanExecuteCommand;
          CurrentItemProvider.PreviewCurrentChanging += DataGridEditingExtender_PreviewCurrentChanging;
       }
@@ -221,7 +221,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
    class SingleLineEditStateMachine : DataGridEditStateMachine
    {
-      public ICurrentItemProvider CurrentItemTracker { get; set; }
+      public ICurrentItemService CurrentItemTracker { get; set; }
 
       public SingleLineEditStateMachine()
       {

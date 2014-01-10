@@ -6,7 +6,7 @@ using MagicSoftware.Common.Controls.Table.CellTypes;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   abstract class CurrentItemServiceBase : ICurrentItemProvider
+   abstract class CurrentItemServiceBase : ICurrentItemService
    {
       public event CancelableRoutedEventHandler PreviewCurrentChanging
       {

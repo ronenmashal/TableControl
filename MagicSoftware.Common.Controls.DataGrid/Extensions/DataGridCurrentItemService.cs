@@ -14,7 +14,8 @@ using System.Collections;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class DataGridAsCurrentItemProvider : CurrentItemServiceBase, ICurrentItemProvider
+   [ImplementedServiceAttribute(typeof(ICurrentItemService))]
+   class DataGridCurrentItemService : CurrentItemServiceBase, ICurrentItemService, IUIService
    {
       // TODO: SHould be ItemsControlPRoxy or FrameworkElementProxy.
       private EnhancedDGProxy dgProxy;
@@ -25,7 +26,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       AutoResetFlag isSelfInducedChange = new AutoResetFlag();
 
 
-      public DataGridAsCurrentItemProvider(DataGrid dataGrid): base(dataGrid)
+      public DataGridCurrentItemService(DataGrid dataGrid): base(dataGrid)
       {
          this.DataGridElement = dataGrid;
          this.dgProxy = (EnhancedDGProxy)FrameworkElementProxy.GetProxy(dataGrid);

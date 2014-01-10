@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="DataGridAsCurrentItemProviderTest.cs" />
     <Compile Include="DataGridAsEditingAdapterTest.cs" />
+    <Compile Include="DataGridCurrentCellServiceTest.cs" />
     <Compile Include="PrivateAccessHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestWindow.xaml.cs">

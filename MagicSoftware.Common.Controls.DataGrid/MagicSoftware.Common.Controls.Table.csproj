@@ -82,6 +82,7 @@
     <Compile Include="Extensions\CurrentItemServiceBase.cs" />
     <Compile Include="Extensions\CustomRowCurrentItemService.cs" />
     <Compile Include="Extensions\DataGridAsEditingAdapter.cs" />
+    <Compile Include="Extensions\DataGridCurrentCellService.cs" />
     <Compile Include="Extensions\DataGridEditingExtender.cs" />
     <Compile Include="Extensions\DataGridFocusManagementExtender.cs" />
     <Compile Include="Extensions\DataGridNavigationExtender.cs" />
@@ -90,9 +91,12 @@
     <Compile Include="Extensions\DataGridAsCurrentItemProvider.cs" />
     <Compile Include="Extensions\DependencyPropertyChangeListener.cs" />
     <Compile Include="Extensions\EnhancedDGProxy.cs" />
+    <Compile Include="Extensions\IAdaptedCellInfo.cs" />
+    <Compile Include="Extensions\ICurrentCellService.cs" />
     <Compile Include="Extensions\ICurrentItemProvider.cs" />
     <Compile Include="Extensions\IElementEditStateProxy.cs" />
     <Compile Include="Extensions\PreviewCurrentChangingEventService.cs" />
+    <Compile Include="Extensions\UniformCellInfo.cs" />
     <Compile Include="LineEditor.xaml.cs">
       <DependentUpon>LineEditor.xaml</DependentUpon>
     </Compile>

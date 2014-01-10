@@ -3,49 +3,63 @@ using System.Windows.Controls;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-  class DataGridRowCurrentItemService : CurrentItemServiceBase
+   class DataGridRowCurrentItemService : CurrentItemServiceBase
    {
       private DataGridRow dataGridRow;
       private DataGrid owner;
+      private int currentPosition = -1;
+      private IAdaptedCellInfo currentCellInfo = null;
 
-      public DataGridRowCurrentItemService(DataGridRow dataGridRow): base(dataGridRow)
+      public DataGridRowCurrentItemService(DataGridRow dataGridRow)
+         : base(dataGridRow)
       {
          this.dataGridRow = dataGridRow;
          owner = UIUtils.GetAncestor<DataGrid>(dataGridRow);
+         owner.CurrentCellChanged += new System.EventHandler<System.EventArgs>(owner_CurrentCellChanged);
          if (owner.CurrentColumn == null)
          {
             owner.CurrentColumn = owner.ColumnFromDisplayIndex(0);
          }
       }
 
+      void owner_CurrentCellChanged(object sender, System.EventArgs e)
+      {
+         UpdateCurrentStateInfo();
+      }
+
+      void UpdateCurrentStateInfo()
+      {
+         int newPosition = -1;
+         if (owner.CurrentColumn != null)
+         {
+            newPosition = owner.CurrentColumn.DisplayIndex;
+         }
+         if (newPosition != currentPosition)
+         {
+            currentPosition = newPosition;
+            currentCellInfo = DataGridAdaptedCellInfo.FromDataGridCellInfo(owner.CurrentCell);
+         }
+      }
+
       public override object CurrentItem
       {
-         get
-         {
-            if (owner.CurrentColumn == null)
-               return null;
-            return owner.CurrentColumn.GetCellContent(dataGridRow);
-         }
+         get { return currentCellInfo; }
       }
 
       public override int CurrentPosition
       {
-         get
-         {
-            if (owner.CurrentColumn == null)
-               return -1;
-            return owner.CurrentColumn.DisplayIndex;
-         }
+         get { return currentPosition; }
       }
 
       bool MoveToCell(DataGridCell cell)
       {
+         DataGridCellInfo newCellInfo = new DataGridCellInfo(cell);
+         IAdaptedCellInfo newAdaptedCellInfo = DataGridAdaptedCellInfo.FromDataGridCellInfo(newCellInfo);
          bool canceled;
-         RaisePreviewCurrentChangingEvent(cell, out canceled);
+         RaisePreviewCurrentChangingEvent(newAdaptedCellInfo, out canceled);
          if (canceled)
             return CurrentItem != null;
 
-         DataGridCellInfo newCellInfo = new DataGridCellInfo(cell);
          owner.CurrentCell = newCellInfo;
 
          RaiseCurrentChangedEvent();
@@ -99,5 +113,32 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return MoveCurrentTo(targetElement);
       }
    }
+
+   class DataGridAdaptedCellInfo : IAdaptedCellInfo
+   {
+      #region IAdaptedCellInfo Members
+
+      public object Item { get; private set; }
+      public object Column { get; private set; }
+      public int DisplayIndex { get; private set; }
+      public int ItemIndex { get; private set; }
+
+      #endregion
+
+      public static IAdaptedCellInfo FromDataGridCell(DataGridCell cell)
+      {
+         return FromDataGridCellInfo(new DataGridCellInfo(cell));
+      }
+
+      public static IAdaptedCellInfo FromDataGridCellInfo(DataGridCellInfo cellInfo)
+      {
+         DataGridAdaptedCellInfo adaptedCellInfo = new DataGridAdaptedCellInfo();
+         adaptedCellInfo.Item = cellInfo.Item;
+         adaptedCellInfo.DisplayIndex = cellInfo.Column.DisplayIndex;
+         adaptedCellInfo.Column = cellInfo.Column;
+         return adaptedCellInfo;
+      }
+   }
+
 }
 

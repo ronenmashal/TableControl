@@ -78,7 +78,6 @@
     <Compile Include="CellTypes\ComboBoxVirtualTableCell.cs" />
     <Compile Include="EnhancedDataGrid.cs" />
     <Compile Include="Extensions\CancelableRoutedEventArgs.cs" />
-    <Compile Include="Extensions\CurrentChangedEventService.cs" />
     <Compile Include="Extensions\CurrentItemServiceBase.cs" />
     <Compile Include="Extensions\CustomRowCurrentItemService.cs" />
     <Compile Include="Extensions\DataGridAsEditingAdapter.cs" />
@@ -94,7 +93,7 @@
     <Compile Include="Extensions\IElementEditStateProxy.cs" />
     <Compile Include="Extensions\ImplementedServiceAttribute.cs" />
     <Compile Include="Extensions\IUIService.cs" />
-    <Compile Include="Extensions\PreviewCurrentChangingEventService.cs" />
+    <Compile Include="Extensions\PreviewChangeEventArgs.cs" />
     <Compile Include="Extensions\UIServiceCollection.cs" />
     <Compile Include="Extensions\UIServiceProvider.cs" />
     <Compile Include="LineEditor.xaml.cs">

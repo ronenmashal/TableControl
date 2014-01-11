@@ -29,19 +29,18 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
       protected ICurrentItemService CurrentItemTracker { get; private set; }
-      CurrentChangedEventService currentChangedService;
 
       protected override void Setup()
       {
-         currentChangedService = DataGridProxy.GetAdapter<CurrentChangedEventService>();
-         currentChangedService.CurrentChanged += CurrentItemTracker_CurrentChanged;
+         //TODO: replace following with ICurrentCellService.
+         //currentChangedService.CurrentChanged += CurrentItemTracker_CurrentChanged;
          CurrentItemTracker = DataGridProxy.GetAdapter<ICurrentItemService>();
       }
 
       protected override void Cleanup()
       {
          CurrentItemTracker.CurrentChanged -= CurrentItemTracker_CurrentChanged;
-         currentChangedService.CurrentChanged -= CurrentItemTracker_CurrentChanged;
+         //TODO: ICurrentCellService
       }
 
       void CurrentItemTracker_CurrentChanged(object sender, RoutedEventArgs e)

@@ -89,27 +89,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       SharedObjectsService sharedObjectsService = new SharedObjectsService();
-      PreviewCurrentChangingEventService previewCurrentChangingEventService = null;
-      CurrentChangedEventService currentChangedEventService = null;
 
       protected override object GetAdapter(Type adapterType)
       {
          if (adapterType == typeof(SharedObjectsService))
             return sharedObjectsService;
-
-         if (adapterType == typeof(PreviewCurrentChangingEventService))
-         {
-            if (previewCurrentChangingEventService == null)
-               previewCurrentChangingEventService = new PreviewCurrentChangingEventService(this);
-            return previewCurrentChangingEventService;
-         }
-
-         if (adapterType == typeof(CurrentChangedEventService))
-         {
-            if (currentChangedEventService == null)
-               currentChangedEventService = new CurrentChangedEventService(this);
-            return currentChangedEventService;
-         }
 
          return base.GetAdapter(adapterType);
       }

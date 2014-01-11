@@ -170,7 +170,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       void DataGridEditingExtender_PreviewCurrentChanging(object sender, CancelableRoutedEventArgs e)
       {
-         var args = e as PreviewCurrentChangingEventArgs;
+         var args = e as PreviewChangeEventArgs;
          var changeType = args.OldValue == null ? args.NewValue.GetType() : args.OldValue.GetType();
 
          log.DebugFormat("Processing current changing of {0} event on {1}", changeType, this);

@@ -165,6 +165,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public override bool MoveCurrentToPrevious()
       {
+         if (itemsView.IsCurrentAfterLast)
+            return MoveCurrentToLast();
+
          return MoveCurrentToRelativePosition(-1);
       }
 
@@ -177,6 +180,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public override bool MoveCurrentToPosition(int position)
       {
          if (position < -1)
+            return false;
+
+         if (itemsView.IsCurrentAfterLast)
             return false;
 
          using (isSelfInducedChange.Set())

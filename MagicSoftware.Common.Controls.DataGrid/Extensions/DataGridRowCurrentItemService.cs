@@ -114,6 +114,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
    }
 
+   interface IAdaptedCellInfo
+   {
+      object Item { get; }
+      object Column { get; }
+      int DisplayIndex { get; }
+      int ItemIndex { get; }
+   }
+
    class DataGridAdaptedCellInfo : IAdaptedCellInfo
    {
       #region IAdaptedCellInfo Members

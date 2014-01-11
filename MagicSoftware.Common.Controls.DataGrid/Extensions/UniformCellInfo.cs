@@ -6,12 +6,12 @@ using System.Windows;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   interface ICellElementLocator
+   public interface ICellElementLocator
    {
       UIElement GetCell(UIElement cellContainer);
    }
 
-   class UniformCellInfo
+   public class UniformCellInfo
    {
       public object Item { get; private set; }
       public ICellElementLocator CellElementLocator { get; private set; }

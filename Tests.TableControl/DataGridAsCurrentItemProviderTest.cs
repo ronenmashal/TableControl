@@ -91,7 +91,7 @@ namespace Tests.TableControl
          using (TestUtils.AutoCloseWindow(w))
          {
             DataGrid dataGrid = w.MainDataGrid;
-            DataGridAsCurrentItemProvider target = new DataGridAsCurrentItemProvider(dataGrid);
+            DataGridCurrentItemService target = new DataGridCurrentItemService(dataGrid);
          }
       }
 
@@ -116,7 +116,7 @@ namespace Tests.TableControl
          {
             var dataGrid = w.MainDataGrid;
             dataGrid.CurrentItem = null;
-            var helper = new PrivateAccessHelper<DataGridAsCurrentItemProvider, DataGridAsCurrentItemProvider_Accessor>(new DataGridAsCurrentItemProvider(dataGrid));
+            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
             var provider = helper.Target;
             var previewCurrentChangingEventHandlerHelper = new EventHandlerTestHelper<object, CancelableRoutedEventArgs>("PreviewCurrentChanging");
             provider.PreviewCurrentChanging += previewCurrentChangingEventHandlerHelper.Handler;
@@ -167,7 +167,7 @@ namespace Tests.TableControl
          {
             var dataGrid = w.MainDataGrid;
             dataGrid.Items.MoveCurrentTo(null);
-            var helper = new PrivateAccessHelper<DataGridAsCurrentItemProvider, DataGridAsCurrentItemProvider_Accessor>(new DataGridAsCurrentItemProvider(dataGrid));
+            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
             var provider = helper.Target;
             var previewCurrentChangingEventHandlerHelper = new EventHandlerTestHelper<object, CancelableRoutedEventArgs>("PreviewCurrentChanging");
             provider.PreviewCurrentChanging += previewCurrentChangingEventHandlerHelper.Handler;
@@ -223,7 +223,7 @@ namespace Tests.TableControl
          {
             var dataGrid = w.MainDataGrid;
             dataGrid.Items.MoveCurrentTo(null);
-            var helper = new PrivateAccessHelper<DataGridAsCurrentItemProvider, DataGridAsCurrentItemProvider_Accessor>(new DataGridAsCurrentItemProvider(dataGrid));
+            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
             var provider = helper.Target;
             var currentChangedEventHandlerHelper = new EventHandlerTestHelper<object, RoutedEventArgs>("CurrentChanged");
             provider.CurrentChanged += currentChangedEventHandlerHelper.Handler;
@@ -270,7 +270,7 @@ namespace Tests.TableControl
          {
             var dataGrid = w.MainDataGrid;
             dataGrid.Items.MoveCurrentTo(null);
-            var helper = new PrivateAccessHelper<DataGridAsCurrentItemProvider, DataGridAsCurrentItemProvider_Accessor>(new DataGridAsCurrentItemProvider(dataGrid));
+            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
             var provider = helper.Target;
 
             Assert.IsNull(provider.CurrentItem);

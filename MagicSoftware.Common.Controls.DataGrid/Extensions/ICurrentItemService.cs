@@ -7,7 +7,7 @@ using System.Windows;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   interface ICurrentItemProvider
+   interface ICurrentItemService
    {
       event CancelableRoutedEventHandler PreviewCurrentChanging;
       event RoutedEventHandler CurrentChanged;

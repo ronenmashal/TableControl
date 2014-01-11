@@ -10,7 +10,7 @@ using MagicSoftware.Common.Controls.Table.CellTypes;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class DataGridCurrentCellService : ICurrentCellService
+   class DataGridCurrentCellService : ICurrentCellService, IUIService
    {
       public event CancelableRoutedEventHandler PreviewCurrentCellChanging;
       public event RoutedEventHandler CurrentCellChanged;
@@ -18,9 +18,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private System.Windows.Controls.DataGrid dataGrid;
       private UniformCellInfo currentCell = null;
 
-      public DataGridCurrentCellService(DataGrid dataGrid)
+      public DataGridCurrentCellService()
       {
-         this.dataGrid = dataGrid;
+      }
+
+      public void SetElement(UIElement element)
+      {
+         this.dataGrid = (DataGrid)element;
          currentCell = GetCurrentCell();
       }
 
@@ -73,6 +77,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          throw new NotImplementedException();
       }
+
+      #region IDisposable Members
+
+      public void Dispose()
+      {
+         throw new NotImplementedException();
+      }
+
+      #endregion
    }
 
    class FindAncestor<T> : ICellElementLocator

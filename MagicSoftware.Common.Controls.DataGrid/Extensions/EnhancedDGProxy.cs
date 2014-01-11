@@ -89,27 +89,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       SharedObjectsService sharedObjectsService = new SharedObjectsService();
-      PreviewCurrentChangingEventService previewCurrentChangingEventService = null;
-      CurrentChangedEventService currentChangedEventService = null;
 
       protected override object GetAdapter(Type adapterType)
       {
          if (adapterType == typeof(SharedObjectsService))
             return sharedObjectsService;
-
-         if (adapterType == typeof(PreviewCurrentChangingEventService))
-         {
-            if (previewCurrentChangingEventService == null)
-               previewCurrentChangingEventService = new PreviewCurrentChangingEventService(this);
-            return previewCurrentChangingEventService;
-         }
-
-         if (adapterType == typeof(CurrentChangedEventService))
-         {
-            if (currentChangedEventService == null)
-               currentChangedEventService = new CurrentChangedEventService(this);
-            return currentChangedEventService;
-         }
 
          return base.GetAdapter(adapterType);
       }
@@ -185,14 +169,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             DataGridElement.ScrollIntoView(item);
       }
 
-      ICurrentItemProvider currentItemProvider = null;
+      ICurrentItemService currentItemProvider = null;
 
       protected override object GetAdapter(Type adapterType)
       {
-         if (adapterType == typeof(ICurrentItemProvider))
+         if (adapterType == typeof(ICurrentItemService))
          {
             if (currentItemProvider == null)
-               currentItemProvider = new DataGridAsCurrentItemProvider(DataGridElement);
+               currentItemProvider = new DataGridCurrentItemService(DataGridElement);
             return currentItemProvider;
          }
 
@@ -291,7 +275,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          if (ProxiedElement is DataGridRow)
          {
-            if (adapterType == typeof(ICurrentItemProvider))
+            if (adapterType == typeof(ICurrentItemService))
             {
                var row = ProxiedElement as DataGridRow;
                if (EnhancedDGProxy.GetIsCustomRow(row))

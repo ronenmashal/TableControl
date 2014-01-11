@@ -84,15 +84,17 @@ namespace Tests.TableControl
          DataGrid dataGrid;
          using (OpenTestWindow(out dataGrid))
          {
-            DataGridCurrentCellService target = new DataGridCurrentCellService(dataGrid);
+            DataGridCurrentCellService target = new DataGridCurrentCellService();
+            target.SetElement(dataGrid);
             Assert.IsNull(target.CurrentCell.Item);
             Assert.IsNull(target.CurrentCell.CellElementLocator);
 
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[1], dataGrid.Columns[0]);
-            target = new DataGridCurrentCellService(dataGrid);
+            target = new DataGridCurrentCellService();
+            target.SetElement(dataGrid);
             Assert.AreSame(dataList[1], target.CurrentCell.Item);
             Assert.IsInstanceOfType(target.CurrentCell.CellElementLocator, typeof(FindCellByColumn));
-            var cell = target.CurrentCell.CellElementLocator.GetCell()
+            //var cell = target.CurrentCell.CellElementLocator.GetCell();
          }
       }
 

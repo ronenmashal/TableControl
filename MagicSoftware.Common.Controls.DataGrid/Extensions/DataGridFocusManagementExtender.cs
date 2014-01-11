@@ -28,20 +28,19 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
 
       protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
-      protected ICurrentItemProvider CurrentItemTracker { get; private set; }
-      CurrentChangedEventService currentChangedService;
+      protected ICurrentItemService CurrentItemTracker { get; private set; }
 
       protected override void Setup()
       {
-         currentChangedService = DataGridProxy.GetAdapter<CurrentChangedEventService>();
-         currentChangedService.CurrentChanged += CurrentItemTracker_CurrentChanged;
-         CurrentItemTracker = DataGridProxy.GetAdapter<ICurrentItemProvider>();
+         //TODO: replace following with ICurrentCellService.
+         //currentChangedService.CurrentChanged += CurrentItemTracker_CurrentChanged;
+         CurrentItemTracker = DataGridProxy.GetAdapter<ICurrentItemService>();
       }
 
       protected override void Cleanup()
       {
          CurrentItemTracker.CurrentChanged -= CurrentItemTracker_CurrentChanged;
-         currentChangedService.CurrentChanged -= CurrentItemTracker_CurrentChanged;
+         //TODO: ICurrentCellService
       }
 
       void CurrentItemTracker_CurrentChanged(object sender, RoutedEventArgs e)
@@ -51,7 +50,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             return;
 
          var currentItemContainerProxy = DataGridProxy.GetItemContainerProxy(currentItemContainer);
-         ICurrentItemProvider currentItemService = currentItemContainerProxy.GetAdapter<ICurrentItemProvider>();
+         ICurrentItemService currentItemService = currentItemContainerProxy.GetAdapter<ICurrentItemService>();
          if (currentItemService.CurrentItem != null)
          {
             ((UIElement)currentItemService.CurrentItem).Focus();

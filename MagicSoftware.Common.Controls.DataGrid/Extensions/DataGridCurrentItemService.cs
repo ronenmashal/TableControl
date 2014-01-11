@@ -14,7 +14,8 @@ using System.Collections;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class DataGridAsCurrentItemProvider : CurrentItemServiceBase, ICurrentItemProvider
+   [ImplementedServiceAttribute(typeof(ICurrentItemService))]
+   class DataGridCurrentItemService : CurrentItemServiceBase, ICurrentItemService, IUIService
    {
       // TODO: SHould be ItemsControlPRoxy or FrameworkElementProxy.
       private EnhancedDGProxy dgProxy;
@@ -24,13 +25,23 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       ICollectionView itemsView;
       AutoResetFlag isSelfInducedChange = new AutoResetFlag();
 
-
-      public DataGridAsCurrentItemProvider(DataGrid dataGrid): base(dataGrid)
+      public DataGridCurrentItemService()
       {
+
+      }
+
+      [Obsolete("You should use the empty constructor.")]
+      public DataGridCurrentItemService(DataGrid dataGrid): base(dataGrid)
+      {
+         SetElement(dataGrid);
+      }
+
+      public void SetElement(DataGrid dataGrid)
+      {
+         base.SetElement(dataGrid);
          this.DataGridElement = dataGrid;
          this.dgProxy = (EnhancedDGProxy)FrameworkElementProxy.GetProxy(dataGrid);
          Debug.Assert(dgProxy != null, "The attached element must have a proxy");
-         currentItemPropertyChangeListener = new DependencyPropertyChangeListener(DataGridElement, DataGrid.CurrentItemProperty, DataGrid_CurrentItemChanged);
 
          if (DataGridElement.IsLoaded)
             AttachItemsViewToItemsSource();
@@ -51,6 +62,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// </summary>
       void AttachItemsViewToItemsSource()
       {
+         currentItemPropertyChangeListener = new DependencyPropertyChangeListener(DataGridElement, DataGrid.CurrentItemProperty, DataGrid_CurrentItemChanged);
+
          if (itemsView != null)
             UnregisterItemsViewEventHandlers();
 
@@ -152,6 +165,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public override bool MoveCurrentToPrevious()
       {
+         if (itemsView.IsCurrentAfterLast)
+            return MoveCurrentToLast();
+
          return MoveCurrentToRelativePosition(-1);
       }
 
@@ -164,6 +180,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public override bool MoveCurrentToPosition(int position)
       {
          if (position < -1)
+            return false;
+
+         if (itemsView.IsCurrentAfterLast)
             return false;
 
          using (isSelfInducedChange.Set())
@@ -180,6 +199,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
 
 
+
+      #region IUIService Members
+
+      void IUIService.SetElement(UIElement element)
+      {
+         SetElement((DataGrid)element);
+      }
+
+      #endregion
    }
 
 }

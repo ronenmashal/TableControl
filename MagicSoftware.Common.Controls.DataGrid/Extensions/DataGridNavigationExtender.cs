@@ -21,14 +21,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
       protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
-      protected IEditingItemsControlProxy EditProxy { get; private set; }
+      //protected IEditingItemsControlProxy EditProxy { get; private set; }
 
-      ICurrentItemProvider currentItemProvider;
+      ICurrentItemService currentItemProvider;
 
       protected override void Setup()
       {
-         EditProxy = DataGridProxy.GetAdapter<IEditingItemsControlProxy>();
-         currentItemProvider = DataGridProxy.GetAdapter<ICurrentItemProvider>();
+         //EditProxy = DataGridProxy.GetAdapter<IEditingItemsControlProxy>();
+         currentItemProvider = UIServiceProvider.GetServiceProvider(TargetElement).GetService<ICurrentItemService>(); // DataGridProxy.GetAdapter<ICurrentItemService>();
 
          TargetElement.PreviewKeyDown += TargetElement_PreviewKeyDown;
          TargetElement.PreviewMouseDown += TargetElement_PreviewMouseDown;
@@ -55,7 +55,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             case Key.Tab:
                var proxy = DataGridProxy.GetItemContainerProxy(DataGridProxy.CurrentItemContainer());
-               var rowCurrentItemProvider = proxy.GetAdapter<ICurrentItemProvider>();
+               var rowCurrentItemProvider = proxy.GetAdapter<ICurrentItemService>();
                int offset = 1;
                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
                   offset = -1;
@@ -115,11 +115,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (clickedRow == null)
             return;
 
-         if (EditProxy.IsEditing && !TargetElement.CommitEdit(DataGridEditingUnit.Row, true))
-         {
-            e.Handled = true;
-            return;
-         }
+         //if (EditProxy.IsEditing && !TargetElement.CommitEdit(DataGridEditingUnit.Row, true))
+         //{
+         //   e.Handled = true;
+         //   return;
+         //}
 
          currentItemProvider.MoveCurrentTo(clickedRow.Item);
       }

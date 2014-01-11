@@ -30,7 +30,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       protected override void Setup()
       {
          EditProxy = DataGridProxy.GetAdapter<IEditingItemsControlProxy>();
-         var currentItemProvider = DataGridProxy.GetAdapter<ICurrentItemProvider>();
+         var currentItemProvider = DataGridProxy.GetAdapter<ICurrentItemService>();
          selectionModeManager = new SelectionModeManager(TargetElement, currentItemProvider);
       }
 
@@ -48,11 +48,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       protected ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
       protected MultiSelector Element { get; private set; }
-      protected ICurrentItemProvider CurrentItemTracker { get; private set; }
+      protected ICurrentItemService CurrentItemTracker { get; private set; }
 
       private SelectionMode currentSelectionMode;
 
-      public SelectionModeManager(MultiSelector element, ICurrentItemProvider currentItemTracker)
+      public SelectionModeManager(MultiSelector element, ICurrentItemService currentItemTracker)
       {
          Element = element;
          CurrentItemTracker = currentItemTracker;
@@ -127,9 +127,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       protected ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
       protected MultiSelector Element { get; private set; }
-      protected ICurrentItemProvider CurrentItemTracker { get; private set; }
+      protected ICurrentItemService CurrentItemTracker { get; private set; }
 
-      public void Initialize(MultiSelector element, ICurrentItemProvider currentItemTracker)
+      public void Initialize(MultiSelector element, ICurrentItemService currentItemTracker)
       {
          Element = element;
          CurrentItemTracker = currentItemTracker;

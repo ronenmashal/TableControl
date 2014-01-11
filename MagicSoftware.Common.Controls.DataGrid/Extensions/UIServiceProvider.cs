@@ -30,7 +30,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// Defines the list of services assigned to an element.
       /// </summary>
       public static readonly DependencyProperty ServiceListProperty =
-          DependencyProperty.RegisterAttached("Services", typeof(IEnumerable<IUIService>), typeof(UIServiceProvider), new UIPropertyMetadata(new List<IUIService>(), OnServiceListChanged));
+          DependencyProperty.RegisterAttached("ServiceList", typeof(IEnumerable<IUIService>), typeof(UIServiceProvider), new UIPropertyMetadata(new List<IUIService>(), OnServiceListChanged));
 
       static void OnServiceListChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)
       {

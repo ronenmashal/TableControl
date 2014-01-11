@@ -10,10 +10,20 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private int currentPosition = -1;
       private IAdaptedCellInfo currentCellInfo = null;
 
+      public DataGridRowCurrentItemService()
+      {
+
+      }
+
       public DataGridRowCurrentItemService(DataGridRow dataGridRow)
          : base(dataGridRow)
       {
-         this.dataGridRow = dataGridRow;
+         SetElement(dataGridRow);
+      }
+
+      public override void SetElement(UIElement element)
+      {
+         this.dataGridRow = (DataGridRow)element;
          owner = UIUtils.GetAncestor<DataGrid>(dataGridRow);
          owner.CurrentCellChanged += new System.EventHandler<System.EventArgs>(owner_CurrentCellChanged);
          if (owner.CurrentColumn == null)

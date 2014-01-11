@@ -23,6 +23,17 @@
             <Style x:Key="SelectAllButton" TargetType="Button">
                 <Setter Property="Background" Value="Red" />
             </Style>
+            <Style x:Key="TableRowStyle"
+                   BasedOn="{StaticResource {x:Type DataGridRow}}"
+                   TargetType="{x:Type DataGridRow}">
+                <Setter Property="lext:UIServiceProvider.ServiceList">
+                    <Setter.Value>
+                        <lext:UIServiceCollection>
+                            <lext:DataGridRowCurrentItemService />
+                        </lext:UIServiceCollection>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </Grid.Resources>
 
         <DataGrid x:Name="rootItemsControl"
@@ -35,11 +46,11 @@
                   lext:DataGridEditingExtender.EditMode="SingleLine"
                   lext:EnhancedDGProxy.SelectAllButtonTemplate="{StaticResource SelectAllButton}"
                   RowHeaderWidth="{lmrkup:TextRenderWidth 88888}"
-                  RowStyleSelector="{Binding RowStyleSelector,
-                                             RelativeSource={RelativeSource FindAncestor,
-                                                                            AncestorType=UserControl}}"
                   SelectionMode="Extended"
                   SelectionUnit="FullRow">
+            <DataGrid.RowStyleSelector>
+                <tbl:InternalRowStyleSelector />
+            </DataGrid.RowStyleSelector>
             <ext:ElementExtensions.Extenders>
                 <ext:ExtendersCollection>
                     <!--

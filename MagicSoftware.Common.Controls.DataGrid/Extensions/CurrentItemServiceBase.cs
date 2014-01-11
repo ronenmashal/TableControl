@@ -99,7 +99,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          SetElement(servedElement);
       }
 
-      public void SetElement(UIElement servedElement)
+      public virtual void SetElement(UIElement servedElement)
       {
          proxy = FrameworkElementProxy.GetProxy(servedElement);
          sharedObjectsService = proxy.GetAdapter<SharedObjectsService>();

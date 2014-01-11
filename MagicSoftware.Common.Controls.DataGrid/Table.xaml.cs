@@ -21,8 +21,6 @@ namespace MagicSoftware.Common.Controls.Table
    /// </summary>
    public partial class Table : UserControl
    {
-
-
       public StyleSelector RowStyleSelector
       {
          get { return (StyleSelector)GetValue(RowStyleSelectorProperty); }
@@ -32,7 +30,14 @@ namespace MagicSoftware.Common.Controls.Table
       public static readonly DependencyProperty RowStyleSelectorProperty =
           DependencyProperty.Register("RowStyleSelector", typeof(StyleSelector), typeof(Table), new UIPropertyMetadata(null));
 
-
+      static void OnRowStyleSelectorChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)
+      {
+      	var table = sender as Table;
+      	if (table != null)
+      	{
+            ((InternalRowStyleSelector)(table.rootItemsControl.RowStyleSelector)).WrappedSelector = changeArgs.NewValue as StyleSelector;
+      	}
+      }
 
       public IEnumerable ItemsSource
       {
@@ -57,6 +62,25 @@ namespace MagicSoftware.Common.Controls.Table
       public Table()
       {
          InitializeComponent();
+      }
+   }
+
+   class InternalRowStyleSelector : StyleSelector
+   {
+      public StyleSelector WrappedSelector { get; set; }
+
+      public override Style SelectStyle(object item, DependencyObject container)
+      {
+         Style selectedStyle = null;
+         if (WrappedSelector != null)
+            selectedStyle = WrappedSelector.SelectStyle(item, container);
+
+         if (selectedStyle == null)
+            selectedStyle = ((FrameworkElement)container).TryFindResource("TableRowStyle") as Style;
+
+         if (selectedStyle != null)
+            return selectedStyle;
+         return base.SelectStyle(item, container);
       }
    }
 }

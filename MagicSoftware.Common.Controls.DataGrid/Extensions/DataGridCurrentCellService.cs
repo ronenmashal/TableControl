@@ -22,7 +22,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
       }
 
-      public void SetElement(UIElement element)
+      public void SetElement(FrameworkElement element)
       {
          this.dataGrid = (DataGrid)element;
          currentCell = GetCurrentCell();

@@ -8,6 +8,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    public interface IUIService : IDisposable
    {
-      void SetElement(UIElement element);
+      void SetElement(FrameworkElement element);
    }
 }

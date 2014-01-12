@@ -254,19 +254,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       protected override object GetAdapter(Type adapterType)
       {
-         if (ProxiedElement is DataGridRow)
-         {
-            if (adapterType == typeof(ICurrentItemService))
-            {
-               var row = ProxiedElement as DataGridRow;
-               if (EnhancedDGProxy.GetIsCustomRow(row))
-               {
-                  return new CustomRowCurrentItemService(ProxiedElement as DataGridRow);
-               }
-               return new DataGridRowCurrentItemService(ProxiedElement as DataGridRow);
-            }
-
-         }
          var service = base.GetAdapter(adapterType);
          if (service == null)
          {

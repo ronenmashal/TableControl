@@ -9,7 +9,7 @@ using MagicSoftware.Common.Utils;
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    [ImplementedServiceAttribute(typeof(ICurrentItemService))]
-   abstract class CurrentItemServiceBase : ICurrentItemService, IUIService
+   public abstract class CurrentItemServiceBase : ICurrentItemService, IUIService
    {
       #region CurrentChanging attached event.
 
@@ -94,15 +94,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       [Obsolete]
-      public CurrentItemServiceBase(UIElement servedElement)
+      public CurrentItemServiceBase(FrameworkElement servedElement)
       {
          SetElement(servedElement);
       }
 
-      public virtual void SetElement(UIElement servedElement)
+      public virtual void SetElement(FrameworkElement servedElement)
       {
          proxy = FrameworkElementProxy.GetProxy(servedElement);
-         sharedObjectsService = proxy.GetAdapter<SharedObjectsService>();
+         sharedObjectsService = UIServiceProvider.GetService<SharedObjectsService>(servedElement);
          element = servedElement;
       }
 
@@ -119,7 +119,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       #region IUIService Members
 
-      void IUIService.SetElement(UIElement element)
+      void IUIService.SetElement(FrameworkElement element)
       {
          SetElement(element);
       }

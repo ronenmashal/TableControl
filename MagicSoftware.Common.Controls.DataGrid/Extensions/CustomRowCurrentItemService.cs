@@ -6,15 +6,23 @@ using MagicSoftware.Common.Controls.Table.CellTypes;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class CustomRowCurrentItemService : CurrentItemServiceBase
+   public class CustomRowCurrentItemService : CurrentItemServiceBase
    {
       const string CurrentPositionIdentifier = "CustomRow.CurrentPosition";
 
       List<VirtualTableCell> cells;
 
-      public CustomRowCurrentItemService(DataGridRow row)
-         : base(row)
+      public CustomRowCurrentItemService()
       {
+
+      }
+
+      public override void SetElement(FrameworkElement servedElement)
+      {
+         base.SetElement(servedElement);
+
+         var row = servedElement as DataGridRow;
+
          // Enumerate the virtual table cells in the row.
          cells = UIUtils.GetVisualChildren<VirtualTableCell>(row, (cell) => true);
 

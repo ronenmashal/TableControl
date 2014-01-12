@@ -34,6 +34,15 @@
                    BasedOn="{StaticResource {x:Type DataGridRow}}"
                    TargetType="DataGridRow">
                 <Setter Property="MinHeight" Value="{Binding MinRowHeight, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" />
+                <Setter Property="tbl:UIServiceProvider.ServiceList">
+                    <Setter.Value>
+                        <tbl:UIServiceCollection>
+                            <tbl:SharedObjectsService />
+                            <tbl:CustomRowCurrentItemService />
+                        </tbl:UIServiceCollection>
+                    </Setter.Value>
+                </Setter>
+
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="DataGridRow">

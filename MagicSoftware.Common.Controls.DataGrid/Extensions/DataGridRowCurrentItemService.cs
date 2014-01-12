@@ -21,8 +21,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          SetElement(dataGridRow);
       }
 
-      public override void SetElement(UIElement element)
+      public override void SetElement(FrameworkElement element)
       {
+         base.SetElement(element);
          this.dataGridRow = (DataGridRow)element;
          owner = UIUtils.GetAncestor<DataGrid>(dataGridRow);
          owner.CurrentCellChanged += new System.EventHandler<System.EventArgs>(owner_CurrentCellChanged);

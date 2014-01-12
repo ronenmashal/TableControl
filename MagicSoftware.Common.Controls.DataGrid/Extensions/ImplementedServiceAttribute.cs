@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
+   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
    class ImplementedServiceAttribute : Attribute
    {
       public ImplementedServiceAttribute(Type implementedServiceType)

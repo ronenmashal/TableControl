@@ -28,7 +28,7 @@ namespace MagicSoftware.Common.Controls.Table
       }
 
       public static readonly DependencyProperty RowStyleSelectorProperty =
-          DependencyProperty.Register("RowStyleSelector", typeof(StyleSelector), typeof(Table), new UIPropertyMetadata(null));
+          DependencyProperty.Register("RowStyleSelector", typeof(StyleSelector), typeof(Table), new UIPropertyMetadata(null, OnRowStyleSelectorChanged));
 
       static void OnRowStyleSelectorChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)
       {

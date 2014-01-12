@@ -202,7 +202,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       #region IUIService Members
 
-      void IUIService.SetElement(UIElement element)
+      void IUIService.SetElement(FrameworkElement element)
       {
          SetElement((DataGrid)element);
       }

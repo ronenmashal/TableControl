@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
 using Tests.TableControl.UI;
+using Tests.TableControl.Data;
 
 namespace Tests.TableControl
 {
@@ -68,20 +69,15 @@ namespace Tests.TableControl
       //
       #endregion
 
-      ObservableCollection<TestData> dataList = new ObservableCollection<TestData>()
-         {
-            new TestData() { StrValue = "A" },
-            new TestData() { StrValue = "B" },
-            new TestData() { StrValue = "C" }
-         };
-
-
       /// <summary>
       ///A test for DataGridCurrentCellService Constructor
       ///</summary>
       [TestMethod()]
       public void DataGridCurrentCellServiceConstructorTest()
       {
+         var company = CreateCompany();
+         var dataList = company.Departments;
+
          DataGrid dataGrid;
          using (TestWindow.Show(dataList, out dataGrid))
          {
@@ -186,6 +182,26 @@ namespace Tests.TableControl
          Assert.Inconclusive("Verify the correctness of this test method.");
       }
 
+      Company CreateCompany()
+      {
+         Company c = new Company() { Name = "Bit Cranching Inc.", Manager = new Employee() { Name="EMP1", Address="HOME1", Age=50, IsActive=true}, Ticker = "BITC" };
+
+         Department d = new Department() { Name = "Marketing", Manager = new Employee() { Name = "MARK MGR", Address = "MARK HOME", Age = 45, IsActive = true } };
+         d.AddMember(new Employee() { Name = "Sell Better", Address = "On the road, 19", Age = 40, IsActive = true });
+         d.AddMember(new Employee() { Name = "NotSelling Much", Address = "Around the office", Age = 40, IsActive = false });
+         c.Add(d);
+
+         d = new Department() { Name = "Development", Manager = new Employee() { Name = "DEV MGR", Address = "Dev HOME", Age = 45, IsActive = true } };
+         d.AddMember(new Employee() { Name = "Bit Bit", Address = "In the office", Age = 40, IsActive = true });
+         d.AddMember(new Employee() { Name = "Byte Byte", Address = "Under the desk", Age = 40, IsActive = true });
+         d.AddMember(new Employee() { Name = "Java Java", Address = "Cell Phone", Age = 40, IsActive = true });
+         d.AddMember(new Employee() { Name = "Proxy Proxy", Address = "Don't know", Age = 40, IsActive = true });
+         d.AddMember(new Employee() { Name = "Nub Nub", Address = "Kitchen", Age = 25, IsActive = true });
+         c.Add(d);
+
+
+         return c;
+      }
    }
 
 

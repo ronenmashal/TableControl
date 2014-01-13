@@ -75,13 +75,16 @@
     <Compile Include="DataGridAsCurrentItemProviderTest.cs" />
     <Compile Include="DataGridAsEditingAdapterTest.cs" />
     <Compile Include="DataGridCurrentCellServiceTest.cs" />
+    <Compile Include="Data\Company.cs" />
+    <Compile Include="Data\PropertyStorage.cs" />
+    <Compile Include="Data\TestClassBase.cs" />
     <Compile Include="PrivateAccessHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\TestWindow.xaml.cs">
       <DependentUpon>TestWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Department.cs" />
-    <Compile Include="UI\Employee.cs" />
+    <Compile Include="Data\Department.cs" />
+    <Compile Include="Data\Employee.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MagicSoftware.Common.Controls.DataGrid\MagicSoftware.Common.Controls.Table.csproj">

@@ -10,8 +10,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Collections;
+using Tests.Common;
 
-namespace Tests.TableControl
+namespace Tests.TableControl.UI
 {
    /// <summary>
    /// Interaction logic for TestWindow.xaml
@@ -24,5 +26,15 @@ namespace Tests.TableControl
       }
 
       public DataGrid MainDataGrid { get { return dataGrid; } }
+
+      public static IDisposable Show(IList dataList, out DataGrid dataGrid)
+      {
+         var w = new TestWindow();
+         w.DataContext = new ListCollectionView(dataList);
+
+         var result = TestUtils.AutoCloseWindow(w);
+         dataGrid = w.MainDataGrid;
+         return result;
+      }
    }
 }

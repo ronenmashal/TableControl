@@ -9,6 +9,7 @@ using System.Windows.Threading;
 using System.ComponentModel;
 using System.Windows.Data;
 using System.Collections.ObjectModel;
+using Tests.TableControl.UI;
 
 namespace Tests.TableControl
 {
@@ -85,13 +86,9 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-
-
-         using (TestUtils.AutoCloseWindow(w))
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
          {
-            DataGrid dataGrid = w.MainDataGrid;
             dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
 
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
@@ -138,12 +135,9 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-
-         using (TestUtils.AutoCloseWindow(w))
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
          {
-            DataGrid dataGrid = w.MainDataGrid;
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
             helper.Invoke("AttachTo", dataGrid);
             DataGridAsEditingAdapter target;
@@ -182,12 +176,9 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-
-         using (TestUtils.AutoCloseWindow(w))
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
          {
-            DataGrid dataGrid = w.MainDataGrid;
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
             helper.Invoke("AttachTo", dataGrid);
             DataGridAsEditingAdapter target;
@@ -227,12 +218,9 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-
-         using (TestUtils.AutoCloseWindow(w))
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
          {
-            DataGrid dataGrid = w.MainDataGrid;
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
             helper.Invoke("AttachTo", dataGrid);
             DataGridAsEditingAdapter target;
@@ -272,14 +260,11 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-         WeakReference dataGridReference = new WeakReference(w.MainDataGrid);
-
-         using (TestUtils.AutoCloseWindow(w))
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
          {
             DataGridAsEditingAdapter target;
-            DataGrid dataGrid = w.MainDataGrid;
+            WeakReference dataGridReference = new WeakReference(dataGrid);
             dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> proxyHelper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
             proxyHelper.Invoke("AttachTo", dataGrid);
@@ -323,12 +308,9 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-
-         using (TestUtils.AutoCloseWindow(w))
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
          {
-            DataGrid dataGrid = w.MainDataGrid;
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
             helper.Invoke("AttachTo", dataGrid);
             DataGridAsEditingAdapter target;

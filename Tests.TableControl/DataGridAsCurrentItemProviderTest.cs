@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Automation.Peers;
 using MagicSoftware.Common.Controls.Proxies;
 using Microsoft.Test.Input;
+using Tests.TableControl.UI;
 
 namespace Tests.TableControl
 {
@@ -85,12 +86,9 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-
-         using (TestUtils.AutoCloseWindow(w))
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
          {
-            DataGrid dataGrid = w.MainDataGrid;
             DataGridCurrentItemService target = new DataGridCurrentItemService(dataGrid);
          }
       }
@@ -109,12 +107,9 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-
-         using (TestUtils.AutoCloseWindow(w))
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
          {
-            var dataGrid = w.MainDataGrid;
             dataGrid.CurrentItem = null;
             var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
             var provider = helper.Target;
@@ -160,12 +155,9 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-
-         using (TestUtils.AutoCloseWindow(w))
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
          {
-            var dataGrid = w.MainDataGrid;
             dataGrid.Items.MoveCurrentTo(null);
             var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
             var provider = helper.Target;
@@ -216,12 +208,9 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-
-         using (TestUtils.AutoCloseWindow(w))
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
          {
-            var dataGrid = w.MainDataGrid;
             dataGrid.Items.MoveCurrentTo(null);
             var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
             var provider = helper.Target;
@@ -263,12 +252,9 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-
-         using (TestUtils.AutoCloseWindow(w))
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
          {
-            var dataGrid = w.MainDataGrid;
             dataGrid.Items.MoveCurrentTo(null);
             var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
             var provider = helper.Target;

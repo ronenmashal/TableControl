@@ -5,6 +5,7 @@ using Tests.Common;
 using System.Windows.Controls;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
+using Tests.TableControl.UI;
 
 namespace Tests.TableControl
 {
@@ -82,7 +83,7 @@ namespace Tests.TableControl
       public void DataGridCurrentCellServiceConstructorTest()
       {
          DataGrid dataGrid;
-         using (OpenTestWindow(out dataGrid))
+         using (TestWindow.Show(dataList, out dataGrid))
          {
             DataGridCurrentCellService target = new DataGridCurrentCellService();
             target.SetElement(dataGrid);
@@ -185,15 +186,6 @@ namespace Tests.TableControl
          Assert.Inconclusive("Verify the correctness of this test method.");
       }
 
-      IDisposable OpenTestWindow(out DataGrid dataGrid)
-      {
-         var w = new TestWindow();
-         w.DataContext = new ListCollectionView(dataList);
-
-         var result = TestUtils.AutoCloseWindow(w);
-         dataGrid = w.MainDataGrid;
-         return result;
-      }
    }
 
 

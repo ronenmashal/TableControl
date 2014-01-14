@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using Tests.TableControl.UI;
 using Tests.TableControl.Data;
+using System.Windows.Threading;
 
 namespace Tests.TableControl
 {
@@ -75,23 +76,33 @@ namespace Tests.TableControl
       [TestMethod()]
       public void DataGridCurrentCellServiceConstructorTest()
       {
-         var company = CreateCompany();
-         var dataList = company.Departments;
+         // Create a large enough data list, so that there will be scroll bar.
+         var dataList = CreateTestDataList(100);
 
          DataGrid dataGrid;
          using (TestWindow.Show(dataList, out dataGrid))
          {
-            DataGridCurrentCellService target = new DataGridCurrentCellService();
-            target.SetElement(dataGrid);
-            Assert.IsNull(target.CurrentCell.Item);
-            Assert.IsNull(target.CurrentCell.CellElementLocator);
+            ICurrentCellService target = new DataGridCurrentCellService();
+            ((IUIService)target).SetElement(dataGrid);
+            Assert.IsNull(target.CurrentCell);
+            Assert.IsNull(target.CurrentCellItem);
 
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[1], dataGrid.Columns[0]);
             target = new DataGridCurrentCellService();
-            target.SetElement(dataGrid);
-            Assert.AreSame(dataList[1], target.CurrentCell.Item);
-            Assert.IsInstanceOfType(target.CurrentCell.CellElementLocator, typeof(FindCellByColumn));
+            ((IUIService)target).SetElement(dataGrid);
+            //Assert.AreSame(dataList[1], target.CurrentCell);
+            Assert.IsInstanceOfType(target.CurrentCell, typeof(DataGridCell));
             //var cell = target.CurrentCell.CellElementLocator.GetCell();
+
+            dataGrid.ScrollIntoView(dataList[70]);
+            dataGrid.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() =>
+            {
+               dataGrid.CurrentCell = new DataGridCellInfo(dataList[70], dataGrid.Columns[0]);
+            }));
+
+            target = new DataGridCurrentCellService();
+            ((IUIService)target).SetElement(dataGrid);
+            Assert.AreSame(dataList[70], target.CurrentCellItem);
          }
       }
 
@@ -147,10 +158,10 @@ namespace Tests.TableControl
       public void MoveToTest()
       {
          DataGridCurrentCellService target = new DataGridCurrentCellService(); // TODO: Initialize to an appropriate value
-         UniformCellInfo targetCellInfo = null; // TODO: Initialize to an appropriate value
+         //CellElementLocator targetCellInfo = null; // TODO: Initialize to an appropriate value
          bool expected = false; // TODO: Initialize to an appropriate value
-         bool actual;
-         actual = target.MoveTo(targetCellInfo);
+         bool actual = false; ;
+         //actual = target.MoveTo(targetCellInfo);
          Assert.AreEqual(expected, actual);
          Assert.Inconclusive("Verify the correctness of this test method.");
       }
@@ -177,14 +188,14 @@ namespace Tests.TableControl
       public void CurrentCellTest()
       {
          DataGridCurrentCellService target = new DataGridCurrentCellService(); // TODO: Initialize to an appropriate value
-         UniformCellInfo actual;
-         actual = target.CurrentCell;
+         //CellElementLocator actual;
+         //actual = target.CurrentCell;
          Assert.Inconclusive("Verify the correctness of this test method.");
       }
 
       Company CreateCompany()
       {
-         Company c = new Company() { Name = "Bit Cranching Inc.", Manager = new Employee() { Name="EMP1", Address="HOME1", Age=50, IsActive=true}, Ticker = "BITC" };
+         Company c = new Company() { Name = "Bit Cranching Inc.", Manager = new Employee() { Name = "EMP1", Address = "HOME1", Age = 50, IsActive = true }, Ticker = "BITC" };
 
          Department d = new Department() { Name = "Marketing", Manager = new Employee() { Name = "MARK MGR", Address = "MARK HOME", Age = 45, IsActive = true } };
          d.AddMember(new Employee() { Name = "Sell Better", Address = "On the road, 19", Age = 40, IsActive = true });
@@ -201,6 +212,23 @@ namespace Tests.TableControl
 
 
          return c;
+      }
+
+      class TestData
+      {
+         public string StrValue { get; set; }
+         public int IntValue { get; set; }
+         public bool BoolValue { get; set; }
+      }
+
+      ObservableCollection<TestData> CreateTestDataList(int size)
+      {
+         ObservableCollection<TestData> list = new ObservableCollection<TestData>();
+         for (int i = 0; i < size; i++)
+         {
+            list.Add(new TestData() { StrValue = "Item #" + i, IntValue = i, BoolValue = (i % 2) == 0 });
+         }
+         return list;
       }
    }
 

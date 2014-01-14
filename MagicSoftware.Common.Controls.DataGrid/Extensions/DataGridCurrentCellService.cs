@@ -16,44 +16,64 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public event RoutedEventHandler CurrentCellChanged;
 
       private System.Windows.Controls.DataGrid dataGrid;
-      private UniformCellInfo currentCell = null;
 
-      public DataGridCurrentCellService()
-      {
-      }
+      ICurrentItemService currentRowService;
+      ICurrentItemService currentCellInRowService;
 
       public void SetElement(FrameworkElement element)
       {
          this.dataGrid = (DataGrid)element;
-         currentCell = GetCurrentCell();
+         currentRowService = UIServiceProvider.GetService<ICurrentItemService>(element);
+         UpdateCurrentCell();
+         currentRowService.CurrentChanged += CurrentRowService_CurrentChanged;
       }
 
-      UniformCellInfo GetCurrentCell()
+      void CurrentRowService_CurrentChanged(object sender, RoutedEventArgs e)
       {
-         object item = dataGrid.CurrentItem;
-         ICellElementLocator cellElementLocator = null;
+         UpdateCurrentCell();
+      }
+
+      void UpdateCurrentCell()
+      {
+         DataGridRow row = null;
+         object item = currentRowService.CurrentItem;
          if (item != null)
          {
-            DataGridRow row = dataGrid.ItemContainerGenerator.ContainerFromItem(item) as DataGridRow;
-            Debug.Assert(row != null);
-            if (EnhancedDGProxy.GetIsCustomRow(row))
-            {
-               cellElementLocator = new FindAncestor<VirtualTableCell>(FocusManager.GetFocusedElement(row));
-            }
-            else
-            {
-               cellElementLocator = new FindCellByColumn(dataGrid.CurrentColumn);
-            }
+            row = dataGrid.ItemContainerGenerator.ContainerFromItem(item) as DataGridRow;
          }
-         return new UniformCellInfo(item, cellElementLocator);
+         if (row != null)
+            currentCellInRowService = UIServiceProvider.GetService<ICurrentItemService>(row);
+         else
+            currentCellInRowService = null;
       }
 
-      public UniformCellInfo CurrentCell
+      public FrameworkElement CurrentCell
       {
-         get { return currentCell; }
+         get
+         {
+            if (currentCellInRowService == null)
+               return null;
+            return (FrameworkElement)currentCellInRowService.CurrentItem;
+         }
       }
 
-      public bool MoveTo(UniformCellInfo targetCellInfo)
+      public bool IsCellVisible
+      {
+         get
+         {
+            if (CurrentCell == null)
+               return false;
+
+            return CurrentCell.IsVisible;
+         }
+      }
+
+      public object CurrentCellItem
+      {
+         get { return currentRowService.CurrentItem; }
+      }
+
+      public bool MoveTo(FrameworkElement targetElement)
       {
          throw new NotImplementedException();
       }
@@ -86,48 +106,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       #endregion
-   }
 
-   class FindAncestor<T> : ICellElementLocator
-      where T : UIElement
-   {
-      private IInputElement referenceElement;
-
-      public FindAncestor(IInputElement iInputElement)
-      {
-         this.referenceElement = iInputElement;
-      }
-
-      #region ICellElementLocator Members
-
-      public UIElement GetCell(UIElement cellContainer)
-      {
-         return UIUtils.GetAncestor<T>(referenceElement as UIElement);
-      }
-
-      #endregion
-   }
-
-   class FindCellByColumn : ICellElementLocator
-   {
-      private DataGridColumn dataGridColumn;
-
-      public FindCellByColumn(DataGridColumn dataGridColumn)
-      {
-         this.dataGridColumn = dataGridColumn;
-      }
-      
-      #region ICellElementLocator Members
-
-      public UIElement GetCell(UIElement cellContainer)
-      {
-         if (dataGridColumn == null)
-            return null;
-
-         var content = dataGridColumn.GetCellContent(cellContainer);
-         return UIUtils.GetAncestor<DataGridCell>(content);
-      }
-
-      #endregion
    }
 }

@@ -8,11 +8,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private DataGridRow dataGridRow;
       private DataGrid owner;
       private int currentPosition = -1;
-      private IAdaptedCellInfo currentCellInfo = null;
+      private DataGridCellInfo currentCellInfo;
 
       public DataGridRowCurrentItemService()
       {
-
+         currentCellInfo = new DataGridCellInfo();
       }
 
       public DataGridRowCurrentItemService(DataGridRow dataGridRow)
@@ -26,6 +26,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          base.SetElement(element);
          this.dataGridRow = (DataGridRow)element;
          owner = UIUtils.GetAncestor<DataGrid>(dataGridRow);
+         UpdateCurrentStateInfo();
+         //TODO: CurrentCellChanged???
          owner.CurrentCellChanged += new System.EventHandler<System.EventArgs>(owner_CurrentCellChanged);
          if (owner.CurrentColumn == null)
          {
@@ -40,6 +42,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       void UpdateCurrentStateInfo()
       {
+         //TODO: CurrentCellChanged - should update when item is changed?
          int newPosition = -1;
          if (owner.CurrentColumn != null)
          {
@@ -48,13 +51,20 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (newPosition != currentPosition)
          {
             currentPosition = newPosition;
-            currentCellInfo = DataGridAdaptedCellInfo.FromDataGridCellInfo(owner.CurrentCell);
+            currentCellInfo = owner.CurrentCell;
          }
       }
 
       public override object CurrentItem
       {
-         get { return currentCellInfo; }
+         get
+         {
+            if (currentCellInfo.Column == null || object.ReferenceEquals(currentCellInfo.Item, dataGridRow.Item))
+            {
+               return null;
+            }
+            return UIUtils.GetAncestor<DataGridCell>(currentCellInfo.Column.GetCellContent(dataGridRow));
+         }
       }
 
       public override int CurrentPosition

@@ -8,12 +8,29 @@
         Width="300"
         Height="300">
     <Grid>
+        <Grid.Resources>
+            <Style TargetType="{x:Type DataGridRow}">
+                <Setter Property="tblext:UIServiceProvider.ServiceList">
+                    <Setter.Value>
+                        <tblext:UIServiceCollection>
+                            <tblext:DataGridRowCurrentItemService />
+                        </tblext:UIServiceCollection>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
+
         <DataGrid x:Name="dataGrid"
                   CanUserAddRows="False"
                   ItemsSource="{Binding}">
             <pxy:FrameworkElementProxy.Proxy>
                 <tblext:EnhancedDGProxy />
             </pxy:FrameworkElementProxy.Proxy>
+            <tblext:UIServiceProvider.ServiceList>
+                <tblext:UIServiceCollection>
+                    <tblext:DataGridCurrentItemService />
+                </tblext:UIServiceCollection>
+            </tblext:UIServiceProvider.ServiceList>
         </DataGrid>
     </Grid>
 </Window>

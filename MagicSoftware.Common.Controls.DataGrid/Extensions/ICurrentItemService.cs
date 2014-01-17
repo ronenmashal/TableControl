@@ -63,5 +63,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// </summary>
       /// <returns><b>True</b> if CurrentItem is not null.</returns>
       bool MoveCurrentToRelativePosition(int offset);
+
+      /// <summary>
+      /// Prevents the service implementation from raising the change events (preview changing and changed).
+      /// Allows another service to consolidate the changes of multiple services into a single event.
+      /// </summary>
+      /// <returns></returns>
+      IDisposable InhibitChangeEvents();
+
    }
 }

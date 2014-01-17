@@ -24,6 +24,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       DataGrid DataGridElement;
       ICollectionView itemsView;
       AutoResetFlag isSelfInducedChange = new AutoResetFlag();
+      bool operationWasCanceled = false;
 
       public DataGridCurrentItemService()
       {
@@ -31,7 +32,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       [Obsolete("You should use the empty constructor.")]
-      public DataGridCurrentItemService(DataGrid dataGrid): base(dataGrid)
+      public DataGridCurrentItemService(DataGrid dataGrid)
+         : base(dataGrid)
       {
          SetElement(dataGrid);
       }
@@ -96,24 +98,22 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       void ItemsView_CurrentChanging(object sender, CurrentChangingEventArgs e)
       {
+         operationWasCanceled = false;
          if (!isSelfInducedChange.IsSet)
-         {
             RaiseNonCancelablePreviewCurrentChangingEvent(null);
-         }
          else
          {
-            bool canceled;
-            RaisePreviewCurrentChangingEvent(null, out canceled);
-            e.Cancel = canceled;
+            RaisePreviewCurrentChangingEvent(null, out operationWasCanceled);
+            e.Cancel = operationWasCanceled;
          }
       }
 
       void ItemsView_CurrentChanged(object sender, EventArgs e)
       {
          using (isSelfInducedChange.Set())
-         {
             DataGridElement.CurrentItem = itemsView.CurrentItem;
-         }
+         if (DataGridElement.CurrentItem != null)
+            DataGridElement.ScrollIntoView(DataGridElement.CurrentItem);
          RaiseCurrentChangedEvent();
       }
 
@@ -145,17 +145,25 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       #region ICurrentItemProvider Members
 
+      bool EnsureMoveExecution(Func<bool> moveAction)
+      {
+         int oldPosition = CurrentPosition;
+         if (moveAction())
+            return !operationWasCanceled;
+
+         return false;
+      }
 
       public override bool MoveCurrentTo(object item)
       {
          using (isSelfInducedChange.Set())
-            return itemsView.MoveCurrentTo(item);
+            return EnsureMoveExecution(() => itemsView.MoveCurrentTo(item));
       }
 
       public override bool MoveCurrentToFirst()
       {
          using (isSelfInducedChange.Set())
-            return itemsView.MoveCurrentToFirst();
+            return EnsureMoveExecution(() => itemsView.MoveCurrentToFirst());
       }
 
       public override bool MoveCurrentToNext()
@@ -174,19 +182,19 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public override bool MoveCurrentToLast()
       {
          using (isSelfInducedChange.Set())
-            return itemsView.MoveCurrentToLast();
+            return EnsureMoveExecution(() => itemsView.MoveCurrentToLast());
       }
 
       public override bool MoveCurrentToPosition(int position)
       {
-         if (position < -1)
-            return false;
+         if (position > DataGridElement.Items.Count)
+            position = DataGridElement.Items.Count;
 
-         if (itemsView.IsCurrentAfterLast)
-            return false;
+         if (position < -1)
+            position = -1;
 
          using (isSelfInducedChange.Set())
-            return itemsView.MoveCurrentToPosition(position);
+            return EnsureMoveExecution(() => itemsView.MoveCurrentToPosition(position));
       }
 
       public override bool MoveCurrentToRelativePosition(int offset)

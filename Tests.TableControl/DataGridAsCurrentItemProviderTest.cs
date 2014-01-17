@@ -174,7 +174,7 @@ namespace Tests.TableControl
 
             // Block movement.
             previewCurrentChangingEventHandlerHelper.AdditionalHandling = (sender, args) => { args.Canceled = true; };
-            provider.MoveCurrentTo(dataList[2]);
+            Assert.IsFalse(provider.MoveCurrentTo(dataList[2]));
             Assert.IsTrue(previewCurrentChangingEventHandlerHelper.HandlerInvoked);
             Assert.IsFalse(currentChangedEventHandlerHelper.HandlerInvoked);
             previewCurrentChangingEventHandlerHelper.Reset();

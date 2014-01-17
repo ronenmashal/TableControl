@@ -18,6 +18,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       Dictionary<CancelableRoutedEventHandler, RoutedEventHandler> currentChangingEventHandlers = new Dictionary<CancelableRoutedEventHandler, RoutedEventHandler>();
 
       UIElement element;
+      protected readonly AutoResetFlag inhibitChangeEvents = new AutoResetFlag();
 
       /// <summary>
       /// Event raised before changing the 'current item' indicator on the items control.
@@ -46,6 +47,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// <param name="canceled">Returns whether any of the event handlers canceled the event.</param>
       public void RaisePreviewCurrentChangingEvent(object newValue, out bool canceled)
       {
+         canceled = false;
+         if (inhibitChangeEvents.IsSet)
+            return;
          CancelableRoutedEventArgs eventArgs = new PreviewChangeEventArgs(PreviewCurrentChangingEvent, element, CurrentItem, newValue, true);
          element.RaiseEvent(eventArgs);
          canceled = eventArgs.Canceled;
@@ -56,13 +60,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// </summary>
       public void RaiseNonCancelablePreviewCurrentChangingEvent(object newValue)
       {
+         if (inhibitChangeEvents.IsSet)
+            return;
          CancelableRoutedEventArgs eventArgs = new PreviewChangeEventArgs(PreviewCurrentChangingEvent, element, CurrentItem, newValue, false);
          element.RaiseEvent(eventArgs);
       }
 
       #endregion
 
-      #region CurrentChanging attached event.
+      #region CurrentChanged attached event.
 
       public static readonly RoutedEvent CurrentChangedEvent = EventManager.RegisterRoutedEvent("CurrentChanged", RoutingStrategy.Tunnel, typeof(RoutedEventArgs), typeof(CurrentItemServiceBase));
 
@@ -77,6 +83,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void RaiseCurrentChangedEvent()
       {
+         if (inhibitChangeEvents.IsSet)
+            return;
          RoutedEventArgs eventArgs = new RoutedEventArgs(CurrentChangedEvent, element);
          element.RaiseEvent(eventArgs);
       }
@@ -90,7 +98,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public CurrentItemServiceBase()
       {
-         //previewCurrentChangingEvent = new SmartEvent<CancelableRoutedEventHandler>(this);
       }
 
       [Obsolete]
@@ -122,6 +129,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       void IUIService.SetElement(FrameworkElement element)
       {
          SetElement(element);
+      }
+
+      public IDisposable InhibitChangeEvents()
+      {
+         return inhibitChangeEvents.Set();
       }
 
       #endregion

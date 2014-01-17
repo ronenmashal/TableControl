@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
+using System;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -82,8 +84,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             return CurrentItem != null;
 
          owner.CurrentCell = newCellInfo;
+         owner.ScrollIntoView(owner.CurrentCell.Item);
 
-         RaiseCurrentChangedEvent();
+         owner.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() => RaiseCurrentChangedEvent()));
 
          return CurrentItem != null;
       }

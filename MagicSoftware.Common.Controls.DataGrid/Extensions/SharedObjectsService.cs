@@ -25,7 +25,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       #region IUIService Members
 
-      public void SetElement(FrameworkElement element)
+      public void AttachToElement(FrameworkElement element)
       {
          
       }

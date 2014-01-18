@@ -8,9 +8,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    interface ICurrentCellService
    {
-      event CancelableRoutedEventHandler PreviewCurrentCellChanging;
-      event RoutedEventHandler CurrentCellChanged;
-
       FrameworkElement CurrentCell { get; }
       bool IsCellVisible { get; }
       object CurrentCellItem { get; }

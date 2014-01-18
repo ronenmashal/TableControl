@@ -17,7 +17,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       Dictionary<CancelableRoutedEventHandler, RoutedEventHandler> currentChangingEventHandlers = new Dictionary<CancelableRoutedEventHandler, RoutedEventHandler>();
 
-      UIElement element;
+      FrameworkElement element;
       protected readonly AutoResetFlag inhibitChangeEvents = new AutoResetFlag();
 
       /// <summary>
@@ -94,24 +94,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       protected SharedObjectsService sharedObjectsService { get; private set; }
 
-      FrameworkElementProxy proxy;
-
       public CurrentItemServiceBase()
       {
       }
 
-      [Obsolete]
-      public CurrentItemServiceBase(FrameworkElement servedElement)
+      public virtual void AttachToElement(FrameworkElement servedElement)
       {
-         SetElement(servedElement);
-      }
-
-      public virtual void SetElement(FrameworkElement servedElement)
-      {
-         proxy = FrameworkElementProxy.GetProxy(servedElement);
          sharedObjectsService = UIServiceProvider.GetService<SharedObjectsService>(servedElement);
          element = servedElement;
       }
+
+      protected abstract void DetachFromElement(FrameworkElement element);
 
       public abstract object CurrentItem { get; }
       public abstract int CurrentPosition { get; }
@@ -124,27 +117,18 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public abstract bool MoveCurrentToPosition(int position);
       public abstract bool MoveCurrentToRelativePosition(int offset);
 
-      #region IUIService Members
-
-      void IUIService.SetElement(FrameworkElement element)
-      {
-         SetElement(element);
-      }
-
       public IDisposable InhibitChangeEvents()
       {
          return inhibitChangeEvents.Set();
       }
 
-      #endregion
-
       #region IDisposable Members
 
-      void IDisposable.Dispose()
+      public void Dispose()
       {
+         DetachFromElement(element);
          element = null;
          sharedObjectsService = null;
-         proxy = null;
       }
 
       #endregion

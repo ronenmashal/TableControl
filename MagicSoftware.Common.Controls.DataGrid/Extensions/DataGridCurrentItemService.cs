@@ -15,66 +15,68 @@ using System.Collections;
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    [ImplementedServiceAttribute(typeof(ICurrentItemService))]
+   [DebuggerDisplay("DGCurrentItemService: #{id}")]
    class DataGridCurrentItemService : CurrentItemServiceBase, ICurrentItemService, IUIService
    {
-      // TODO: SHould be ItemsControlPRoxy or FrameworkElementProxy.
-      private EnhancedDGProxy dgProxy;
-
       DependencyPropertyChangeListener currentItemPropertyChangeListener;
-      DataGrid DataGridElement;
+      DataGrid dataGrid;
       ICollectionView itemsView;
       AutoResetFlag isSelfInducedChange = new AutoResetFlag();
       bool operationWasCanceled = false;
 
+      int id;
+      static int nextId = 1;
+
       public DataGridCurrentItemService()
       {
-
+         id = nextId;
+         nextId++;
       }
 
-      [Obsolete("You should use the empty constructor.")]
-      public DataGridCurrentItemService(DataGrid dataGrid)
-         : base(dataGrid)
+      public override void AttachToElement(FrameworkElement element)
       {
-         SetElement(dataGrid);
-      }
+         base.AttachToElement(element);
+         this.dataGrid = element as DataGrid;
 
-      public void SetElement(DataGrid dataGrid)
-      {
-         base.SetElement(dataGrid);
-         this.DataGridElement = dataGrid;
-         this.dgProxy = (EnhancedDGProxy)FrameworkElementProxy.GetProxy(dataGrid);
-         Debug.Assert(dgProxy != null, "The attached element must have a proxy");
-
-         if (DataGridElement.IsLoaded)
+         if (element.IsLoaded)
             AttachItemsViewToItemsSource();
          else
-         {
-            RoutedEventHandler handler = null;
-            handler = (sender, e) =>
-            {
-               DataGridElement.Loaded -= handler;
-               AttachItemsViewToItemsSource();
-            };
-            DataGridElement.Loaded += handler;
-         }
+            element.Loaded += DataGridElement_Loaded;
       }
+
+      void DataGridElement_Loaded(object sender, RoutedEventArgs e)
+      {
+         dataGrid.Loaded -= DataGridElement_Loaded;
+         AttachItemsViewToItemsSource();
+      }
+
+      protected override void DetachFromElement(FrameworkElement element)
+      {
+         if (dataGrid != null)
+            dataGrid.Loaded -= DataGridElement_Loaded;
+         UnregisterItemsViewEventHandlers();
+         if (currentItemPropertyChangeListener != null)
+            currentItemPropertyChangeListener.Dispose();
+      }
+
+
 
       /// <summary>
       /// Create the most optimized collection view for the grid's items source.
       /// </summary>
       void AttachItemsViewToItemsSource()
       {
-         currentItemPropertyChangeListener = new DependencyPropertyChangeListener(DataGridElement, DataGrid.CurrentItemProperty, DataGrid_CurrentItemChanged);
+         currentItemPropertyChangeListener = new DependencyPropertyChangeListener(dataGrid, DataGrid.CurrentItemProperty, DataGrid_CurrentItemChanged);
 
          if (itemsView != null)
             UnregisterItemsViewEventHandlers();
 
-         if (DataGridElement.ItemsSource is IList)
-            itemsView = new ListCollectionView(DataGridElement.ItemsSource as IList);
+         if (dataGrid.ItemsSource is IList)
+            itemsView = new ListCollectionView(dataGrid.ItemsSource as IList);
          else
-            itemsView = new CollectionView(DataGridElement.ItemsSource);
+            itemsView = new CollectionView(dataGrid.ItemsSource);
 
-         itemsView.MoveCurrentTo(DataGridElement.CurrentItem);
+         itemsView.MoveCurrentTo(dataGrid.CurrentItem);
 
          RegisterItemsViewEventHandlers();
       }
@@ -87,13 +89,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       void UnregisterItemsViewEventHandlers()
       {
-         itemsView.CurrentChanging -= ItemsView_CurrentChanging;
-         itemsView.CurrentChanged -= ItemsView_CurrentChanged;
-      }
-
-      public void Dispose()
-      {
-         currentItemPropertyChangeListener.Dispose();
+         if (itemsView != null)
+         {
+            itemsView.CurrentChanging -= ItemsView_CurrentChanging;
+            itemsView.CurrentChanged -= ItemsView_CurrentChanged;
+         }
       }
 
       void ItemsView_CurrentChanging(object sender, CurrentChangingEventArgs e)
@@ -111,9 +111,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       void ItemsView_CurrentChanged(object sender, EventArgs e)
       {
          using (isSelfInducedChange.Set())
-            DataGridElement.CurrentItem = itemsView.CurrentItem;
-         if (DataGridElement.CurrentItem != null)
-            DataGridElement.ScrollIntoView(DataGridElement.CurrentItem);
+            dataGrid.CurrentItem = itemsView.CurrentItem;
+         if (dataGrid.CurrentItem != null)
+            dataGrid.ScrollIntoView(dataGrid.CurrentItem);
          RaiseCurrentChangedEvent();
       }
 
@@ -122,7 +122,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          if (!isSelfInducedChange.IsSet)
          {
-            itemsView.MoveCurrentTo(DataGridElement.CurrentItem);
+            itemsView.MoveCurrentTo(dataGrid.CurrentItem);
          }
       }
 
@@ -187,8 +187,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public override bool MoveCurrentToPosition(int position)
       {
-         if (position > DataGridElement.Items.Count)
-            position = DataGridElement.Items.Count;
+         if (position > dataGrid.Items.Count)
+            position = dataGrid.Items.Count;
 
          if (position < -1)
             position = -1;
@@ -201,18 +201,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          int newPosition = CurrentPosition + offset;
          return MoveCurrentToPosition(newPosition);
-      }
-
-      #endregion
-
-
-
-
-      #region IUIService Members
-
-      void IUIService.SetElement(FrameworkElement element)
-      {
-         SetElement((DataGrid)element);
       }
 
       #endregion

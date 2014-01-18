@@ -8,6 +8,7 @@ using System.Windows.Data;
 using Tests.TableControl.UI;
 using Tests.TableControl.Data;
 using System.Windows.Threading;
+using System.Windows;
 
 namespace Tests.TableControl
 {
@@ -83,13 +84,13 @@ namespace Tests.TableControl
          using (TestWindow.Show(dataList, out dataGrid))
          {
             ICurrentCellService target = new DataGridCurrentCellService();
-            ((IUIService)target).SetElement(dataGrid);
+            ((IUIService)target).AttachToElement(dataGrid);
             Assert.IsNull(target.CurrentCell);
             Assert.IsNull(target.CurrentCellItem);
 
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[1], dataGrid.Columns[0]);
             target = new DataGridCurrentCellService();
-            ((IUIService)target).SetElement(dataGrid);
+            ((IUIService)target).AttachToElement(dataGrid);
             //Assert.AreSame(dataList[1], target.CurrentCell);
             Assert.IsInstanceOfType(target.CurrentCell, typeof(DataGridCell));
             //var cell = target.CurrentCell.CellElementLocator.GetCell();
@@ -101,7 +102,7 @@ namespace Tests.TableControl
             }));
 
             target = new DataGridCurrentCellService();
-            ((IUIService)target).SetElement(dataGrid);
+            ((IUIService)target).AttachToElement(dataGrid);
             Assert.AreSame(dataList[70], target.CurrentCellItem);
          }
       }
@@ -112,13 +113,41 @@ namespace Tests.TableControl
       [TestMethod()]
       public void MoveDownTest()
       {
-         DataGridCurrentCellService target = new DataGridCurrentCellService(); // TODO: Initialize to an appropriate value
-         int distance = 0; // TODO: Initialize to an appropriate value
-         bool expected = false; // TODO: Initialize to an appropriate value
-         bool actual;
-         actual = target.MoveDown(distance);
-         Assert.AreEqual(expected, actual);
-         Assert.Inconclusive("Verify the correctness of this test method.");
+         // Create a large enough data list, so that there will be scroll bar.
+         var dataList = CreateTestDataList(100);
+
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
+         {
+            ICurrentCellService target = new DataGridCurrentCellService();
+            ((IUIService)target).AttachToElement(dataGrid);
+            ICurrentItemService currentRowService = UIServiceProvider.GetService<ICurrentItemService>(dataGrid);
+            var currentRowChangingEventHelper = new EventHandlerTestHelper<object, CancelableRoutedEventArgs>("PreviewCurrentCellChanging");
+            currentRowService.PreviewCurrentChanging += currentRowChangingEventHelper.Handler;
+            var rowChangedEventHelper = new EventHandlerTestHelper<object, RoutedEventArgs>("CurrentCellChanged");
+            currentRowService.CurrentChanged += rowChangedEventHelper.Handler;
+
+            // Move down, when cell was not yet set, should move to the first cell.
+            Assert.IsTrue(target.MoveDown(1));
+            Assert.AreSame(dataList[0], target.CurrentCellItem);
+            Assert.IsNotNull(target.CurrentCell);
+            Assert.IsTrue(rowChangedEventHelper.HandlerInvoked);
+            Assert.IsTrue(currentRowChangingEventHelper.HandlerInvoked);
+            Assert.AreSame(dataGrid.ColumnFromDisplayIndex(0), dataGrid.CurrentCell.Column);
+
+            Assert.IsTrue(target.MoveDown(5));
+            Assert.AreSame(dataList[5], target.CurrentCellItem);
+            Assert.AreSame(dataList[5], dataGrid.CurrentCell.Item);
+
+            Assert.IsTrue(target.MoveDown(40));
+            Assert.IsTrue(target.IsCellVisible);
+            Assert.AreSame(dataList[45], dataGrid.CurrentCell.Item);
+
+            Assert.IsFalse(target.MoveDown(200));
+            Assert.IsFalse(target.IsCellVisible);
+            Assert.IsNull(target.CurrentCell);
+            Assert.IsFalse(target.MoveDown(1));
+         }
       }
 
       /// <summary>
@@ -172,13 +201,38 @@ namespace Tests.TableControl
       [TestMethod()]
       public void MoveUpTest()
       {
-         DataGridCurrentCellService target = new DataGridCurrentCellService(); // TODO: Initialize to an appropriate value
-         int distance = 0; // TODO: Initialize to an appropriate value
-         bool expected = false; // TODO: Initialize to an appropriate value
-         bool actual;
-         actual = target.MoveUp(distance);
-         Assert.AreEqual(expected, actual);
-         Assert.Inconclusive("Verify the correctness of this test method.");
+         // Create a large enough data list, so that there will be scroll bar.
+         var dataList = CreateTestDataList(100);
+
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
+         {
+            ICurrentCellService target = new DataGridCurrentCellService();
+            ((IUIService)target).AttachToElement(dataGrid);
+            ICurrentItemService currentRowService = UIServiceProvider.GetService<ICurrentItemService>(dataGrid);
+            var currentRowChangingEventHelper = new EventHandlerTestHelper<object, CancelableRoutedEventArgs>("PreviewCurrentCellChanging");
+            currentRowService.PreviewCurrentChanging += currentRowChangingEventHelper.Handler;
+            var rowChangedEventHelper = new EventHandlerTestHelper<object, RoutedEventArgs>("CurrentCellChanged");
+            currentRowService.CurrentChanged += rowChangedEventHelper.Handler;
+
+            Assert.IsFalse(target.MoveUp(1));
+            Assert.IsNull(target.CurrentCellItem);
+            Assert.IsFalse(rowChangedEventHelper.HandlerInvoked);
+            Assert.IsFalse(currentRowChangingEventHelper.HandlerInvoked);
+
+            Assert.IsTrue(target.MoveDown(5));
+            Assert.AreSame(dataList[4], target.CurrentCellItem);
+            Assert.AreSame(dataList[5], dataGrid.CurrentCell.Item);
+
+            Assert.IsTrue(target.MoveDown(40));
+            Assert.IsTrue(target.IsCellVisible);
+            Assert.AreSame(dataList[45], dataGrid.CurrentCell.Item);
+
+            Assert.IsFalse(target.MoveDown(200));
+            Assert.IsFalse(target.IsCellVisible);
+            Assert.IsNull(target.CurrentCell);
+            Assert.IsFalse(target.MoveDown(1));
+         }
       }
 
       /// <summary>
@@ -229,6 +283,36 @@ namespace Tests.TableControl
             list.Add(new TestData() { StrValue = "Item #" + i, IntValue = i, BoolValue = (i % 2) == 0 });
          }
          return list;
+      }
+
+      class CurrentCellConsumer
+      {
+         ICurrentItemService currentRowService;
+         ICurrentItemService currentCellService;
+
+         public CurrentCellConsumer(DataGrid dataGrid)
+         {
+            currentRowService = UIServiceProvider.GetService<ICurrentItemService>(dataGrid);
+            UpdateCurrentCellService();
+            currentRowService.PreviewCurrentChanging += new CancelableRoutedEventHandler(currentRowService_PreviewCurrentChanging);
+            currentRowService.CurrentChanged += new RoutedEventHandler(currentRowService_CurrentChanged);
+         }
+
+         private void UpdateCurrentCellService()
+         {
+            /*currentC*/
+         }
+
+         void currentRowService_PreviewCurrentChanging(object sender, CancelableRoutedEventArgs eventArgs)
+         {
+            throw new NotImplementedException();
+         }
+
+         void currentRowService_CurrentChanged(object sender, RoutedEventArgs e)
+         {
+            throw new NotImplementedException();
+         }
+
       }
    }
 

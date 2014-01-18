@@ -157,7 +157,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (adapterType == typeof(ICurrentItemService))
          {
             if (currentItemProvider == null)
-               currentItemProvider = new DataGridCurrentItemService(DataGridElement);
+            {
+               currentItemProvider = new DataGridCurrentItemService();
+               ((IUIService)currentItemProvider).AttachToElement(DataGridElement);
+            }
             return currentItemProvider;
          }
 

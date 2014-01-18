@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Collections;
 using Tests.Common;
+using MagicSoftware.Common.Controls.Table.Extensions;
 
 namespace Tests.TableControl.UI
 {
@@ -27,14 +28,22 @@ namespace Tests.TableControl.UI
 
       public DataGrid MainDataGrid { get { return dataGrid; } }
 
-      public static IDisposable Show(IList dataList, out DataGrid dataGrid)
+      public static IDisposable Show(IList dataList, UIServiceCollection dgServiceList, out DataGrid dataGrid)
       {
          var w = new TestWindow();
+         if (dgServiceList != null)
+            UIServiceProvider.SetServiceList(w.MainDataGrid, dgServiceList);
+
          w.DataContext = new ListCollectionView(dataList);
 
          var result = TestUtils.AutoCloseWindow(w);
          dataGrid = w.MainDataGrid;
          return result;
+      }
+
+      public static IDisposable Show(IList dataList, out DataGrid dataGrid)
+      {
+         return Show(dataList, null, out dataGrid);
       }
    }
 }

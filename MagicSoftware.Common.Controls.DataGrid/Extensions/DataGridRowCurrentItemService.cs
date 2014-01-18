@@ -17,23 +17,25 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          currentCellInfo = new DataGridCellInfo();
       }
 
-      public DataGridRowCurrentItemService(DataGridRow dataGridRow)
-         : base(dataGridRow)
+      public override void AttachToElement(FrameworkElement element)
       {
-         SetElement(dataGridRow);
-      }
-
-      public override void SetElement(FrameworkElement element)
-      {
-         base.SetElement(element);
+         base.AttachToElement(element);
          this.dataGridRow = (DataGridRow)element;
          owner = UIUtils.GetAncestor<DataGrid>(dataGridRow);
          UpdateCurrentStateInfo();
          //TODO: CurrentCellChanged???
-         owner.CurrentCellChanged += new System.EventHandler<System.EventArgs>(owner_CurrentCellChanged);
+         owner.CurrentCellChanged += owner_CurrentCellChanged;
          if (owner.CurrentColumn == null)
          {
             owner.CurrentColumn = owner.ColumnFromDisplayIndex(0);
+         }
+      }
+
+      protected override void DetachFromElement(FrameworkElement element)
+      {
+         if (owner != null)
+         {
+            owner.CurrentCellChanged -= owner_CurrentCellChanged;
          }
       }
 

@@ -17,9 +17,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       }
 
-      public override void SetElement(FrameworkElement servedElement)
+      public override void AttachToElement(FrameworkElement servedElement)
       {
-         base.SetElement(servedElement);
+         base.AttachToElement(servedElement);
 
          var row = servedElement as DataGridRow;
 
@@ -33,6 +33,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             else
                SetCurrentPosition(-1);
          }
+      }
+
+      protected override void DetachFromElement(FrameworkElement element)
+      {
+         
       }
 
       public override object CurrentItem

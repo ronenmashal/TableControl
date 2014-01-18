@@ -74,26 +74,6 @@ namespace Tests.TableControl
 
 
       /// <summary>
-      ///A test for DataGridAsCurrentItemProvider Constructor
-      ///</summary>
-      //[TestMethod()]
-      public void DataGridAsCurrentItemProviderConstructorTest()
-      {
-         ObservableCollection<TestData> dataList = new ObservableCollection<TestData>()
-         {
-            new TestData() { StrValue = "A" },
-            new TestData() { StrValue = "B" },
-            new TestData() { StrValue = "C" }
-         };
-
-         DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
-         {
-            DataGridCurrentItemService target = new DataGridCurrentItemService(dataGrid);
-         }
-      }
-
-      /// <summary>
       ///A test for DataGrid_CurrentItemChanged
       ///</summary>
       [TestMethod()]
@@ -108,13 +88,17 @@ namespace Tests.TableControl
          };
 
          DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
+         var target = new DataGridCurrentItemService();
+         UIServiceCollection serviceList = new UIServiceCollection();
+         serviceList.Add(target);
+         using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
             dataGrid.CurrentItem = null;
-            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
+            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(target);
             var provider = helper.Target;
             var previewCurrentChangingEventHandlerHelper = new EventHandlerTestHelper<object, CancelableRoutedEventArgs>("PreviewCurrentChanging");
             provider.PreviewCurrentChanging += previewCurrentChangingEventHandlerHelper.Handler;
+
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
             Assert.IsTrue(previewCurrentChangingEventHandlerHelper.HandlerInvoked);
             Assert.IsFalse(previewCurrentChangingEventHandlerHelper.LastInocationEventArgs.IsCancelable);
@@ -156,10 +140,13 @@ namespace Tests.TableControl
          };
 
          DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
+         var target = new DataGridCurrentItemService();
+         var serviceList = new UIServiceCollection();
+         serviceList.Add(target);
+         using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
             dataGrid.Items.MoveCurrentTo(null);
-            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
+            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(target);
             var provider = helper.Target;
             var previewCurrentChangingEventHandlerHelper = new EventHandlerTestHelper<object, CancelableRoutedEventArgs>("PreviewCurrentChanging");
             provider.PreviewCurrentChanging += previewCurrentChangingEventHandlerHelper.Handler;
@@ -209,11 +196,13 @@ namespace Tests.TableControl
          };
 
          DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
+         var target = new DataGridCurrentItemService();
+         var serviceList = new UIServiceCollection();
+         serviceList.Add(target);
+         using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
             dataGrid.Items.MoveCurrentTo(null);
-            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
-            var provider = helper.Target;
+            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(target); var provider = helper.Target;
             var currentChangedEventHandlerHelper = new EventHandlerTestHelper<object, RoutedEventArgs>("CurrentChanged");
             provider.CurrentChanged += currentChangedEventHandlerHelper.Handler;
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
@@ -253,11 +242,13 @@ namespace Tests.TableControl
          };
 
          DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
+         var target = new DataGridCurrentItemService();
+         var serviceList = new UIServiceCollection();
+         serviceList.Add(target);
+         using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
             dataGrid.Items.MoveCurrentTo(null);
-            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(new DataGridCurrentItemService(dataGrid));
-            var provider = helper.Target;
+            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(target); var provider = helper.Target;
 
             Assert.IsNull(provider.CurrentItem);
             Assert.AreEqual(-1, provider.CurrentPosition);
@@ -293,7 +284,7 @@ namespace Tests.TableControl
             Assert.AreEqual(-1, provider.CurrentPosition);
          }
       }
- 
+
    }
 
 

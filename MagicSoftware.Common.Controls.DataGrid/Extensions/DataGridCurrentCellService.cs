@@ -12,20 +12,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    class DataGridCurrentCellService : ICurrentCellService, IUIService
    {
-      public event CancelableRoutedEventHandler PreviewCurrentCellChanging;
-      public event RoutedEventHandler CurrentCellChanged;
-
       private System.Windows.Controls.DataGrid dataGrid;
 
       ICurrentItemService currentRowService;
       ICurrentItemService currentCellInRowService;
 
-      public void SetElement(FrameworkElement element)
+      public void AttachToElement(FrameworkElement element)
       {
          this.dataGrid = (DataGrid)element;
          currentRowService = UIServiceProvider.GetService<ICurrentItemService>(element);
          UpdateCurrentCell();
-         currentRowService.CurrentChanged += CurrentRowService_CurrentChanged;
+         
       }
 
       void CurrentRowService_CurrentChanged(object sender, RoutedEventArgs e)
@@ -75,27 +72,43 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool MoveTo(FrameworkElement targetElement)
       {
-         throw new NotImplementedException();
+         var targetRow = UIUtils.GetAncestor<DataGridRow>(targetElement);
+         if (targetRow == null)
+            return false;
+
+         if (!currentRowService.MoveCurrentTo(targetRow.Item))
+            return false;
+
+         if (currentCellInRowService != null)
+            return currentCellInRowService.MoveCurrentTo(targetElement);
+
+         return true;
       }
 
       public bool MoveUp(int distance)
       {
-         throw new NotImplementedException();
+         return currentRowService.MoveCurrentToRelativePosition(-distance);
       }
 
       public bool MoveDown(int distance)
       {
-         throw new NotImplementedException();
+         return currentRowService.MoveCurrentToRelativePosition(distance);
       }
 
       public bool MoveLeft(int distance)
       {
-         throw new NotImplementedException();
+         if (currentCellInRowService == null)
+            return false;
+
+         return currentCellInRowService.MoveCurrentToRelativePosition(-distance);
       }
 
       public bool MoveRight(int distance)
       {
-         throw new NotImplementedException();
+         if (currentCellInRowService == null)
+            return false;
+
+         return currentCellInRowService.MoveCurrentToRelativePosition(distance);
       }
 
       #region IDisposable Members
@@ -106,6 +119,24 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       #endregion
+
+      public IDisposable ConsolidateChangeEvents()
+      {
+         return new ConsolidatedEventHandling();
+      }
+
+      class ConsolidatedEventHandling : IDisposable
+      {
+
+         #region IDisposable Members
+
+         public void Dispose()
+         {
+            throw new NotImplementedException();
+         }
+
+         #endregion
+      }
 
    }
 }

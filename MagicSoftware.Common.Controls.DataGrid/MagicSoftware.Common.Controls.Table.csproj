@@ -100,6 +100,7 @@
     <Compile Include="Extensions\SharedServiceAttribute.cs" />
     <Compile Include="Extensions\UIServiceCollection.cs" />
     <Compile Include="Extensions\UIServiceProvider.cs" />
+    <Compile Include="Extensions\UniversalCellInfo.cs" />
     <Compile Include="LineEditor.xaml.cs">
       <DependentUpon>LineEditor.xaml</DependentUpon>
     </Compile>

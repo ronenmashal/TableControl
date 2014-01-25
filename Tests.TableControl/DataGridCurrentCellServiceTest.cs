@@ -85,8 +85,7 @@ namespace Tests.TableControl
          {
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
-            Assert.IsNull(target.CurrentCell);
-            Assert.IsNull(target.CurrentCellItem);
+            Assert.IsNull(target.CurrentCell.Item);
 
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[1], dataGrid.Columns[0]);
             target = new DataGridCurrentCellService();
@@ -103,7 +102,7 @@ namespace Tests.TableControl
 
             target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
-            Assert.AreSame(dataList[70], target.CurrentCellItem);
+            Assert.AreSame(dataList[70], target.CurrentCell.Item);
          }
       }
 
@@ -129,14 +128,14 @@ namespace Tests.TableControl
 
             // Move down, when cell was not yet set, should move to the first cell.
             Assert.IsTrue(target.MoveDown(1));
-            Assert.AreSame(dataList[0], target.CurrentCellItem);
+            Assert.AreSame(dataList[0], target.CurrentCell.Item);
             Assert.IsNotNull(target.CurrentCell);
             Assert.IsTrue(rowChangedEventHelper.HandlerInvoked);
             Assert.IsTrue(currentRowChangingEventHelper.HandlerInvoked);
             Assert.AreSame(dataGrid.ColumnFromDisplayIndex(0), dataGrid.CurrentCell.Column);
 
             Assert.IsTrue(target.MoveDown(5));
-            Assert.AreSame(dataList[5], target.CurrentCellItem);
+            Assert.AreSame(dataList[5], target.CurrentCell.Item);
             Assert.AreSame(dataList[5], dataGrid.CurrentCell.Item);
 
             Assert.IsTrue(target.MoveDown(40));
@@ -216,12 +215,12 @@ namespace Tests.TableControl
             currentRowService.CurrentChanged += rowChangedEventHelper.Handler;
 
             Assert.IsFalse(target.MoveUp(1));
-            Assert.IsNull(target.CurrentCellItem);
+            Assert.IsNull(target.CurrentCell.Item);
             Assert.IsFalse(rowChangedEventHelper.HandlerInvoked);
             Assert.IsFalse(currentRowChangingEventHelper.HandlerInvoked);
 
             Assert.IsTrue(target.MoveDown(5));
-            Assert.AreSame(dataList[4], target.CurrentCellItem);
+            Assert.AreSame(dataList[4], target.CurrentCell.Item);
             Assert.AreSame(dataList[5], dataGrid.CurrentCell.Item);
 
             Assert.IsTrue(target.MoveDown(40));

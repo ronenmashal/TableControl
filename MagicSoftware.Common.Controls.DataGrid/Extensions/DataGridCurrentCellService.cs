@@ -22,7 +22,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          this.dataGrid = (DataGrid)element;
          currentRowService = UIServiceProvider.GetService<ICurrentItemService>(element);
          UpdateCurrentCell();
-         
       }
 
       public void DetachFromElement(FrameworkElement element)
@@ -49,13 +48,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             currentCellInRowService = null;
       }
 
-      public FrameworkElement CurrentCell
+      public UniversalCellInfo CurrentCell
       {
          get
          {
-            if (currentCellInRowService == null)
-               return null;
-            return (FrameworkElement)currentCellInRowService.CurrentItem;
+            return UniversalCellInfo.Undefined;
          }
       }
 
@@ -63,31 +60,30 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          get
          {
-            if (CurrentCell == null)
-               return false;
-
-            return CurrentCell.IsVisible;
+            return false;
          }
       }
 
-      public object CurrentCellItem
+      public FrameworkElement CurrentCellElement
       {
-         get { return currentRowService.CurrentItem; }
+         get { return null; }
       }
 
-      public bool MoveTo(FrameworkElement targetElement)
+      public bool MoveTo(UniversalCellInfo targetCell)
       {
-         var targetRow = UIUtils.GetAncestor<DataGridRow>(targetElement);
-         if (targetRow == null)
-            return false;
+         //var targetRow = UIUtils.GetAncestor<DataGridRow>(targetElement);
+         //if (targetRow == null)
+         //   return false;
 
-         if (!currentRowService.MoveCurrentTo(targetRow.Item))
-            return false;
+         //if (!currentRowService.MoveCurrentTo(targetRow.Item))
+         //   return false;
 
-         if (currentCellInRowService != null)
-            return currentCellInRowService.MoveCurrentTo(targetElement);
+         //if (currentCellInRowService != null)
+         //   return currentCellInRowService.MoveCurrentTo(targetElement);
 
-         return true;
+         //return true;
+
+         return false;
       }
 
       public bool MoveUp(int distance)

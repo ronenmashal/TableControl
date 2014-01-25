@@ -31,7 +31,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
-      protected override void DetachFromElement(FrameworkElement element)
+      public override void DetachFromElement(FrameworkElement element)
       {
          if (owner != null)
          {

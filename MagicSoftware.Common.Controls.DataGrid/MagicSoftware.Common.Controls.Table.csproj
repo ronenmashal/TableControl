@@ -97,6 +97,7 @@
     <Compile Include="Extensions\ImplementedServiceAttribute.cs" />
     <Compile Include="Extensions\IUIService.cs" />
     <Compile Include="Extensions\PreviewChangeEventArgs.cs" />
+    <Compile Include="Extensions\SharedServiceAttribute.cs" />
     <Compile Include="Extensions\UIServiceCollection.cs" />
     <Compile Include="Extensions\UIServiceProvider.cs" />
     <Compile Include="LineEditor.xaml.cs">

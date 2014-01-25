@@ -80,6 +80,10 @@
     <Compile Include="Data\TestClassBase.cs" />
     <Compile Include="PrivateAccessHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UIServiceProviderTest.cs" />
+    <Compile Include="UI\EmptyWindow.xaml.cs">
+      <DependentUpon>EmptyWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\TestWindow.xaml.cs">
       <DependentUpon>TestWindow.xaml</DependentUpon>
     </Compile>
@@ -96,6 +100,10 @@
     <Shadow Include="Test References\MagicSoftware.Common.Controls.Table.accessor" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="UI\EmptyWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\TestWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

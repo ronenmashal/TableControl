@@ -50,7 +50,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          AttachItemsViewToItemsSource();
       }
 
-      protected override void DetachFromElement(FrameworkElement element)
+      public override void DetachFromElement(FrameworkElement element)
       {
          if (dataGrid != null)
             dataGrid.Loaded -= DataGridElement_Loaded;

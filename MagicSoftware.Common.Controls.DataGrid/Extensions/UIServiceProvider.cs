@@ -13,11 +13,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    /// <example>
    /// var service = UIServiceProvider.GetServiceProvider(element).GetService(serviceType);
    /// </example>
-   public class UIServiceProvider
+   public class UIServiceProvider : IWeakEventListener
    {
       #region Static members
 
-      public static IEnumerable<IUIService> GetServiceList(DependencyObject obj)
+      private static IEnumerable<IUIService> GetServiceList(DependencyObject obj)
       {
          return (IEnumerable<IUIService>)obj.GetValue(ServiceListProperty);
       }
@@ -43,7 +43,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             {
                var oldProvider = GetServiceProvider(element);
                if (oldProvider != null)
-                  oldProvider.DetachFromElement(element, oldList);
+                  oldProvider.Dispose();
             }
 
             // Create a service provider for the element.
@@ -105,10 +105,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
       Dictionary<Type, IUIService> serviceImplementations = new Dictionary<Type, IUIService>();
+      FrameworkElement element;
+      Window owningWindow;
 
       void AttachToElement(FrameworkElement element, IEnumerable<IUIService> serviceList)
       {
          log.Debug("Setting service list for " + element);
+         this.element = element;
          foreach (var service in serviceList)
          {
             var serviceType = service.GetType();
@@ -120,24 +123,36 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             log.DebugFormat("Adding service {0} => {1}", serviceType.Name, service.GetType().Name);
             serviceImplementations.Add(serviceType, service);
          }
-         element.Loaded += Element_Loaded;
+         LoadedEventManager.AddListener(element, this);
+         UnloadedEventManager.AddListener(element, this);
          if (element.IsLoaded)
             Element_Loaded(element, new RoutedEventArgs());
       }
 
       void DetachFromElement(FrameworkElement element, IEnumerable<IUIService> oldServiceList)
       {
-         element.Loaded -= Element_Loaded;
          foreach (var service in oldServiceList)
-            service.Dispose();
+            service.DetachFromElement(element);
       }
 
       void Element_Loaded(object sender, RoutedEventArgs args)
       {
          foreach (var service in serviceImplementations.Values)
-         {
             service.AttachToElement((FrameworkElement)sender);
-         }
+
+         owningWindow = UIUtils.GetAncestor<Window>(element);
+         if (owningWindow != null)
+            owningWindow.Closed += OwningWindow_Closed;
+      }
+
+      void Element_Unloaded(object sender, RoutedEventArgs args)
+      {
+         DetachFromElement((FrameworkElement)sender, serviceImplementations.Values);
+      }
+
+      void OwningWindow_Closed(object sender, EventArgs e)
+      {
+         Dispose();
       }
 
       public IUIService GetService(Type serviceType)
@@ -153,5 +168,108 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          return GetService(typeof(T)) as T;
       }
+
+      public void Dispose()
+      {
+         if (owningWindow != null)
+            owningWindow.Closed -= OwningWindow_Closed;
+         LoadedEventManager.RemoveListener(element, this);
+         UnloadedEventManager.RemoveListener(element, this);
+         DetachFromElement(element, serviceImplementations.Values);
+         foreach (var service in serviceImplementations.Values)
+         {
+            service.Dispose();
+         }
+      }
+
+      #region IWeakEventListener Members
+
+      public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e)
+      {
+         if (managerType == typeof(LoadedEventManager))
+            Element_Loaded(sender, (RoutedEventArgs)e);
+         else if (managerType == typeof(UnloadedEventManager))
+            Element_Unloaded(sender, (RoutedEventArgs)e);
+         else
+            return false;
+
+         return true;
+      }
+
+      #endregion
    }
+
+   abstract class RoutedEventManagerBase : WeakEventManager
+   {
+      public abstract RoutedEvent Event { get; }
+
+      protected override void StartListening(object source)
+      {
+         var sourceElement = (UIElement)source;
+         sourceElement.AddHandler(Event, new RoutedEventHandler(OnRoutedEvent), true);
+      }
+
+      protected override void StopListening(object source)
+      {
+         var sourceElement = (UIElement)source;
+         sourceElement.RemoveHandler(Event, new RoutedEventHandler(OnRoutedEvent));
+      }
+
+      void OnRoutedEvent(object sender, RoutedEventArgs args)
+      {
+         DeliverEvent(sender, args);
+      }
+
+      protected static T GetManager<T>()
+         where T : RoutedEventManagerBase, new()
+      {
+         var manager_type = typeof(T);
+         var manager = WeakEventManager.GetCurrentManager(manager_type) as T;
+
+         if (manager == null)
+         {
+            manager = new T();
+            WeakEventManager.SetCurrentManager(manager_type, manager);
+         }
+
+         return manager;
+      }
+   }
+
+   class LoadedEventManager : RoutedEventManagerBase
+   {
+      public override RoutedEvent Event
+      {
+         get { return FrameworkElement.LoadedEvent; }
+      }
+
+      public static void AddListener(UIElement source, IWeakEventListener listener)
+      {
+         GetManager<LoadedEventManager>().ProtectedAddListener(source, listener);
+      }
+
+      public static void RemoveListener(UIElement source, IWeakEventListener listener)
+      {
+         GetManager<LoadedEventManager>().ProtectedRemoveListener(source, listener);
+      }
+   }
+
+   class UnloadedEventManager : RoutedEventManagerBase
+   {
+      public override RoutedEvent Event
+      {
+         get { return FrameworkElement.LoadedEvent; }
+      }
+
+      public static void AddListener(UIElement source, IWeakEventListener listener)
+      {
+         GetManager<UnloadedEventManager>().ProtectedAddListener(source, listener);
+      }
+
+      public static void RemoveListener(UIElement source, IWeakEventListener listener)
+      {
+         GetManager<UnloadedEventManager>().ProtectedRemoveListener(source, listener);
+      }
+   }
+
 }

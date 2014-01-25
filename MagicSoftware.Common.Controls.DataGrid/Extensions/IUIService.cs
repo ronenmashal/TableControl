@@ -9,5 +9,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    public interface IUIService : IDisposable
    {
       void AttachToElement(FrameworkElement element);
+      void DetachFromElement(FrameworkElement element);
    }
 }

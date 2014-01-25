@@ -25,6 +25,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          
       }
 
+      public void DetachFromElement(FrameworkElement element)
+      {
+
+      }
+
       void CurrentRowService_CurrentChanged(object sender, RoutedEventArgs e)
       {
          UpdateCurrentCell();

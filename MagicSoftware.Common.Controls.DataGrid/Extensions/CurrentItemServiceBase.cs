@@ -104,7 +104,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          element = servedElement;
       }
 
-      protected abstract void DetachFromElement(FrameworkElement element);
+      public abstract void DetachFromElement(FrameworkElement element);
 
       public abstract object CurrentItem { get; }
       public abstract int CurrentPosition { get; }

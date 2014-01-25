@@ -30,6 +30,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          
       }
 
+      public void DetachFromElement(FrameworkElement element)
+      {}
+
       #endregion
 
       #region IDisposable Members

@@ -14,13 +14,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
       private System.Windows.Controls.DataGrid dataGrid;
 
-      ICurrentItemService currentRowService;
-      ICurrentItemService currentCellInRowService;
-
       public void AttachToElement(FrameworkElement element)
       {
          this.dataGrid = (DataGrid)element;
-         currentRowService = UIServiceProvider.GetService<ICurrentItemService>(element);
+         //currentRowService = UIServiceProvider.GetService<ICurrentItemService>(element);
+         dataGrid.CurrentCellChanged += new EventHandler<EventArgs>(DataGrid_CurrentCellChanged);
          UpdateCurrentCell();
       }
 
@@ -29,31 +27,27 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       }
 
-      void CurrentRowService_CurrentChanged(object sender, RoutedEventArgs e)
+      void DataGrid_CurrentCellChanged(object sender, EventArgs e)
       {
          UpdateCurrentCell();
       }
 
       void UpdateCurrentCell()
       {
-         DataGridRow row = null;
-         object item = currentRowService.CurrentItem;
-         if (item != null)
-         {
-            row = dataGrid.ItemContainerGenerator.ContainerFromItem(item) as DataGridRow;
-         }
-         if (row != null)
-            currentCellInRowService = UIServiceProvider.GetService<ICurrentItemService>(row);
-         else
-            currentCellInRowService = null;
+         int currentColumnIndex = -1;
+         if (dataGrid.CurrentCell.Column != null)
+            currentColumnIndex = dataGrid.CurrentCell.Column.DisplayIndex;
+
+         object currentItem = null;
+         if (dataGrid.CurrentCell.Item != DependencyProperty.UnsetValue)
+            currentItem = dataGrid.CurrentCell.Item;
+
+         CurrentCell = new UniversalCellInfo(currentItem, currentColumnIndex);
       }
 
       public UniversalCellInfo CurrentCell
       {
-         get
-         {
-            return UniversalCellInfo.Undefined;
-         }
+         get; private set;
       }
 
       public bool IsCellVisible
@@ -88,56 +82,31 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool MoveUp(int distance)
       {
-         return currentRowService.MoveCurrentToRelativePosition(-distance);
+         return false;
       }
 
       public bool MoveDown(int distance)
       {
-         return currentRowService.MoveCurrentToRelativePosition(distance);
+         return false;
       }
 
       public bool MoveLeft(int distance)
       {
-         if (currentCellInRowService == null)
-            return false;
-
-         return currentCellInRowService.MoveCurrentToRelativePosition(-distance);
+         return false;
       }
 
       public bool MoveRight(int distance)
       {
-         if (currentCellInRowService == null)
-            return false;
-
-         return currentCellInRowService.MoveCurrentToRelativePosition(distance);
+         return false;
       }
 
       #region IDisposable Members
 
       public void Dispose()
       {
-         throw new NotImplementedException();
+         
       }
 
       #endregion
-
-      public IDisposable ConsolidateChangeEvents()
-      {
-         return new ConsolidatedEventHandling();
-      }
-
-      class ConsolidatedEventHandling : IDisposable
-      {
-
-         #region IDisposable Members
-
-         public void Dispose()
-         {
-            throw new NotImplementedException();
-         }
-
-         #endregion
-      }
-
    }
 }

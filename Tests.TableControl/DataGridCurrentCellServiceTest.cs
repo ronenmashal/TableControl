@@ -90,9 +90,7 @@ namespace Tests.TableControl
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[1], dataGrid.Columns[0]);
             target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
-            //Assert.AreSame(dataList[1], target.CurrentCell);
-            Assert.IsInstanceOfType(target.CurrentCell, typeof(DataGridCell));
-            //var cell = target.CurrentCell.CellElementLocator.GetCell();
+            Assert.AreSame(dataList[1], target.CurrentCell.Item);
 
             dataGrid.ScrollIntoView(dataList[70]);
             dataGrid.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() =>

@@ -29,8 +29,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public void RaisePreviewCurrentCellChangingEvent(UniversalCellInfo newValue, out bool canceled)
       {
          canceled = false;
-         if (inhibitChangeEvents.IsSet)
-            return;
          if (PreviewCurrentCellChanging != null)
          {
             var eventArgs = new PreviewChangeEventArgs(CurrentCell, newValue, true);
@@ -44,7 +42,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// </summary>
       public void RaiseNonCancelablePreviewCurrentCellChangingEvent(UniversalCellInfo newValue)
       {
-         if (inhibitChangeEvents.IsSet)
+         if (isSelfInducedCellChange.IsSet)
             return;
          if (PreviewCurrentCellChanging != null)
          {
@@ -64,8 +62,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void RaiseCurrentCellChangedEvent()
       {
-         if (inhibitChangeEvents.IsSet)
-            return;
          if (CurrentCellChanged != null)
             CurrentCellChanged(this, new EventArgs());
       }
@@ -74,8 +70,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
 
       private System.Windows.Controls.DataGrid dataGrid;
-      protected readonly AutoResetFlag inhibitChangeEvents = new AutoResetFlag();
 
+      /// <summary>
+      /// Determines whether the current cell change is of an external origin, i.e. the 
+      /// cell position was changed by another component; or the change is caused by
+      /// this class (self induced).
+      /// </summary>
+      protected readonly AutoResetFlag isSelfInducedCellChange = new AutoResetFlag();
 
       public void AttachToElement(FrameworkElement element)
       {
@@ -94,7 +95,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       void DataGrid_CurrentCellChanged(object sender, EventArgs e)
       {
-         if (!inhibitChangeEvents.IsSet)
+         if (!isSelfInducedCellChange.IsSet)
             RaiseNonCancelablePreviewCurrentCellChangingEvent(ConvertDataGridCellInfo(dataGrid.CurrentCell));
          UpdateCurrentCell();
          RaiseCurrentCellChangedEvent();
@@ -150,7 +151,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (canceled)
             return false;
 
-         using (inhibitChangeEvents.Set())
+         using (isSelfInducedCellChange.Set())
             dataGrid.CurrentCell = new DataGridCellInfo(targetCell.Item, dataGrid.ColumnFromDisplayIndex(targetCell.CellIndex));
          return true;
       }

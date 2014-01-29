@@ -123,78 +123,20 @@ namespace Tests.TableControl
             Assert.IsNull(target.CurrentCell.Item);
 
             using (ExpectNonCancelableEvents(target))
-            {
                dataGrid.CurrentCell = new DataGridCellInfo(dataList[1], dataGrid.Columns[0]);
-               Assert.AreSame(dataList[1], target.CurrentCell.Item);
-               Assert.AreEqual(0, target.CurrentCell.CellIndex);
-            }
+            Assert.AreSame(dataList[1], target.CurrentCell.Item);
+            Assert.AreEqual(0, target.CurrentCell.CellIndex);
 
             using (ExpectNonCancelableEvents(target))
-            {
                dataGrid.CurrentCell = new DataGridCellInfo(dataList[5], dataGrid.Columns[2]);
-               Assert.AreSame(dataList[5], target.CurrentCell.Item);
-               Assert.AreEqual(2, target.CurrentCell.CellIndex);
-            }
+            Assert.AreSame(dataList[5], target.CurrentCell.Item);
+            Assert.AreEqual(2, target.CurrentCell.CellIndex);
 
             using (ExpectNoEvents(target))
-            {
                dataGrid.CurrentColumn.DisplayIndex = 0;
-               Assert.AreEqual(0, target.CurrentCell.CellIndex);
-            }
+            Assert.AreEqual(0, target.CurrentCell.CellIndex);
          }
       }
-
-      IDisposable ExpectNoEvents(ICurrentCellService target)
-      {
-         return new EventHelpers(target, false, false, false);
-      }
-
-      IDisposable ExpectNonCancelableEvents(ICurrentCellService target)
-      {
-         return new EventHelpers(target, true, false, true);
-      }
-
-      IDisposable ExpectCancelableEvents(ICurrentCellService target)
-      {
-         return new EventHelpers(target, true, true, true);
-      }
-
-      class EventHelpers : IDisposable
-      {
-         EventHandlerTestHelper<object, PreviewChangeEventArgs> cellChangingEventHelper = new EventHandlerTestHelper<object, PreviewChangeEventArgs>("PreviewCurrentCellChanging");
-         EventHandlerTestHelper<object, EventArgs> cellChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
-         ICurrentCellService target;
-         bool expectChangingToBeRaised;
-         bool expectChangingToBeCancelable;
-         bool expectChangedToBeRaised;
-
-         public EventHelpers(ICurrentCellService target, bool expectChangingToBeRaised, bool expectChangingToBeCancelable, bool expectChangedToBeRaised)
-         {
-            this.target = target;
-            target.PreviewCurrentCellChanging += cellChangingEventHelper.Handler;
-            target.CurrentCellChanged += cellChangedEventHelper.Handler;
-            this.expectChangingToBeRaised = expectChangingToBeRaised;
-            this.expectChangingToBeCancelable = expectChangingToBeCancelable;
-            this.expectChangedToBeRaised = expectChangedToBeRaised;
-         }
-
-         #region IDisposable Members
-
-         public void Dispose()
-         {
-            Assert.AreEqual(expectChangingToBeRaised, cellChangingEventHelper.HandlerInvoked);
-            if (cellChangingEventHelper.HandlerInvoked)
-               Assert.AreEqual(expectChangingToBeCancelable, cellChangingEventHelper.LastInocationEventArgs.IsCancelable);
-            Assert.AreEqual(expectChangedToBeRaised, cellChangedEventHelper.HandlerInvoked);
-
-            target.PreviewCurrentCellChanging += cellChangingEventHelper.Handler;
-            target.CurrentCellChanged += cellChangedEventHelper.Handler;
-         }
-
-         #endregion
-      }
-
-
 
       /// <summary>
       ///A test for MoveDown
@@ -210,33 +152,33 @@ namespace Tests.TableControl
          {
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
-            var currentRowChangingEventHelper = new EventHandlerTestHelper<object, PreviewChangeEventArgs>("PreviewCurrentCellChanging");
-            target.PreviewCurrentCellChanging += currentRowChangingEventHelper.Handler;
-            var rowChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
-            target.CurrentCellChanged += rowChangedEventHelper.Handler;
 
             // Move down, when cell was not yet set, should move to the first cell.
-            Assert.IsTrue(target.MoveDown(1));
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveDown(1));
             Assert.AreSame(dataList[0], target.CurrentCell.Item);
             Assert.AreSame(dataGrid.CurrentItem, target.CurrentCell.Item);
             Assert.IsNotNull(target.CurrentCell.Item);
-            Assert.IsTrue(rowChangedEventHelper.HandlerInvoked);
-            Assert.IsTrue(currentRowChangingEventHelper.HandlerInvoked);
             Assert.AreSame(dataGrid.ColumnFromDisplayIndex(0), dataGrid.CurrentCell.Column);
 
-            Assert.IsTrue(target.MoveDown(5));
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveDown(5));
             Assert.AreSame(dataList[5], target.CurrentCell.Item);
             Assert.AreSame(dataList[5], dataGrid.CurrentCell.Item);
 
-            Assert.IsTrue(target.MoveDown(40));
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveDown(40));
             Assert.AreSame(dataList[45], dataGrid.CurrentCell.Item);
 
-            Assert.IsFalse(target.MoveDown(200));
+            using (ExpectNoEvents(target))
+               Assert.IsFalse(target.MoveDown(200));
             Assert.IsNotNull(target.CurrentCell.Item);
+
             // Move to the last item
             Assert.IsTrue(target.MoveDown((uint)(dataGrid.Items.Count - 45 - 1)));
             // Try to move one more item down
-            Assert.IsFalse(target.MoveDown(1));
+            using (ExpectNoEvents(target))
+               Assert.IsFalse(target.MoveDown(1));
          }
       }
 
@@ -304,10 +246,11 @@ namespace Tests.TableControl
             var rowChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
             target.CurrentCellChanged += rowChangedEventHelper.Handler;
 
-            Assert.IsFalse(target.MoveUp(1));
-            Assert.IsNull(target.CurrentCell.Item);
-            Assert.IsFalse(rowChangedEventHelper.HandlerInvoked);
-            Assert.IsFalse(currentRowChangingEventHelper.HandlerInvoked);
+            using (ExpectNoEvents(target))
+            {
+               Assert.IsFalse(target.MoveUp(1));
+               Assert.IsNull(target.CurrentCell.Item);
+            }
          }
       }
 
@@ -329,26 +272,7 @@ namespace Tests.TableControl
          Assert.Inconclusive("Verify the correctness of this test method.");
       }
 
-      Company CreateCompany()
-      {
-         Company c = new Company() { Name = "Bit Cranching Inc.", Manager = new Employee() { Name = "EMP1", Address = "HOME1", Age = 50, IsActive = true }, Ticker = "BITC" };
 
-         Department d = new Department() { Name = "Marketing", Manager = new Employee() { Name = "MARK MGR", Address = "MARK HOME", Age = 45, IsActive = true } };
-         d.AddMember(new Employee() { Name = "Sell Better", Address = "On the road, 19", Age = 40, IsActive = true });
-         d.AddMember(new Employee() { Name = "NotSelling Much", Address = "Around the office", Age = 40, IsActive = false });
-         c.Add(d);
-
-         d = new Department() { Name = "Development", Manager = new Employee() { Name = "DEV MGR", Address = "Dev HOME", Age = 45, IsActive = true } };
-         d.AddMember(new Employee() { Name = "Bit Bit", Address = "In the office", Age = 40, IsActive = true });
-         d.AddMember(new Employee() { Name = "Byte Byte", Address = "Under the desk", Age = 40, IsActive = true });
-         d.AddMember(new Employee() { Name = "Java Java", Address = "Cell Phone", Age = 40, IsActive = true });
-         d.AddMember(new Employee() { Name = "Proxy Proxy", Address = "Don't know", Age = 40, IsActive = true });
-         d.AddMember(new Employee() { Name = "Nub Nub", Address = "Kitchen", Age = 25, IsActive = true });
-         c.Add(d);
-
-
-         return c;
-      }
 
       class TestData
       {
@@ -367,36 +291,54 @@ namespace Tests.TableControl
          return list;
       }
 
-      class CurrentCellConsumer
+      IDisposable ExpectNoEvents(ICurrentCellService target)
       {
-         ICurrentItemService currentRowService;
-         ICurrentItemService currentCellService;
+         return new EventHelpers(target, false, false, false);
+      }
 
-         public CurrentCellConsumer(DataGrid dataGrid)
+      IDisposable ExpectNonCancelableEvents(ICurrentCellService target)
+      {
+         return new EventHelpers(target, true, false, true);
+      }
+
+      IDisposable ExpectCancelableEvents(ICurrentCellService target)
+      {
+         return new EventHelpers(target, true, true, true);
+      }
+
+      class EventHelpers : IDisposable
+      {
+         EventHandlerTestHelper<object, PreviewChangeEventArgs> cellChangingEventHelper = new EventHandlerTestHelper<object, PreviewChangeEventArgs>("PreviewCurrentCellChanging");
+         EventHandlerTestHelper<object, EventArgs> cellChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
+         ICurrentCellService target;
+         bool expectChangingToBeRaised;
+         bool expectChangingToBeCancelable;
+         bool expectChangedToBeRaised;
+
+         public EventHelpers(ICurrentCellService target, bool expectChangingToBeRaised, bool expectChangingToBeCancelable, bool expectChangedToBeRaised)
          {
-            currentRowService = UIServiceProvider.GetService<ICurrentItemService>(dataGrid);
-            UpdateCurrentCellService();
-            currentRowService.PreviewCurrentChanging += currentRowService_PreviewCurrentChanging;
-            currentRowService.CurrentChanged += currentRowService_CurrentChanged;
+            this.target = target;
+            target.PreviewCurrentCellChanging += cellChangingEventHelper.Handler;
+            target.CurrentCellChanged += cellChangedEventHelper.Handler;
+            this.expectChangingToBeRaised = expectChangingToBeRaised;
+            this.expectChangingToBeCancelable = expectChangingToBeCancelable;
+            this.expectChangedToBeRaised = expectChangedToBeRaised;
          }
 
-         private void UpdateCurrentCellService()
+         #region IDisposable Members
+
+         public void Dispose()
          {
-            /*currentC*/
+            Assert.AreEqual(expectChangingToBeRaised, cellChangingEventHelper.HandlerInvoked);
+            if (cellChangingEventHelper.HandlerInvoked)
+               Assert.AreEqual(expectChangingToBeCancelable, cellChangingEventHelper.LastInocationEventArgs.IsCancelable);
+            Assert.AreEqual(expectChangedToBeRaised, cellChangedEventHelper.HandlerInvoked);
+
+            target.PreviewCurrentCellChanging += cellChangingEventHelper.Handler;
+            target.CurrentCellChanged += cellChangedEventHelper.Handler;
          }
 
-         void currentRowService_PreviewCurrentChanging(object sender, PreviewChangeEventArgs eventArgs)
-         {
-            throw new NotImplementedException();
-         }
-
-         void currentRowService_CurrentChanged(object sender, EventArgs e)
-         {
-            throw new NotImplementedException();
-         }
-
+         #endregion
       }
    }
-
-
 }

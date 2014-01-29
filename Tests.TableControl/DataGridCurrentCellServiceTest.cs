@@ -293,46 +293,61 @@ namespace Tests.TableControl
 
       IDisposable ExpectNoEvents(ICurrentCellService target)
       {
-         return new EventHelpers(target, false, false, false);
+         return new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
+            {
+               Assert.IsFalse(pc.HandlerInvoked);
+               Assert.IsFalse(c.HandlerInvoked);
+            }));
       }
 
       IDisposable ExpectNonCancelableEvents(ICurrentCellService target)
       {
-         return new EventHelpers(target, true, false, true);
+         return new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
+            {
+               Assert.AreEqual(1, pc.HandlerInvocationCount);
+               Assert.IsFalse(pc.LastInocationEventArgs.IsCancelable);
+               Assert.AreEqual(1, c.HandlerInvocationCount);
+            }));
       }
 
       IDisposable ExpectCancelableEvents(ICurrentCellService target)
       {
-         return new EventHelpers(target, true, true, true);
+         return new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
+            {
+               Assert.AreEqual(1, pc.HandlerInvocationCount);
+               Assert.IsTrue(pc.LastInocationEventArgs.IsCancelable);
+               Assert.AreEqual(1, c.HandlerInvocationCount);
+            }));
       }
 
-      class EventHelpers : IDisposable
+      class CurrentCellServiceEventsHelper : IDisposable
       {
+         public delegate void EventInvocationValidator(EventHandlerTestHelper<object, PreviewChangeEventArgs> cellChangingEventHelper, EventHandlerTestHelper<object, EventArgs> cellChangedEventHelper);
+
          EventHandlerTestHelper<object, PreviewChangeEventArgs> cellChangingEventHelper = new EventHandlerTestHelper<object, PreviewChangeEventArgs>("PreviewCurrentCellChanging");
          EventHandlerTestHelper<object, EventArgs> cellChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
          ICurrentCellService target;
-         bool expectChangingToBeRaised;
-         bool expectChangingToBeCancelable;
-         bool expectChangedToBeRaised;
 
-         public EventHelpers(ICurrentCellService target, bool expectChangingToBeRaised, bool expectChangingToBeCancelable, bool expectChangedToBeRaised)
+         private EventInvocationValidator assertConditions;
+
+         public CurrentCellServiceEventsHelper(ICurrentCellService target, EventInvocationValidator assertConditions)
          {
             this.target = target;
+            this.assertConditions = assertConditions;
             target.PreviewCurrentCellChanging += cellChangingEventHelper.Handler;
             target.CurrentCellChanged += cellChangedEventHelper.Handler;
-            this.expectChangingToBeRaised = expectChangingToBeRaised;
-            this.expectChangingToBeCancelable = expectChangingToBeCancelable;
-            this.expectChangedToBeRaised = expectChangedToBeRaised;
+         }
+
+         public EventHandler<PreviewChangeEventArgs> ChangingEventCallback
+         {
+            set { cellChangingEventHelper.AdditionalHandling = value; }
          }
 
          #region IDisposable Members
 
          public void Dispose()
          {
-            Assert.AreEqual(expectChangingToBeRaised, cellChangingEventHelper.HandlerInvoked);
-            if (cellChangingEventHelper.HandlerInvoked)
-               Assert.AreEqual(expectChangingToBeCancelable, cellChangingEventHelper.LastInocationEventArgs.IsCancelable);
-            Assert.AreEqual(expectChangedToBeRaised, cellChangedEventHelper.HandlerInvoked);
+            assertConditions(cellChangingEventHelper, cellChangedEventHelper);
 
             target.PreviewCurrentCellChanging += cellChangingEventHelper.Handler;
             target.CurrentCellChanged += cellChangedEventHelper.Handler;

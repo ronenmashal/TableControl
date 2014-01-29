@@ -5,7 +5,8 @@ namespace Tests.TableControl
    class EventHandlerTestHelper<SenderType, EventArgsType>
          where EventArgsType : EventArgs
    {
-      public bool HandlerInvoked { get; private set; }
+      public int HandlerInvocationCount { get; private set; }
+      public bool HandlerInvoked { get { return HandlerInvocationCount > 0; } }
       public EventArgsType LastInocationEventArgs { get; private set; }
       public EventHandler<EventArgsType> AdditionalHandling { get; set; }
 
@@ -19,7 +20,7 @@ namespace Tests.TableControl
 
       public void Handler(SenderType sender, EventArgsType eventArgs)
       {
-         HandlerInvoked = true;
+         HandlerInvocationCount++;
          LastInocationEventArgs = eventArgs;
          if (AdditionalHandling != null)
             AdditionalHandling(sender, eventArgs);
@@ -27,7 +28,7 @@ namespace Tests.TableControl
 
       public void Reset()
       {
-         HandlerInvoked = false;
+         HandlerInvocationCount = 0;
          LastInocationEventArgs = null;
       }
    }

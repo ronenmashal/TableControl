@@ -81,31 +81,47 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          this.dataGrid = (DataGrid)element;
          //currentRowService = UIServiceProvider.GetService<ICurrentItemService>(element);
-         dataGrid.CurrentCellChanged += new EventHandler<EventArgs>(DataGrid_CurrentCellChanged);
+         dataGrid.CurrentCellChanged += DataGrid_CurrentCellChanged;
+         dataGrid.ColumnDisplayIndexChanged += DataGrid_ColumnDisplayIndexChanged;
          UpdateCurrentCell();
       }
 
       public void DetachFromElement(FrameworkElement element)
       {
-         dataGrid.CurrentCellChanged -= new EventHandler<EventArgs>(DataGrid_CurrentCellChanged);
+         dataGrid.CurrentCellChanged -= DataGrid_CurrentCellChanged;
+         dataGrid.ColumnDisplayIndexChanged -= DataGrid_ColumnDisplayIndexChanged;
       }
 
       void DataGrid_CurrentCellChanged(object sender, EventArgs e)
       {
+         if (!inhibitChangeEvents.IsSet)
+            RaiseNonCancelablePreviewCurrentCellChangingEvent(ConvertDataGridCellInfo(dataGrid.CurrentCell));
+         UpdateCurrentCell();
+         RaiseCurrentCellChangedEvent();
+      }
+
+      void DataGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)
+      {
          UpdateCurrentCell();
       }
 
+
       void UpdateCurrentCell()
       {
+         CurrentCell = ConvertDataGridCellInfo(dataGrid.CurrentCell);
+      }
+
+      UniversalCellInfo ConvertDataGridCellInfo(DataGridCellInfo dgCellInfo)
+      {
          int currentColumnIndex = -1;
-         if (dataGrid.CurrentCell.Column != null)
+         if (dgCellInfo.Column != null)
             currentColumnIndex = dataGrid.CurrentCell.Column.DisplayIndex;
 
          object currentItem = null;
-         if (dataGrid.CurrentCell.Item != DependencyProperty.UnsetValue)
+         if (dgCellInfo.Item != DependencyProperty.UnsetValue)
             currentItem = dataGrid.CurrentCell.Item;
 
-         CurrentCell = new UniversalCellInfo(currentItem, currentColumnIndex);
+         return new UniversalCellInfo(currentItem, currentColumnIndex);
       }
 
       public UniversalCellInfo CurrentCell
@@ -136,8 +152,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          using (inhibitChangeEvents.Set())
             dataGrid.CurrentCell = new DataGridCellInfo(targetCell.Item, dataGrid.ColumnFromDisplayIndex(targetCell.CellIndex));
-
-         RaiseCurrentCellChangedEvent();
          return true;
       }
 

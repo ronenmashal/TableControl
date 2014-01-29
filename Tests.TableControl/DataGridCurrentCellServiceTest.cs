@@ -106,6 +106,97 @@ namespace Tests.TableControl
       }
 
       /// <summary>
+      /// Verifies the DataGridCurrentCellService tracks the data grid's current cell correctly.
+      /// </summary>
+      [TestMethod()]
+      public void CurrentCellTrackingTest()
+      {
+         // Create a large enough data list, so that there will be scroll bar.
+         var dataList = CreateTestDataList(100);
+
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
+         {
+            ICurrentCellService target = new DataGridCurrentCellService();
+            ((IUIService)target).AttachToElement(dataGrid);
+
+            Assert.IsNull(target.CurrentCell.Item);
+
+            using (ExpectNonCancelableEvents(target))
+            {
+               dataGrid.CurrentCell = new DataGridCellInfo(dataList[1], dataGrid.Columns[0]);
+               Assert.AreSame(dataList[1], target.CurrentCell.Item);
+               Assert.AreEqual(0, target.CurrentCell.CellIndex);
+            }
+
+            using (ExpectNonCancelableEvents(target))
+            {
+               dataGrid.CurrentCell = new DataGridCellInfo(dataList[5], dataGrid.Columns[2]);
+               Assert.AreSame(dataList[5], target.CurrentCell.Item);
+               Assert.AreEqual(2, target.CurrentCell.CellIndex);
+            }
+
+            using (ExpectNoEvents(target))
+            {
+               dataGrid.CurrentColumn.DisplayIndex = 0;
+               Assert.AreEqual(0, target.CurrentCell.CellIndex);
+            }
+         }
+      }
+
+      IDisposable ExpectNoEvents(ICurrentCellService target)
+      {
+         return new EventHelpers(target, false, false, false);
+      }
+
+      IDisposable ExpectNonCancelableEvents(ICurrentCellService target)
+      {
+         return new EventHelpers(target, true, false, true);
+      }
+
+      IDisposable ExpectCancelableEvents(ICurrentCellService target)
+      {
+         return new EventHelpers(target, true, true, true);
+      }
+
+      class EventHelpers : IDisposable
+      {
+         EventHandlerTestHelper<object, PreviewChangeEventArgs> cellChangingEventHelper = new EventHandlerTestHelper<object, PreviewChangeEventArgs>("PreviewCurrentCellChanging");
+         EventHandlerTestHelper<object, EventArgs> cellChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
+         ICurrentCellService target;
+         bool expectChangingToBeRaised;
+         bool expectChangingToBeCancelable;
+         bool expectChangedToBeRaised;
+
+         public EventHelpers(ICurrentCellService target, bool expectChangingToBeRaised, bool expectChangingToBeCancelable, bool expectChangedToBeRaised)
+         {
+            this.target = target;
+            target.PreviewCurrentCellChanging += cellChangingEventHelper.Handler;
+            target.CurrentCellChanged += cellChangedEventHelper.Handler;
+            this.expectChangingToBeRaised = expectChangingToBeRaised;
+            this.expectChangingToBeCancelable = expectChangingToBeCancelable;
+            this.expectChangedToBeRaised = expectChangedToBeRaised;
+         }
+
+         #region IDisposable Members
+
+         public void Dispose()
+         {
+            Assert.AreEqual(expectChangingToBeRaised, cellChangingEventHelper.HandlerInvoked);
+            if (cellChangingEventHelper.HandlerInvoked)
+               Assert.AreEqual(expectChangingToBeCancelable, cellChangingEventHelper.LastInocationEventArgs.IsCancelable);
+            Assert.AreEqual(expectChangedToBeRaised, cellChangedEventHelper.HandlerInvoked);
+
+            target.PreviewCurrentCellChanging += cellChangingEventHelper.Handler;
+            target.CurrentCellChanged += cellChangedEventHelper.Handler;
+         }
+
+         #endregion
+      }
+
+
+
+      /// <summary>
       ///A test for MoveDown
       ///</summary>
       [TestMethod()]
@@ -208,27 +299,15 @@ namespace Tests.TableControl
          {
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
-            ICurrentItemService currentRowService = UIServiceProvider.GetService<ICurrentItemService>(dataGrid);
-            var currentRowChangingEventHelper = new EventHandlerTestHelper<object, CancelableEventArgs>("PreviewCurrentCellChanging");
-            currentRowService.PreviewCurrentChanging += currentRowChangingEventHelper.Handler;
+            var currentRowChangingEventHelper = new EventHandlerTestHelper<object, PreviewChangeEventArgs>("PreviewCurrentCellChanging");
+            target.PreviewCurrentCellChanging += currentRowChangingEventHelper.Handler;
             var rowChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
-            currentRowService.CurrentChanged += rowChangedEventHelper.Handler;
+            target.CurrentCellChanged += rowChangedEventHelper.Handler;
 
             Assert.IsFalse(target.MoveUp(1));
             Assert.IsNull(target.CurrentCell.Item);
             Assert.IsFalse(rowChangedEventHelper.HandlerInvoked);
             Assert.IsFalse(currentRowChangingEventHelper.HandlerInvoked);
-
-            Assert.IsTrue(target.MoveDown(5));
-            Assert.AreSame(dataList[4], target.CurrentCell.Item);
-            Assert.AreSame(dataList[5], dataGrid.CurrentCell.Item);
-
-            Assert.IsTrue(target.MoveDown(40));
-            Assert.AreSame(dataList[45], dataGrid.CurrentCell.Item);
-
-            Assert.IsFalse(target.MoveDown(200));
-            Assert.IsNull(target.CurrentCell);
-            Assert.IsFalse(target.MoveDown(1));
          }
       }
 

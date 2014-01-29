@@ -11,33 +11,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    [ImplementedServiceAttribute(typeof(ICurrentItemService))]
    public abstract class CurrentItemServiceBase : ICurrentItemService, IUIService
    {
-      #region CurrentChanging attached event.
-
-      public static readonly RoutedEvent PreviewCurrentChangingEvent = EventManager.RegisterRoutedEvent("PreviewCurrentChanging", RoutingStrategy.Tunnel, typeof(CancelableRoutedEventArgs), typeof(CurrentItemServiceBase));
-
-      Dictionary<CancelableRoutedEventHandler, RoutedEventHandler> currentChangingEventHandlers = new Dictionary<CancelableRoutedEventHandler, RoutedEventHandler>();
-
       FrameworkElement element;
       protected readonly AutoResetFlag inhibitChangeEvents = new AutoResetFlag();
+
+      #region CurrentChanging event.
 
       /// <summary>
       /// Event raised before changing the 'current item' indicator on the items control.
       /// </summary>
-      public event CancelableRoutedEventHandler PreviewCurrentChanging
-      {
-         add
-         {
-            var handler = new RoutedEventHandler((obj, args) => { value(obj, (CancelableRoutedEventArgs)args); });
-            element.AddHandler(PreviewCurrentChangingEvent, handler);
-            currentChangingEventHandlers.Add(value, handler);
-         }
-         remove
-         {
-            RoutedEventHandler handler;
-            if (currentChangingEventHandlers.TryGetValue(value, out handler))
-               element.RemoveHandler(PreviewCurrentChangingEvent, handler);
-         }
-      }
+      public event EventHandler<PreviewChangeEventArgs> PreviewCurrentChanging;
 
       /// <summary>
       /// Raises the PreviewCurrentChangingEvent, allowing the handlers to cancel it,
@@ -50,9 +32,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          canceled = false;
          if (inhibitChangeEvents.IsSet)
             return;
-         CancelableRoutedEventArgs eventArgs = new PreviewChangeEventArgs(PreviewCurrentChangingEvent, element, CurrentItem, newValue, true);
-         element.RaiseEvent(eventArgs);
-         canceled = eventArgs.Canceled;
+         if (PreviewCurrentChanging != null)
+         {
+            var eventArgs = new PreviewChangeEventArgs(CurrentItem, newValue, true);
+            PreviewCurrentChanging(this, eventArgs);
+            canceled = eventArgs.Canceled;
+         }
       }
 
       /// <summary>
@@ -62,31 +47,28 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          if (inhibitChangeEvents.IsSet)
             return;
-         CancelableRoutedEventArgs eventArgs = new PreviewChangeEventArgs(PreviewCurrentChangingEvent, element, CurrentItem, newValue, false);
-         element.RaiseEvent(eventArgs);
+         if (PreviewCurrentChanging != null)
+         {
+            var eventArgs = new PreviewChangeEventArgs(CurrentItem, newValue, false);
+            PreviewCurrentChanging(this, eventArgs);
+         }
       }
 
       #endregion
 
-      #region CurrentChanged attached event.
-
-      public static readonly RoutedEvent CurrentChangedEvent = EventManager.RegisterRoutedEvent("CurrentChanged", RoutingStrategy.Tunnel, typeof(RoutedEventArgs), typeof(CurrentItemServiceBase));
+      #region CurrentChanged event.
 
       /// <summary>
       /// Event raised before changing the 'current item' indicator on the items control.
       /// </summary>
-      public event RoutedEventHandler CurrentChanged
-      {
-         add { element.AddHandler(CurrentChangedEvent, value); }
-         remove { element.RemoveHandler(CurrentChangedEvent, value); }
-      }
+      public event EventHandler CurrentChanged;
 
       public void RaiseCurrentChangedEvent()
       {
          if (inhibitChangeEvents.IsSet)
             return;
-         RoutedEventArgs eventArgs = new RoutedEventArgs(CurrentChangedEvent, element);
-         element.RaiseEvent(eventArgs);
+         if (CurrentChanged != null)
+            CurrentChanged(this, new EventArgs());
       }
 
       #endregion

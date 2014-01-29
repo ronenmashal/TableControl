@@ -9,8 +9,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    interface ICurrentItemService
    {
-      event CancelableRoutedEventHandler PreviewCurrentChanging;
-      event RoutedEventHandler CurrentChanged;
+      event EventHandler<PreviewChangeEventArgs> PreviewCurrentChanging;
+      event EventHandler CurrentChanged;
 
       object CurrentItem { get; }
       int CurrentPosition { get; }

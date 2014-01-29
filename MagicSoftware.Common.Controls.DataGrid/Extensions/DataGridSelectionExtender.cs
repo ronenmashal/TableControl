@@ -101,7 +101,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          SetCurrentSelectionMode(currentSelectionMode.HandleInputEvent(sender, e as InputEventArgs));
       }
 
-      void CurrentItemTracker_CurrentChanged(object sender, RoutedEventArgs args)
+      void CurrentItemTracker_CurrentChanged(object sender, EventArgs args)
       {
          currentSelectionMode.OnCurrentItemChanged();
       }

@@ -43,7 +43,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          //TODO: ICurrentCellService
       }
 
-      void CurrentItemTracker_CurrentChanged(object sender, RoutedEventArgs e)
+      void CurrentItemTracker_CurrentChanged(object sender, EventArgs e)
       {
          var currentItemContainer = DataGridProxy.CurrentItemContainer();
          if (currentItemContainer == null)

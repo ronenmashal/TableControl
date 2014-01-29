@@ -7,12 +7,75 @@ using System.Windows;
 using System.Diagnostics;
 using System.Windows.Input;
 using MagicSoftware.Common.Controls.Table.CellTypes;
+using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    class DataGridCurrentCellService : ICurrentCellService, IUIService
    {
+      #region CurrentCellChanging event.
+
+      /// <summary>
+      /// Event raised before changing the 'current item' indicator on the items control.
+      /// </summary>
+      public event EventHandler<PreviewChangeEventArgs> PreviewCurrentCellChanging;
+
+      /// <summary>
+      /// Raises the PreviewCurrentCellChangingEvent, allowing the handlers to cancel it,
+      /// returning the result in 'canceled'
+      /// </summary>
+      /// 
+      /// <param name="canceled">Returns whether any of the event handlers canceled the event.</param>
+      public void RaisePreviewCurrentCellChangingEvent(UniversalCellInfo newValue, out bool canceled)
+      {
+         canceled = false;
+         if (inhibitChangeEvents.IsSet)
+            return;
+         if (PreviewCurrentCellChanging != null)
+         {
+            var eventArgs = new PreviewChangeEventArgs(CurrentCell, newValue, true);
+            PreviewCurrentCellChanging(this, eventArgs);
+            canceled = eventArgs.Canceled;
+         }
+      }
+
+      /// <summary>
+      /// Raises the PreviewCurrentCellChangingEvent without allowing canceling of the event.
+      /// </summary>
+      public void RaiseNonCancelablePreviewCurrentCellChangingEvent(UniversalCellInfo newValue)
+      {
+         if (inhibitChangeEvents.IsSet)
+            return;
+         if (PreviewCurrentCellChanging != null)
+         {
+            var eventArgs = new PreviewChangeEventArgs(CurrentCell, newValue, false);
+            PreviewCurrentCellChanging(this, eventArgs);
+         }
+      }
+
+      #endregion
+
+      #region CurrentCellChanged event.
+
+      /// <summary>
+      /// Event raised before changing the 'current item' indicator on the items control.
+      /// </summary>
+      public event EventHandler CurrentCellChanged;
+
+      public void RaiseCurrentCellChangedEvent()
+      {
+         if (inhibitChangeEvents.IsSet)
+            return;
+         if (CurrentCellChanged != null)
+            CurrentCellChanged(this, new EventArgs());
+      }
+
+      #endregion
+
+
       private System.Windows.Controls.DataGrid dataGrid;
+      protected readonly AutoResetFlag inhibitChangeEvents = new AutoResetFlag();
+
 
       public void AttachToElement(FrameworkElement element)
       {
@@ -24,7 +87,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void DetachFromElement(FrameworkElement element)
       {
-
+         dataGrid.CurrentCellChanged -= new EventHandler<EventArgs>(DataGrid_CurrentCellChanged);
       }
 
       void DataGrid_CurrentCellChanged(object sender, EventArgs e)
@@ -47,7 +110,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public UniversalCellInfo CurrentCell
       {
-         get; private set;
+         get;
+         private set;
       }
 
       public bool IsCellVisible
@@ -65,37 +129,39 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool MoveTo(UniversalCellInfo targetCell)
       {
-         //var targetRow = UIUtils.GetAncestor<DataGridRow>(targetElement);
-         //if (targetRow == null)
-         //   return false;
+         bool canceled;
+         RaisePreviewCurrentCellChangingEvent(targetCell, out canceled);
+         if (canceled)
+            return false;
 
-         //if (!currentRowService.MoveCurrentTo(targetRow.Item))
-         //   return false;
+         using (inhibitChangeEvents.Set())
+            dataGrid.CurrentCell = new DataGridCellInfo(targetCell.Item, dataGrid.ColumnFromDisplayIndex(targetCell.CellIndex));
 
-         //if (currentCellInRowService != null)
-         //   return currentCellInRowService.MoveCurrentTo(targetElement);
-
-         //return true;
-
-         return false;
+         RaiseCurrentCellChangedEvent();
+         return true;
       }
 
-      public bool MoveUp(int distance)
+      public bool MoveUp(uint distance)
       {
          return false;
       }
 
-      public bool MoveDown(int distance)
+      public bool MoveDown(uint distance)
+      {
+         int newIndex = GetCurrentItemIndex() + (int)distance;
+         int maxIndex = dataGrid.Items.Count - 1;
+         if (newIndex > maxIndex)
+            return false;
+
+         return MoveTo(new UniversalCellInfo(dataGrid.Items[newIndex], CurrentCell.CellIndex));
+      }
+
+      public bool MoveLeft(uint distance)
       {
          return false;
       }
 
-      public bool MoveLeft(int distance)
-      {
-         return false;
-      }
-
-      public bool MoveRight(int distance)
+      public bool MoveRight(uint distance)
       {
          return false;
       }
@@ -104,9 +170,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void Dispose()
       {
-         
+
       }
 
       #endregion
+
+      private int GetCurrentItemIndex()
+      {
+         if (CurrentCell.Item == null)
+            return -1;
+
+         return dataGrid.Items.IndexOf(CurrentCell.Item);
+      }
    }
 }

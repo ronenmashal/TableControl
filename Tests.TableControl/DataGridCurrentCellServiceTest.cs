@@ -72,7 +72,8 @@ namespace Tests.TableControl
       #endregion
 
       /// <summary>
-      ///A test for DataGridCurrentCellService Constructor
+      /// A test for DataGridCurrentCellService Constructor: Ensures that when the service is created
+      /// it has the correct state as the data grid.
       ///</summary>
       [TestMethod()]
       public void DataGridCurrentCellServiceConstructorTest()
@@ -118,16 +119,16 @@ namespace Tests.TableControl
          {
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
-            ICurrentItemService currentRowService = UIServiceProvider.GetService<ICurrentItemService>(dataGrid);
-            var currentRowChangingEventHelper = new EventHandlerTestHelper<object, CancelableRoutedEventArgs>("PreviewCurrentCellChanging");
-            currentRowService.PreviewCurrentChanging += currentRowChangingEventHelper.Handler;
-            var rowChangedEventHelper = new EventHandlerTestHelper<object, RoutedEventArgs>("CurrentCellChanged");
-            currentRowService.CurrentChanged += rowChangedEventHelper.Handler;
+            var currentRowChangingEventHelper = new EventHandlerTestHelper<object, PreviewChangeEventArgs>("PreviewCurrentCellChanging");
+            target.PreviewCurrentCellChanging += currentRowChangingEventHelper.Handler;
+            var rowChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
+            target.CurrentCellChanged += rowChangedEventHelper.Handler;
 
             // Move down, when cell was not yet set, should move to the first cell.
             Assert.IsTrue(target.MoveDown(1));
             Assert.AreSame(dataList[0], target.CurrentCell.Item);
-            Assert.IsNotNull(target.CurrentCell);
+            Assert.AreSame(dataGrid.CurrentItem, target.CurrentCell.Item);
+            Assert.IsNotNull(target.CurrentCell.Item);
             Assert.IsTrue(rowChangedEventHelper.HandlerInvoked);
             Assert.IsTrue(currentRowChangingEventHelper.HandlerInvoked);
             Assert.AreSame(dataGrid.ColumnFromDisplayIndex(0), dataGrid.CurrentCell.Column);
@@ -137,12 +138,13 @@ namespace Tests.TableControl
             Assert.AreSame(dataList[5], dataGrid.CurrentCell.Item);
 
             Assert.IsTrue(target.MoveDown(40));
-            Assert.IsTrue(target.IsCellVisible);
             Assert.AreSame(dataList[45], dataGrid.CurrentCell.Item);
 
             Assert.IsFalse(target.MoveDown(200));
-            Assert.IsFalse(target.IsCellVisible);
-            Assert.IsNull(target.CurrentCell);
+            Assert.IsNotNull(target.CurrentCell.Item);
+            // Move to the last item
+            Assert.IsTrue(target.MoveDown((uint)(dataGrid.Items.Count - 45 - 1)));
+            // Try to move one more item down
             Assert.IsFalse(target.MoveDown(1));
          }
       }
@@ -154,7 +156,7 @@ namespace Tests.TableControl
       public void MoveLeftTest()
       {
          DataGridCurrentCellService target = new DataGridCurrentCellService(); // TODO: Initialize to an appropriate value
-         int distance = 0; // TODO: Initialize to an appropriate value
+         uint distance = 0; // TODO: Initialize to an appropriate value
          bool expected = false; // TODO: Initialize to an appropriate value
          bool actual;
          actual = target.MoveLeft(distance);
@@ -169,7 +171,7 @@ namespace Tests.TableControl
       public void MoveRightTest()
       {
          DataGridCurrentCellService target = new DataGridCurrentCellService(); // TODO: Initialize to an appropriate value
-         int distance = 0; // TODO: Initialize to an appropriate value
+         uint distance = 0; // TODO: Initialize to an appropriate value
          bool expected = false; // TODO: Initialize to an appropriate value
          bool actual;
          actual = target.MoveRight(distance);
@@ -207,9 +209,9 @@ namespace Tests.TableControl
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
             ICurrentItemService currentRowService = UIServiceProvider.GetService<ICurrentItemService>(dataGrid);
-            var currentRowChangingEventHelper = new EventHandlerTestHelper<object, CancelableRoutedEventArgs>("PreviewCurrentCellChanging");
+            var currentRowChangingEventHelper = new EventHandlerTestHelper<object, CancelableEventArgs>("PreviewCurrentCellChanging");
             currentRowService.PreviewCurrentChanging += currentRowChangingEventHelper.Handler;
-            var rowChangedEventHelper = new EventHandlerTestHelper<object, RoutedEventArgs>("CurrentCellChanged");
+            var rowChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
             currentRowService.CurrentChanged += rowChangedEventHelper.Handler;
 
             Assert.IsFalse(target.MoveUp(1));
@@ -222,14 +224,18 @@ namespace Tests.TableControl
             Assert.AreSame(dataList[5], dataGrid.CurrentCell.Item);
 
             Assert.IsTrue(target.MoveDown(40));
-            Assert.IsTrue(target.IsCellVisible);
             Assert.AreSame(dataList[45], dataGrid.CurrentCell.Item);
 
             Assert.IsFalse(target.MoveDown(200));
-            Assert.IsFalse(target.IsCellVisible);
             Assert.IsNull(target.CurrentCell);
             Assert.IsFalse(target.MoveDown(1));
          }
+      }
+
+      [TestMethod()]
+      public void CellVisibilityTest()
+      {
+         Assert.Inconclusive("Undone yet...");
       }
 
       /// <summary>
@@ -291,8 +297,8 @@ namespace Tests.TableControl
          {
             currentRowService = UIServiceProvider.GetService<ICurrentItemService>(dataGrid);
             UpdateCurrentCellService();
-            currentRowService.PreviewCurrentChanging += new CancelableRoutedEventHandler(currentRowService_PreviewCurrentChanging);
-            currentRowService.CurrentChanged += new RoutedEventHandler(currentRowService_CurrentChanged);
+            currentRowService.PreviewCurrentChanging += currentRowService_PreviewCurrentChanging;
+            currentRowService.CurrentChanged += currentRowService_CurrentChanged;
          }
 
          private void UpdateCurrentCellService()
@@ -300,12 +306,12 @@ namespace Tests.TableControl
             /*currentC*/
          }
 
-         void currentRowService_PreviewCurrentChanging(object sender, CancelableRoutedEventArgs eventArgs)
+         void currentRowService_PreviewCurrentChanging(object sender, PreviewChangeEventArgs eventArgs)
          {
             throw new NotImplementedException();
          }
 
-         void currentRowService_CurrentChanged(object sender, RoutedEventArgs e)
+         void currentRowService_CurrentChanged(object sender, EventArgs e)
          {
             throw new NotImplementedException();
          }

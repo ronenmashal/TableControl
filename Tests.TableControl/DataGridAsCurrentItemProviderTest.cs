@@ -96,7 +96,7 @@ namespace Tests.TableControl
             dataGrid.CurrentItem = null;
             var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(target);
             var provider = helper.Target;
-            var previewCurrentChangingEventHandlerHelper = new EventHandlerTestHelper<object, CancelableRoutedEventArgs>("PreviewCurrentChanging");
+            var previewCurrentChangingEventHandlerHelper = new EventHandlerTestHelper<object, CancelableEventArgs>("PreviewCurrentChanging");
             provider.PreviewCurrentChanging += previewCurrentChangingEventHandlerHelper.Handler;
 
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
@@ -148,9 +148,9 @@ namespace Tests.TableControl
             dataGrid.Items.MoveCurrentTo(null);
             var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(target);
             var provider = helper.Target;
-            var previewCurrentChangingEventHandlerHelper = new EventHandlerTestHelper<object, CancelableRoutedEventArgs>("PreviewCurrentChanging");
+            var previewCurrentChangingEventHandlerHelper = new EventHandlerTestHelper<object, CancelableEventArgs>("PreviewCurrentChanging");
             provider.PreviewCurrentChanging += previewCurrentChangingEventHandlerHelper.Handler;
-            var currentChangedEventHandlerHelper = new EventHandlerTestHelper<object, RoutedEventArgs>("CurrentChanged");
+            var currentChangedEventHandlerHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentChanged");
             provider.CurrentChanged += currentChangedEventHandlerHelper.Handler;
 
             provider.MoveCurrentTo(dataList[1]);
@@ -203,7 +203,7 @@ namespace Tests.TableControl
          {
             dataGrid.Items.MoveCurrentTo(null);
             var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(target); var provider = helper.Target;
-            var currentChangedEventHandlerHelper = new EventHandlerTestHelper<object, RoutedEventArgs>("CurrentChanged");
+            var currentChangedEventHandlerHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentChanged");
             provider.CurrentChanged += currentChangedEventHandlerHelper.Handler;
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
             Assert.IsTrue(currentChangedEventHandlerHelper.HandlerInvoked);

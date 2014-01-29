@@ -77,7 +77,7 @@
     <Compile Include="CellTypes\CheckBoxVirtualTableCell.cs" />
     <Compile Include="CellTypes\ComboBoxVirtualTableCell.cs" />
     <Compile Include="EnhancedDataGrid.cs" />
-    <Compile Include="Extensions\CancelableRoutedEventArgs.cs" />
+    <Compile Include="Extensions\CancelableEventArgs.cs" />
     <Compile Include="Extensions\CurrentItemServiceBase.cs" />
     <Compile Include="Extensions\CustomRowCurrentItemService.cs" />
     <Compile Include="Extensions\DataGridAsEditingAdapter.cs" />

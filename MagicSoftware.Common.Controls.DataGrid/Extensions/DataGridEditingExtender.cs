@@ -168,7 +168,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          CurrentItemProvider.PreviewCurrentChanging -= DataGridEditingExtender_PreviewCurrentChanging;
       }
 
-      void DataGridEditingExtender_PreviewCurrentChanging(object sender, CancelableRoutedEventArgs e)
+      void DataGridEditingExtender_PreviewCurrentChanging(object sender, CancelableEventArgs e)
       {
          var args = e as PreviewChangeEventArgs;
          var changeType = args.OldValue == null ? args.NewValue.GetType() : args.OldValue.GetType();
@@ -307,7 +307,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          base.Cleanup();
       }
 
-      void TargetElementProxy_CurrentChanged(object sender, RoutedEventArgs e)
+      void TargetElementProxy_CurrentChanged(object sender, EventArgs e)
       {
          StartBeginEditTimer();
       }

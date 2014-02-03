@@ -17,5 +17,23 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          Item = item;
          CellIndex = cellIndex;
       }
+
+      public override bool Equals(object obj)
+      {
+         if (!(obj is UniversalCellInfo))
+            return false;
+
+         UniversalCellInfo other = (UniversalCellInfo)obj;
+         return object.ReferenceEquals(this.Item, other.Item) && (this.CellIndex == other.CellIndex);
+      }
+
+      public override int GetHashCode()
+      {
+         int hash = 27;
+         if (Item != null)
+            hash = hash * 47 + Item.GetHashCode();
+         hash = hash * 47 + CellIndex;
+         return hash;
+      }
    }
 }

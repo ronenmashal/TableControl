@@ -9,6 +9,8 @@ using Tests.TableControl.UI;
 using Tests.TableControl.Data;
 using System.Windows.Threading;
 using System.Windows;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Tests.TableControl
 {
@@ -166,12 +168,22 @@ namespace Tests.TableControl
             Assert.AreSame(dataList[5], target.CurrentCell.Item);
             Assert.AreSame(dataList[5], dataGrid.CurrentCell.Item);
 
+            // Verify an unloaded item cannot be reached.
+            using (ExpectNoEvents(target))
+               Assert.IsFalse(target.MoveDown(40));
+
+            // Now force loading the target item by scrolling to it, and verify the service can move to it.
+            dataGrid.ScrollIntoView(dataList[45]);
             using (ExpectCancelableEvents(target))
                Assert.IsTrue(target.MoveDown(40));
             Assert.AreSame(dataList[45], dataGrid.CurrentCell.Item);
 
+            // Scroll to the last item in the list.
+            dataGrid.ScrollIntoView(dataList[dataList.Count - 1]);
+
+            // Try to move beyond the last item in the list.
             using (ExpectNoEvents(target))
-               Assert.IsFalse(target.MoveDown(200));
+               Assert.IsFalse(target.MoveDown((uint)dataList.Count + 1));
             Assert.IsNotNull(target.CurrentCell.Item);
 
             // Move to the last item
@@ -218,21 +230,6 @@ namespace Tests.TableControl
       [TestMethod()]
       public void MoveToTest()
       {
-         DataGridCurrentCellService target = new DataGridCurrentCellService(); // TODO: Initialize to an appropriate value
-         //CellElementLocator targetCellInfo = null; // TODO: Initialize to an appropriate value
-         bool expected = false; // TODO: Initialize to an appropriate value
-         bool actual = false; ;
-         //actual = target.MoveTo(targetCellInfo);
-         Assert.AreEqual(expected, actual);
-         Assert.Inconclusive("Verify the correctness of this test method.");
-      }
-
-      /// <summary>
-      ///A test for MoveUp
-      ///</summary>
-      [TestMethod()]
-      public void MoveUpTest()
-      {
          // Create a large enough data list, so that there will be scroll bar.
          var dataList = CreateTestDataList(100);
 
@@ -241,10 +238,48 @@ namespace Tests.TableControl
          {
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
-            var currentRowChangingEventHelper = new EventHandlerTestHelper<object, PreviewChangeEventArgs>("PreviewCurrentCellChanging");
-            target.PreviewCurrentCellChanging += currentRowChangingEventHelper.Handler;
-            var rowChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
-            target.CurrentCellChanged += rowChangedEventHelper.Handler;
+
+            List<Tuple<int, int>> cellPositions = new List<Tuple<int, int>>()
+            {
+               new Tuple<int, int>(5, 1),
+               new Tuple<int, int>(1, 0),
+               new Tuple<int, int>(10, 2)
+            };
+
+            foreach (var cellPosition in cellPositions)
+            {
+               Trace.WriteLine("Trying cell position " + cellPosition);
+               using (ExpectCancelableEvents(target))
+                  Assert.IsTrue(target.MoveTo(new UniversalCellInfo(dataList[cellPosition.Item1], cellPosition.Item2)));
+
+               Assert.AreEqual(dataGrid.Items[cellPosition.Item1], dataGrid.CurrentCell.Item, "Failed for cell position " + cellPosition);
+               Assert.AreEqual(dataGrid.Items[cellPosition.Item1], dataGrid.CurrentItem, "Failed for cell position " + cellPosition);
+               Assert.AreEqual(cellPosition.Item2, dataGrid.CurrentCell.Column.DisplayIndex, "Failed for cell position " + cellPosition);
+            }
+
+            // Move to an invalid column
+            using (ExpectNoEvents(target))
+               Assert.IsFalse(target.MoveTo(new UniversalCellInfo(dataList[4], 3)));
+
+            Assert.AreEqual(dataGrid.CurrentItem, target.CurrentCell.Item);
+            Assert.AreEqual(dataGrid.CurrentColumn.DisplayIndex, target.CurrentCell.CellIndex);
+         }
+      }
+
+      /// <summary>
+      ///A test for MoveUp
+      ///</summary>
+      [TestMethod()]
+      public void MoveUpTest()
+      {
+         // Create a large enough data list, so that there will be a scroll bar.
+         var dataList = CreateTestDataList(100);
+
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
+         {
+            ICurrentCellService target = new DataGridCurrentCellService();
+            ((IUIService)target).AttachToElement(dataGrid);
 
             using (ExpectNoEvents(target))
             {

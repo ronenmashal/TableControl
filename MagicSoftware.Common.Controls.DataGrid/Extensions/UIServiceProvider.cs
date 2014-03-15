@@ -258,7 +258,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
       public override RoutedEvent Event
       {
-         get { return FrameworkElement.LoadedEvent; }
+         get { return FrameworkElement.UnloadedEvent; }
       }
 
       public static void AddListener(UIElement source, IWeakEventListener listener)

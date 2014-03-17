@@ -278,14 +278,45 @@ namespace Tests.TableControl
          DataGrid dataGrid;
          using (TestWindow.Show(dataList, out dataGrid))
          {
+            int currentItemIndex = dataList.Count - 1;
+            dataGrid.ScrollIntoView(dataList[currentItemIndex], dataGrid.Columns[0]);
+            dataGrid.CurrentItem = dataList[currentItemIndex];
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
 
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveUp(1));
+            currentItemIndex--;
+            Assert.AreSame(dataList[currentItemIndex], target.CurrentCell.Item);
+            Assert.AreSame(dataGrid.CurrentItem, target.CurrentCell.Item);
+            Assert.IsNotNull(target.CurrentCell.Item);
+            Assert.AreSame(dataGrid.ColumnFromDisplayIndex(0), dataGrid.CurrentCell.Column);
+
             using (ExpectNoEvents(target))
-            {
-               Assert.IsFalse(target.MoveUp(1));
-               Assert.IsNull(target.CurrentCell.Item);
-            }
+               Assert.IsFalse(target.MoveUp(40));
+
+            currentItemIndex -= 40;
+            dataGrid.ScrollIntoView(dataList[currentItemIndex]);
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveUp(40));
+            Assert.AreSame(dataList[currentItemIndex], target.CurrentCell.Item);
+            Assert.AreSame(dataGrid.CurrentItem, target.CurrentCell.Item);
+            Assert.IsNotNull(target.CurrentCell.Item);
+            Assert.AreSame(dataGrid.ColumnFromDisplayIndex(0), dataGrid.CurrentCell.Column);
+
+            dataGrid.CurrentColumn = dataGrid.ColumnFromDisplayIndex(2);
+            currentItemIndex -= 10;
+            dataGrid.ScrollIntoView(dataList[currentItemIndex]);
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveUp(10));
+            Assert.AreSame(dataList[currentItemIndex], target.CurrentCell.Item);
+            Assert.AreSame(dataGrid.CurrentItem, target.CurrentCell.Item);
+            Assert.IsNotNull(target.CurrentCell.Item);
+            Assert.AreSame(dataGrid.ColumnFromDisplayIndex(2), dataGrid.CurrentCell.Column);
+
+            using (ExpectNoEvents(target))
+               Assert.IsFalse(target.MoveUp(90));
+            Assert.IsNotNull(target.CurrentCell.Item);
          }
       }
 

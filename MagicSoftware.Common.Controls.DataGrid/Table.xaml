@@ -77,7 +77,7 @@
             </pxy:FrameworkElementProxy.Proxy>
             <lext:UIServiceProvider.ServiceList>
                 <lext:UIServiceCollection>
-                    <lext:DataGridCurrentItemService />
+                    <lext:DataGridCurrentCellService />
                 </lext:UIServiceCollection>
             </lext:UIServiceProvider.ServiceList>
         </DataGrid>

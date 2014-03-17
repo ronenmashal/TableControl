@@ -27,5 +27,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       bool MoveDown(uint distance);
       bool MoveLeft(uint distance);
       bool MoveRight(uint distance);
+
+      bool MoveToTop();
+      bool MoveToBottom();
+      bool MoveToLeftMost();
+      bool MoveToRightMost();
    }
 }

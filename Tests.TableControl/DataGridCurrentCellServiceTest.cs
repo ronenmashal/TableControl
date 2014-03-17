@@ -73,38 +73,22 @@ namespace Tests.TableControl
       //
       #endregion
 
+      [TestMethod()]
+      public void CellVisibilityTest()
+      {
+         Assert.Inconclusive("Undone yet...");
+      }
+
       /// <summary>
-      /// A test for DataGridCurrentCellService Constructor: Ensures that when the service is created
-      /// it has the correct state as the data grid.
+      ///A test for CurrentCell
       ///</summary>
       [TestMethod()]
-      public void DataGridCurrentCellServiceConstructorTest()
+      public void CurrentCellTest()
       {
-         // Create a large enough data list, so that there will be scroll bar.
-         var dataList = CreateTestDataList(100);
-
-         DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
-         {
-            ICurrentCellService target = new DataGridCurrentCellService();
-            ((IUIService)target).AttachToElement(dataGrid);
-            Assert.IsNull(target.CurrentCell.Item);
-
-            dataGrid.CurrentCell = new DataGridCellInfo(dataList[1], dataGrid.Columns[0]);
-            target = new DataGridCurrentCellService();
-            ((IUIService)target).AttachToElement(dataGrid);
-            Assert.AreSame(dataList[1], target.CurrentCell.Item);
-
-            dataGrid.ScrollIntoView(dataList[70]);
-            dataGrid.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() =>
-            {
-               dataGrid.CurrentCell = new DataGridCellInfo(dataList[70], dataGrid.Columns[0]);
-            }));
-
-            target = new DataGridCurrentCellService();
-            ((IUIService)target).AttachToElement(dataGrid);
-            Assert.AreSame(dataList[70], target.CurrentCell.Item);
-         }
+         DataGridCurrentCellService target = new DataGridCurrentCellService(); // TODO: Initialize to an appropriate value
+         //CellElementLocator actual;
+         //actual = target.CurrentCell;
+         Assert.Inconclusive("Verify the correctness of this test method.");
       }
 
       /// <summary>
@@ -140,6 +124,39 @@ namespace Tests.TableControl
          }
       }
 
+      /// <summary>
+      /// A test for DataGridCurrentCellService Constructor: Ensures that when the service is created
+      /// it has the correct state as the data grid.
+      ///</summary>
+      [TestMethod()]
+      public void DataGridCurrentCellServiceConstructorTest()
+      {
+         // Create a large enough data list, so that there will be scroll bar.
+         var dataList = CreateTestDataList(100);
+
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
+         {
+            ICurrentCellService target = new DataGridCurrentCellService();
+            ((IUIService)target).AttachToElement(dataGrid);
+            Assert.IsNull(target.CurrentCell.Item);
+
+            dataGrid.CurrentCell = new DataGridCellInfo(dataList[1], dataGrid.Columns[0]);
+            target = new DataGridCurrentCellService();
+            ((IUIService)target).AttachToElement(dataGrid);
+            Assert.AreSame(dataList[1], target.CurrentCell.Item);
+
+            dataGrid.ScrollIntoView(dataList[70]);
+            dataGrid.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() =>
+            {
+               dataGrid.CurrentCell = new DataGridCellInfo(dataList[70], dataGrid.Columns[0]);
+            }));
+
+            target = new DataGridCurrentCellService();
+            ((IUIService)target).AttachToElement(dataGrid);
+            Assert.AreSame(dataList[70], target.CurrentCell.Item);
+         }
+      }
       /// <summary>
       ///A test for MoveDown
       ///</summary>
@@ -224,6 +241,24 @@ namespace Tests.TableControl
          Assert.Inconclusive("Verify the correctness of this test method.");
       }
 
+      [TestMethod()]
+      public void MoveToBottomTest()
+      {
+         Assert.Inconclusive("Undone...");
+      }
+
+      [TestMethod()]
+      public void MoveToLeftMostTest()
+      {
+         Assert.Inconclusive("Undone...");
+      }
+
+      [TestMethod()]
+      public void MoveToRightMostTest()
+      {
+         Assert.Inconclusive("Undone...");
+      }
+
       /// <summary>
       ///A test for MoveTo
       ///</summary>
@@ -266,6 +301,11 @@ namespace Tests.TableControl
          }
       }
 
+      [TestMethod()]
+      public void MoveToTopTest()
+      {
+         Assert.Inconclusive("Undone...");
+      }
       /// <summary>
       ///A test for MoveUp
       ///</summary>
@@ -319,34 +359,6 @@ namespace Tests.TableControl
             Assert.IsNotNull(target.CurrentCell.Item);
          }
       }
-
-      [TestMethod()]
-      public void CellVisibilityTest()
-      {
-         Assert.Inconclusive("Undone yet...");
-      }
-
-      /// <summary>
-      ///A test for CurrentCell
-      ///</summary>
-      [TestMethod()]
-      public void CurrentCellTest()
-      {
-         DataGridCurrentCellService target = new DataGridCurrentCellService(); // TODO: Initialize to an appropriate value
-         //CellElementLocator actual;
-         //actual = target.CurrentCell;
-         Assert.Inconclusive("Verify the correctness of this test method.");
-      }
-
-
-
-      class TestData
-      {
-         public string StrValue { get; set; }
-         public int IntValue { get; set; }
-         public bool BoolValue { get; set; }
-      }
-
       ObservableCollection<TestData> CreateTestDataList(int size)
       {
          ObservableCollection<TestData> list = new ObservableCollection<TestData>();
@@ -355,6 +367,16 @@ namespace Tests.TableControl
             list.Add(new TestData() { StrValue = "Item #" + i, IntValue = i, BoolValue = (i % 2) == 0 });
          }
          return list;
+      }
+
+      IDisposable ExpectCancelableEvents(ICurrentCellService target)
+      {
+         return new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
+            {
+               Assert.AreEqual(1, pc.HandlerInvocationCount);
+               Assert.IsTrue(pc.LastInocationEventArgs.IsCancelable);
+               Assert.AreEqual(1, c.HandlerInvocationCount);
+            }));
       }
 
       IDisposable ExpectNoEvents(ICurrentCellService target)
@@ -376,25 +398,15 @@ namespace Tests.TableControl
             }));
       }
 
-      IDisposable ExpectCancelableEvents(ICurrentCellService target)
-      {
-         return new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
-            {
-               Assert.AreEqual(1, pc.HandlerInvocationCount);
-               Assert.IsTrue(pc.LastInocationEventArgs.IsCancelable);
-               Assert.AreEqual(1, c.HandlerInvocationCount);
-            }));
-      }
-
       class CurrentCellServiceEventsHelper : IDisposable
       {
-         public delegate void EventInvocationValidator(EventHandlerTestHelper<object, PreviewChangeEventArgs> cellChangingEventHelper, EventHandlerTestHelper<object, EventArgs> cellChangedEventHelper);
+         private EventInvocationValidator assertConditions;
+
+         EventHandlerTestHelper<object, EventArgs> cellChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
 
          EventHandlerTestHelper<object, PreviewChangeEventArgs> cellChangingEventHelper = new EventHandlerTestHelper<object, PreviewChangeEventArgs>("PreviewCurrentCellChanging");
-         EventHandlerTestHelper<object, EventArgs> cellChangedEventHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentCellChanged");
-         ICurrentCellService target;
 
-         private EventInvocationValidator assertConditions;
+         ICurrentCellService target;
 
          public CurrentCellServiceEventsHelper(ICurrentCellService target, EventInvocationValidator assertConditions)
          {
@@ -404,6 +416,7 @@ namespace Tests.TableControl
             target.CurrentCellChanged += cellChangedEventHelper.Handler;
          }
 
+         public delegate void EventInvocationValidator(EventHandlerTestHelper<object, PreviewChangeEventArgs> cellChangingEventHelper, EventHandlerTestHelper<object, EventArgs> cellChangedEventHelper);
          public EventHandler<PreviewChangeEventArgs> ChangingEventCallback
          {
             set { cellChangingEventHelper.AdditionalHandling = value; }
@@ -420,6 +433,15 @@ namespace Tests.TableControl
          }
 
          #endregion
+      }
+
+      class TestData
+      {
+         public bool BoolValue { get; set; }
+
+         public int IntValue { get; set; }
+
+         public string StrValue { get; set; }
       }
    }
 }

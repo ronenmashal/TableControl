@@ -137,12 +137,21 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool MoveLeft(uint distance)
       {
-         return false;
+         int newCellIndex = CurrentCell.CellIndex - (int)distance;
+         if (newCellIndex >= 0)
+            return MoveTo(new UniversalCellInfo(CurrentCell.Item, newCellIndex));
+         else
+            return false;
       }
 
       public bool MoveRight(uint distance)
       {
-         return false;
+         int newCellIndex = CurrentCell.CellIndex + (int)distance;
+         var rowEnumSvc = GetRowEnumerationServiceForItem(CurrentCell.Item);
+         if (newCellIndex < rowEnumSvc.CellCount)
+            return MoveTo(new UniversalCellInfo(CurrentCell.Item, newCellIndex));
+         else
+            return false;
       }
 
       public bool MoveTo(UniversalCellInfo targetCell)

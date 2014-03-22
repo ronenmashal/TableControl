@@ -59,11 +59,12 @@ namespace Tests.TableControl
       //}
       //
       //Use TestCleanup to run code after each test has run
-      //[TestCleanup()]
-      //public void MyTestCleanup()
-      //{
-      //}
-      //
+      [TestCleanup()]
+      public void MyTestCleanup()
+      {
+         Dispatcher.CurrentDispatcher.InvokeShutdown();
+      }
+      
 
       #endregion Additional test attributes
 
@@ -168,6 +169,90 @@ namespace Tests.TableControl
       }
 
       /// <summary>
+      ///A test for MoveRight
+      ///</summary>
+      [TestMethod()]
+      public void HorizontalMoveTest()
+      {
+         // Create a large enough data list, so that there will be scroll bar.
+         var dataList = CreateTestDataList(100);
+
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, out dataGrid))
+         {
+            dataGrid.CurrentCell = new DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
+            ICurrentCellService target = new DataGridCurrentCellService();
+            ((IUIService)target).AttachToElement(dataGrid);
+
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveRight(1));
+
+            Assert.AreEqual(1, target.CurrentCell.CellIndex);
+            Assert.AreEqual(dataGrid.CurrentCell.Column.DisplayIndex, target.CurrentCell.CellIndex);
+
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveRight(1));
+
+            Assert.AreEqual(dataGrid.CurrentCell.Column.DisplayIndex, target.CurrentCell.CellIndex);
+
+            using (ExpectNoEvents(target))
+               Assert.IsFalse(target.MoveRight(1));
+
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveLeft(1));
+
+            Assert.AreEqual(1, target.CurrentCell.CellIndex);
+            Assert.AreEqual(dataGrid.CurrentCell.Column.DisplayIndex, target.CurrentCell.CellIndex);
+
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveLeft(1));
+
+            Assert.AreEqual(0, target.CurrentCell.CellIndex);
+            Assert.AreEqual(dataGrid.CurrentCell.Column.DisplayIndex, target.CurrentCell.CellIndex);
+
+            using (ExpectNoEvents(target))
+               Assert.IsFalse(target.MoveLeft(1));
+
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveRight(2));
+
+            Assert.AreEqual(2, target.CurrentCell.CellIndex);
+
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveLeft(2));
+
+            Assert.AreEqual(0, target.CurrentCell.CellIndex);
+
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveToRightMost());
+
+            Assert.AreEqual(2, target.CurrentCell.CellIndex);
+
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveToLeftMost());
+
+            Assert.AreEqual(0, target.CurrentCell.CellIndex);
+
+            // Scroll and move.
+            dataGrid.CurrentColumn = dataGrid.Columns[0];
+            dataGrid.ScrollIntoView(dataList[60]);
+            dataGrid.CurrentItem = dataList[60];
+            Assert.AreEqual(0, target.CurrentCell.CellIndex);
+
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveRight(1));
+
+            dataGrid.CurrentColumn = dataGrid.Columns[2];
+            dataGrid.ScrollIntoView(dataList[10]);
+            dataGrid.CurrentItem = dataList[10];
+            Assert.AreEqual(2, target.CurrentCell.CellIndex);
+
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveLeft(1));
+         }
+      }
+
+      /// <summary>
       ///A test for MoveDown
       ///</summary>
       [TestMethod()]
@@ -221,103 +306,8 @@ namespace Tests.TableControl
          }
       }
 
-      /// <summary>
-      ///A test for MoveLeft
-      ///</summary>
-      [TestMethod()]
-      public void MoveLeftTest()
-      {
-         // Create a large enough data list, so that there will be scroll bar.
-         var dataList = CreateTestDataList(100);
-
-         DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
-         {
-            ICurrentCellService target = new DataGridCurrentCellService();
-            ((IUIService)target).AttachToElement(dataGrid);
-         }
-         Assert.Inconclusive("Incomplete ...");
-      }
-
-      /// <summary>
-      ///A test for MoveRight
-      ///</summary>
-      [TestMethod()]
-      public void MoveRightTest()
-      {
-         // Create a large enough data list, so that there will be scroll bar.
-         var dataList = CreateTestDataList(100);
-
-         DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
-         {
-            dataGrid.CurrentCell = new DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
-            ICurrentCellService target = new DataGridCurrentCellService();
-            ((IUIService)target).AttachToElement(dataGrid);
-
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveRight(1));
-
-            Assert.AreEqual(dataGrid.CurrentCell.Column.DisplayIndex, target.CurrentCell.CellIndex);
-
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveRight(1));
-
-            Assert.AreEqual(dataGrid.CurrentCell.Column.DisplayIndex, target.CurrentCell.CellIndex);
-
-            using (ExpectNoEvents(target))
-               Assert.IsFalse(target.MoveRight(1));
-
-            dataGrid.CurrentColumn = dataGrid.Columns[0];
-            Assert.AreEqual(0, target.CurrentCell.CellIndex);
-
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveRight(2));
-
-            Assert.AreEqual(2, target.CurrentCell.CellIndex);
-
-            dataGrid.CurrentColumn = dataGrid.Columns[0];
-            dataGrid.ScrollIntoView(dataList[60]);
-            dataGrid.CurrentItem = dataList[60];
-            Assert.AreEqual(0, target.CurrentCell.CellIndex);
-
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveRight(1));
-         }
-      }
-
       [TestMethod()]
       public void MoveToBottomTest()
-      {
-         // Create a large enough data list, so that there will be scroll bar.
-         var dataList = CreateTestDataList(100);
-
-         DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
-         {
-            ICurrentCellService target = new DataGridCurrentCellService();
-            ((IUIService)target).AttachToElement(dataGrid);
-         }
-         Assert.Inconclusive("Incomplete ...");
-      }
-
-      [TestMethod()]
-      public void MoveToLeftMostTest()
-      {
-         // Create a large enough data list, so that there will be scroll bar.
-         var dataList = CreateTestDataList(100);
-
-         DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
-         {
-            ICurrentCellService target = new DataGridCurrentCellService();
-            ((IUIService)target).AttachToElement(dataGrid);
-         }
-         Assert.Inconclusive("Incomplete ...");
-      }
-
-      [TestMethod()]
-      public void MoveToRightMostTest()
       {
          // Create a large enough data list, so that there will be scroll bar.
          var dataList = CreateTestDataList(100);

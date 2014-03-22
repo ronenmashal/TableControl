@@ -177,7 +177,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool MoveToBottom()
       {
-         return MoveTo(new UniversalCellInfo(dataGrid.Items[dataGrid.Items.Count - 1], dataGrid.CurrentColumn.DisplayIndex));
+         var lastItem = dataGrid.Items[dataGrid.Items.Count - 1];
+         if (object.ReferenceEquals(CurrentCell.Item, lastItem))
+            return true;
+         return MoveTo(new UniversalCellInfo(lastItem, dataGrid.CurrentColumn.DisplayIndex));
       }
 
       public bool MoveToLeftMost()
@@ -192,7 +195,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool MoveToTop()
       {
-         return MoveTo(new UniversalCellInfo(dataGrid.Items[0], dataGrid.CurrentColumn.DisplayIndex));
+         var firstItem = dataGrid.Items[0];
+         if (object.ReferenceEquals(CurrentCell.Item, firstItem))
+            return true;
+         return MoveTo(new UniversalCellInfo(firstItem, dataGrid.CurrentColumn.DisplayIndex));
       }
 
       public bool MoveUp(uint distance)

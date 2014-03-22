@@ -64,11 +64,11 @@ namespace Tests.TableControl
       {
          Dispatcher.CurrentDispatcher.InvokeShutdown();
       }
-      
+
 
       #endregion Additional test attributes
 
-      [TestMethod()]
+      //[TestMethod()]
       public void CellVisibilityTest()
       {
          // Create a large enough data list, so that there will be scroll bar.
@@ -80,25 +80,7 @@ namespace Tests.TableControl
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
          }
-         Assert.Inconclusive("Incomplete ...");
-      }
-
-      /// <summary>
-      ///A test for CurrentCell
-      ///</summary>
-      [TestMethod()]
-      public void CurrentCellTest()
-      {
-         // Create a large enough data list, so that there will be scroll bar.
-         var dataList = CreateTestDataList(100);
-
-         DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
-         {
-            ICurrentCellService target = new DataGridCurrentCellService();
-            ((IUIService)target).AttachToElement(dataGrid);
-         }
-         Assert.Inconclusive("Incomplete ...");
+         Assert.Inconclusive("I'm not sure this should be implemented. TBD when required.");
       }
 
       /// <summary>
@@ -306,21 +288,6 @@ namespace Tests.TableControl
          }
       }
 
-      [TestMethod()]
-      public void MoveToBottomTest()
-      {
-         // Create a large enough data list, so that there will be scroll bar.
-         var dataList = CreateTestDataList(100);
-
-         DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
-         {
-            ICurrentCellService target = new DataGridCurrentCellService();
-            ((IUIService)target).AttachToElement(dataGrid);
-         }
-         Assert.Inconclusive("Incomplete ...");
-      }
-
       /// <summary>
       ///A test for MoveTo
       ///</summary>
@@ -374,8 +341,28 @@ namespace Tests.TableControl
          {
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
+
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveToTop());
+            Assert.AreEqual(dataList[0], dataGrid.CurrentItem);
+
+            using (ExpectNoEvents(target))
+               Assert.IsTrue(target.MoveToTop());
+
+            var lastItem = dataList[dataList.Count - 1];
+            dataGrid.ScrollIntoView(lastItem);
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveToBottom());
+            Assert.AreEqual(lastItem, dataGrid.CurrentItem);
+
+            using (ExpectNoEvents(target))
+               Assert.IsTrue(target.MoveToBottom());
+
+            dataGrid.ScrollIntoView(dataList[0]);
+            using (ExpectCancelableEvents(target))
+               Assert.IsTrue(target.MoveToTop());
+            Assert.AreEqual(dataList[0], dataGrid.CurrentItem);
          }
-         Assert.Inconclusive("Incomplete ...");
       }
 
       /// <summary>
@@ -456,8 +443,8 @@ namespace Tests.TableControl
       {
          return new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
             {
-               Assert.IsFalse(pc.HandlerInvoked);
-               Assert.IsFalse(c.HandlerInvoked);
+               Assert.IsFalse(pc.HandlerInvoked, "PreviewChange event was raised");
+               Assert.IsFalse(c.HandlerInvoked, "Changed event was raised");
             }));
       }
 

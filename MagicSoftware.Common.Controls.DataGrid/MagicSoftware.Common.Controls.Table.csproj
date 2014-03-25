@@ -93,7 +93,9 @@
     <Compile Include="Extensions\EnhancedDGProxy.cs" />
     <Compile Include="Extensions\ICurrentCellService.cs" />
     <Compile Include="Extensions\IElementEditStateProxy.cs" />
+    <Compile Include="Extensions\InputService.cs" />
     <Compile Include="Extensions\IScrollService.cs" />
+    <Compile Include="Extensions\NavigationCommandsMap.cs" />
     <Compile Include="Extensions\SharedObjectsService.cs" />
     <Compile Include="Extensions\ICurrentItemService.cs" />
     <Compile Include="Extensions\ImplementedServiceAttribute.cs" />

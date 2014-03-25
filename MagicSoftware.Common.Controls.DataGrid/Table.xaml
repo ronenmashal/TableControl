@@ -78,6 +78,7 @@
             <lext:UIServiceProvider.ServiceList>
                 <lext:UIServiceCollection>
                     <lext:DataGridCurrentCellService />
+                    <lext:InputService />
                 </lext:UIServiceCollection>
             </lext:UIServiceProvider.ServiceList>
         </DataGrid>

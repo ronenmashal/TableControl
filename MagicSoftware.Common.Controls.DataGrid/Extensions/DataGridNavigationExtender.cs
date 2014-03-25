@@ -25,34 +25,76 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       ICurrentCellService topContainerCurrentItemService;
       //ICurrentItemService itemContainerCurrentItemService;
+      InputService inputService;
 
 
       protected override void Setup()
       {
          //EditProxy = DataGridProxy.GetAdapter<IEditingItemsControlProxy>();
          topContainerCurrentItemService = UIServiceProvider.GetService<ICurrentCellService>(TargetElement);
+         Debug.Assert(topContainerCurrentItemService != null);
 
-         TargetElement.PreviewKeyDown += TargetElement_PreviewKeyDown;
-         TargetElement.PreviewMouseDown += TargetElement_PreviewMouseDown;
+         inputService = UIServiceProvider.GetService<InputService>(TargetElement);
+         Debug.Assert(inputService != null);
+
+         RegisterActionGesture(MoveToLineByKeyboard, Key.Down, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
+         RegisterActionGesture(MoveToLineByKeyboard, Key.Up, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
+         RegisterActionGesture(MoveToLineByKeyboard, Key.PageDown, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
+         RegisterActionGesture(MoveToLineByKeyboard, Key.PageUp, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
+         RegisterActionGesture(MoveToLineByKeyboard, Key.Home, ModifierKeys.Control);
+         RegisterActionGesture(MoveToLineByKeyboard, Key.End, ModifierKeys.Control);
+
+         RegisterActionGesture(MoveToFieldByKeyboard, Key.Tab, ModifierKeys.Shift);
+         RegisterActionGesture(MoveToFieldByKeyboard, Key.Left, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
+         RegisterActionGesture(MoveToFieldByKeyboard, Key.Right, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
+         RegisterActionGesture(MoveToFieldByKeyboard, Key.Home);
+         RegisterActionGesture(MoveToFieldByKeyboard, Key.End);
+
+         //TargetElement.PreviewKeyDown += TargetElement_PreviewKeyDown;
+         //TargetElement.PreviewMouseDown += TargetElement_PreviewMouseDown;
+      }
+
+      ModifierKeys[] AllCombinationsOf(params ModifierKeys[] modifiers)
+      {
+         ModifierKeys[] combinations = new ModifierKeys[modifiers.Length * modifiers.Length];
+         combinations[0] = ModifierKeys.None;
+         int c = 1;
+         for (int i = 0; i < modifiers.Length; i++)
+         {
+            combinations[c++] = modifiers[i];
+            for (int j = i + 1; j < modifiers.Length; j++)
+            {
+               combinations[c++] = modifiers[i] | modifiers[j];
+            }
+         }
+         return combinations;
+      }
+
+      void RegisterActionGesture(Action<KeyEventArgs> action, Key key)
+      {
+         RegisterActionGesture(action, key, ModifierKeys.None);
+      }
+
+      void RegisterActionGesture(Action<KeyEventArgs> action, Key key, params ModifierKeys[] modifierCombinations)
+      {
+         foreach (var modifier in modifierCombinations)
+            inputService.RegisterKeyGestureAction(new KeyGesture(key, modifier), action);
       }
 
       protected override void Cleanup()
       {
-         TargetElement.PreviewKeyDown -= TargetElement_PreviewKeyDown;
          TargetElement.PreviewMouseDown -= TargetElement_PreviewMouseDown;
       }
 
       protected void TargetElement_PreviewKeyDown(object sender, KeyEventArgs e)
       {
-         log.LogMessage(LogLevel.Finer, "Preview key down on {0}: {1}, {2}", sender, e.Key, e.OriginalSource);
-         if (IsVerticalNavigationKey(e.Key))
-            MoveToLineByKeyboard(e);
-         else if (IsHorizontalNavigationKey(e.Key))
+         if (IsHorizontalNavigationKey(e.Key))
             MoveToFieldByKeyboard(e);
       }
 
       private void MoveToFieldByKeyboard(KeyEventArgs e)
       {
+         log.DebugFormat("Beginning move on {0} using key \"{1}\"", e.Source, e.Key);
          switch (e.Key)
          {
             case Key.Tab:
@@ -181,6 +223,5 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          return key == Key.LeftShift || key == Key.RightShift;
       }
-
    }
 }

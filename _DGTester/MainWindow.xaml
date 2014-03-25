@@ -189,6 +189,14 @@
                        ItemsSource="{Binding Items}"
                        Loaded="DataGrid_Loaded"
                        RowStyleSelector="{StaticResource TemplateSelector}">
+                <!--<tbl:Table.Navigation>
+                    <NavigationTable>
+                        <NavigationKeyGesture Key="Up" Modifiers="" Action="MoveToPreviousItem"/>
+                        <NavigationKeyGesture Key="Up" Modifiers="Control" Action="MoveToPreviousItem"/>
+                        <NavigationKeyGesture Key="Up" Modifiers="Shift" Action="MoveToPreviousItem"/>
+                        <NavigationKeyGesture Key="Up" Modifiers="Control+Shift" Action="MoveToPreviousItem"/>
+                    </NavigationTable>
+                </tbl:Table.Navigation>-->
                 <!--  SelectionMode="Extended"  -->
                 <!--
                     <dg:Table.Columns>

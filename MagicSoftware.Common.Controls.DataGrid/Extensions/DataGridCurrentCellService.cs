@@ -1,32 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
 using System.Windows;
-using System.Diagnostics;
-using System.Windows.Input;
-using MagicSoftware.Common.Controls.Table.CellTypes;
-using MagicSoftware.Common.Utils;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using MagicSoftware.Common.Utils;
 using System.Windows.Threading;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   interface ICellEnumerationService
-   {
-      int CellCount { get; }
-
-      FrameworkElement GetCellAt(int index);
-   }
-
    /// <summary>
-   /// Implementation of ICurrentCellService for DataGrid. The implementation operates only 
+   /// Implementation of ICurrentCellService for DataGrid. The implementation operates only
    /// on accessible cells - i.e. cells that have already been loaded. It cannot move to a cell
    /// placed on an item that was not loaded (due to virtualization, for example).
    /// </summary>
    [ImplementedService(typeof(ICurrentCellService))]
-   class DataGridCurrentCellService : ICurrentCellService, IUIService
+   internal class DataGridCurrentCellService : ICurrentCellService, IUIService
    {
       #region CurrentCellChanging event.
 
@@ -51,7 +38,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// Raises the PreviewCurrentCellChangingEvent, allowing the handlers to cancel it,
       /// returning the result in 'canceled'
       /// </summary>
-      /// 
+      ///
       /// <param name="canceled">Returns whether any of the event handlers canceled the event.</param>
       public void RaisePreviewCurrentCellChangingEvent(UniversalCellInfo newValue, out bool canceled)
       {
@@ -63,7 +50,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             canceled = eventArgs.Canceled;
          }
       }
-      #endregion
+
+      #endregion CurrentCellChanging event.
 
       #region CurrentCellChanged event.
 
@@ -78,17 +66,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             CurrentCellChanged(this, new EventArgs());
       }
 
-      #endregion
-
+      #endregion CurrentCellChanged event.
 
       /// <summary>
-      /// Determines whether the current cell change is of an external origin, i.e. the 
+      /// Determines whether the current cell change is of an external origin, i.e. the
       /// cell position was changed by another component; or the change is caused by
       /// this class (self induced).
       /// </summary>
       protected readonly AutoResetFlag isSelfInducedCellChange = new AutoResetFlag();
 
       private System.Windows.Controls.DataGrid dataGrid;
+
       public UniversalCellInfo CurrentCell
       {
          get;
@@ -108,7 +96,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
-      ICellEnumerationService CurrentRowCellEnumerationService { get; set; }
+      private ICellEnumerationService CurrentRowCellEnumerationService { get; set; }
 
       public void AttachToElement(FrameworkElement element)
       {
@@ -116,6 +104,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          //currentRowService = UIServiceProvider.GetService<ICurrentItemService>(element);
          dataGrid.CurrentCellChanged += DataGrid_CurrentCellChanged;
          dataGrid.ColumnDisplayIndexChanged += DataGrid_ColumnDisplayIndexChanged;
+
          UpdateCurrentCell();
       }
 
@@ -157,6 +146,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public bool MoveTo(UniversalCellInfo targetCell)
       {
          bool canceled;
+
+         UpdateCurrentCell();
 
          if (!CanMoveTo(targetCell))
             return false;
@@ -225,31 +216,19 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return true;
       }
 
-      UniversalCellInfo ConvertDataGridCellInfo(DataGridCellInfo dgCellInfo)
-      {
-         int currentColumnIndex = -1;
-         if (dgCellInfo.Column != null)
-            currentColumnIndex = dataGrid.CurrentCell.Column.DisplayIndex;
-
-         object currentItem = null;
-         if (dgCellInfo.Item != DependencyProperty.UnsetValue)
-            currentItem = dataGrid.CurrentCell.Item;
-
-         return new UniversalCellInfo(currentItem, currentColumnIndex);
-      }
-
-      void DataGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)
+      private void DataGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)
       {
          UpdateCurrentCell();
       }
 
-      void DataGrid_CurrentCellChanged(object sender, EventArgs e)
+      private void DataGrid_CurrentCellChanged(object sender, EventArgs e)
       {
          if (!isSelfInducedCellChange.IsSet)
-            RaiseNonCancelablePreviewCurrentCellChangingEvent(ConvertDataGridCellInfo(dataGrid.CurrentCell));
+            RaiseNonCancelablePreviewCurrentCellChangingEvent(CurrentCell);
          UpdateCurrentCell();
          RaiseCurrentCellChangedEvent();
       }
+
       private UIElement ForceContainerGeneration(object item)
       {
          int itemIndex = IndexOf(item);
@@ -265,15 +244,19 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return container;
       }
 
+      private FrameworkElement CurrentItemContainer
+      {
+         get { return dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentItem) as FrameworkElement; }
+      }
+
       private ICellEnumerationService GetRowEnumerationServiceForItem(object item)
       {
-         var currentRow = dataGrid.ItemContainerGenerator.ContainerFromItem(item) as DataGridRow;
+         var currentRow = CurrentItemContainer as DataGridRow;
          if (currentRow == null)
             return null;
 
-         //HIGH: This should be done using UIServiceProvider
-         var service = new DataGridStandardRowCellEnumerationService();
-         ((IUIService)service).AttachToElement(currentRow);
+         var service = UIServiceProvider.GetService<ICellEnumerationService>(currentRow);
+         //((IUIService)service).AttachToElement(currentRow);
 
          return service;
       }
@@ -286,68 +269,23 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return dataGrid.Items.IndexOf(item);
       }
 
-      void UpdateCurrentCell()
+      private void UpdateCurrentCell()
       {
-         CurrentCell = ConvertDataGridCellInfo(dataGrid.CurrentCell);
-         CurrentRowCellEnumerationService = GetRowEnumerationServiceForItem(CurrentCell.Item);
+         CurrentRowCellEnumerationService = GetRowEnumerationServiceForItem(dataGrid.CurrentItem);
+         if (CurrentRowCellEnumerationService != null)
+            CurrentCell = CurrentRowCellEnumerationService.GetCurrentCellInfo();
       }
-      #region IDisposable Members
-
-      public void Dispose()
-      {
-
-      }
-
-      #endregion
-   }
-   class DataGridStandardRowCellEnumerationService : ICellEnumerationService, IUIService
-   {
-      DataGrid owningGrid = null;
-      DataGridRow rowElement = null;
-      #region IUIService Members
-
-      public void AttachToElement(FrameworkElement element)
-      {
-         rowElement = element as DataGridRow;
-         rowElement.Dispatcher.Invoke(DispatcherPriority.Loaded, new Action(() => owningGrid = UIUtils.GetAncestor<DataGrid>(rowElement)));
-         if (rowElement == null)
-            throw new ArgumentException("Must be attached to DataGridRow");
-      }
-
-      public void DetachFromElement(FrameworkElement element)
-      {
-         rowElement = null;
-         owningGrid = null;
-      }
-
-      #endregion
-
-      #region ICellEnumerationService Members
-
-      public int CellCount
-      {
-         get { return owningGrid.Columns.Count; }
-      }
-
-      public FrameworkElement GetCellAt(int index)
-      {
-         if (index < 0 || index >= CellCount)
-            throw new IndexOutOfRangeException("Argument index should be between 0 and " + CellCount);
-         return owningGrid.ColumnFromDisplayIndex(index).GetCellContent(rowElement);
-      }
-      #endregion
 
       #region IDisposable Members
 
       public void Dispose()
       {
-         DetachFromElement(rowElement);
       }
 
-      #endregion
+      #endregion IDisposable Members
    }
 
-   class EmptyRowCellEnumerationService : ICellEnumerationService, IUIService
+   internal class EmptyRowCellEnumerationService : ICellEnumerationService, IUIService
    {
       #region IUIService Members
 
@@ -359,7 +297,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
       }
 
-      #endregion
+      #endregion IUIService Members
 
       #region IDisposable Members
 
@@ -367,7 +305,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
       }
 
-      #endregion
+      #endregion IDisposable Members
 
       #region ICellEnumerationService Members
 
@@ -380,6 +318,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          throw new ArgumentOutOfRangeException("An empty row has no cells in it.");
       }
-      #endregion
+
+      #endregion ICellEnumerationService Members
+
+      public int CurrentCellIndex
+      {
+         get { throw new NotImplementedException(); }
+      }
+
+      public UniversalCellInfo GetCurrentCellInfo()
+      {
+         throw new NotImplementedException();
+      }
    }
 }

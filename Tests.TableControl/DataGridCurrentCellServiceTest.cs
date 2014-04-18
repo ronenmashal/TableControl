@@ -433,9 +433,9 @@ namespace Tests.TableControl
       {
          return new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
             {
-               Assert.AreEqual(1, pc.HandlerInvocationCount);
-               Assert.IsTrue(pc.LastInocationEventArgs.IsCancelable);
-               Assert.AreEqual(1, c.HandlerInvocationCount);
+               Assert.AreEqual(1, pc.HandlerInvocationCount, "Expected preview change event to be raised once.");
+               Assert.IsTrue(pc.LastInocationEventArgs.IsCancelable, "Expected preview change to be cancelable.");
+               Assert.AreEqual(1, c.HandlerInvocationCount, "Expected changed event to be raised once.");
             }));
       }
 
@@ -452,9 +452,9 @@ namespace Tests.TableControl
       {
          return new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
             {
-               Assert.AreEqual(1, pc.HandlerInvocationCount);
-               Assert.IsFalse(pc.LastInocationEventArgs.IsCancelable);
-               Assert.AreEqual(1, c.HandlerInvocationCount);
+               Assert.AreEqual(1, pc.HandlerInvocationCount, "Expected preview change to be raised once.");
+               Assert.IsFalse(pc.LastInocationEventArgs.IsCancelable, "Expected preview change to non-cancelable.");
+               Assert.AreEqual(1, c.HandlerInvocationCount, "Expected change event to be raised once.");
             }));
       }
 

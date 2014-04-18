@@ -20,22 +20,26 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
       ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-      protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
+      //protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
       //protected IEditingItemsControlProxy EditProxy { get; private set; }
 
-      ICurrentCellService topContainerCurrentItemService;
+      ICurrentCellService currentCellService;
       //ICurrentItemService itemContainerCurrentItemService;
       InputService inputService;
+      IVerticalScrollService scrollService;
 
 
       protected override void Setup()
       {
          //EditProxy = DataGridProxy.GetAdapter<IEditingItemsControlProxy>();
-         topContainerCurrentItemService = UIServiceProvider.GetService<ICurrentCellService>(TargetElement);
-         Debug.Assert(topContainerCurrentItemService != null);
+         currentCellService = UIServiceProvider.GetService<ICurrentCellService>(TargetElement);
+         Debug.Assert(currentCellService != null);
 
          inputService = UIServiceProvider.GetService<InputService>(TargetElement);
          Debug.Assert(inputService != null);
+
+         scrollService = UIServiceProvider.GetService<IVerticalScrollService>(TargetElement);
+         Debug.Assert(scrollService != null);
 
          RegisterActionGesture(MoveToLineByKeyboard, Key.Down, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
          RegisterActionGesture(MoveToLineByKeyboard, Key.Up, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
@@ -99,18 +103,18 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             case Key.Tab:
                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
-                  topContainerCurrentItemService.MoveLeft(1);
+                  currentCellService.MoveLeft(1);
                else
-                  topContainerCurrentItemService.MoveRight(1);
+                  currentCellService.MoveRight(1);
                e.Handled = true;
                break;
 
             case Key.Left:
                e.Handled = true;
                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
-                  topContainerCurrentItemService.MoveToLeftMost();
+                  currentCellService.MoveToLeftMost();
                else if (Keyboard.Modifiers.HasFlag(ModifierKeys.None))
-                  topContainerCurrentItemService.MoveLeft(1);
+                  currentCellService.MoveLeft(1);
                else
                   e.Handled = false;
                break;
@@ -118,9 +122,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             case Key.Right:
                e.Handled = true;
                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
-                  topContainerCurrentItemService.MoveToRightMost();
+                  currentCellService.MoveToRightMost();
                else if (Keyboard.Modifiers.HasFlag(ModifierKeys.None))
-                  topContainerCurrentItemService.MoveRight(1);
+                  currentCellService.MoveRight(1);
                else
                   e.Handled = false;
                break;
@@ -134,34 +138,35 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          switch (eventArgs.Key)
          {
             case Key.Up:
-               bMoved = topContainerCurrentItemService.MoveUp(1);
+               bMoved = currentCellService.MoveUp(1);
                break;
 
             case Key.Down:
-               bMoved = topContainerCurrentItemService.MoveDown(1);
+               bMoved = currentCellService.MoveDown(1);
                break;
 
             case Key.PageUp:
-               bMoved = topContainerCurrentItemService.MoveUp((uint)DataGridProxy.RowsPerPage);
+               bMoved = currentCellService.MoveUp((uint)scrollService.ItemsPerPage);
                break;
 
             case Key.PageDown:
-               bMoved = topContainerCurrentItemService.MoveDown((uint)DataGridProxy.RowsPerPage);
+               bMoved = currentCellService.MoveDown((uint)scrollService.ItemsPerPage);
                break;
 
             case Key.Home:
-               bMoved = topContainerCurrentItemService.MoveToTop();
+               bMoved = currentCellService.MoveToTop();
                break;
 
             case Key.End:
-               bMoved = topContainerCurrentItemService.MoveToBottom();
+               bMoved = currentCellService.MoveToBottom();
                break;
 
             default:
                return;
          }
          eventArgs.Handled = true;
-         DataGridProxy.ScrollIntoView(topContainerCurrentItemService.CurrentCell.Item);
+         //DataGridProxy.ScrollIntoView(topContainerCurrentItemService.CurrentCell.Item);
+         scrollService.ScrollTo(currentCellService.CurrentCell.Item);
       }
 
       void TargetElement_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -183,7 +188,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          //   return;
          //}
 
-         topContainerCurrentItemService.MoveTo(new UniversalCellInfo(clickedRow.Item, 0));
+         currentCellService.MoveTo(new UniversalCellInfo(clickedRow.Item, 0));
       }
 
       public static bool IsNavigationKey(Key key)

@@ -29,7 +29,7 @@
                 <Setter Property="lext:UIServiceProvider.ServiceList">
                     <Setter.Value>
                         <lext:UIServiceCollection>
-                            <lext:DataGridRowCurrentItemService />
+                            <lext:DataGridStandardRowCellEnumerationService />
                         </lext:UIServiceCollection>
                     </Setter.Value>
                 </Setter>
@@ -39,7 +39,7 @@
         <DataGrid x:Name="rootItemsControl"
                   CanUserAddRows="False"
                   CurrentItem="{Binding CurrentItem}"
-                  EnableRowVirtualization="True"
+                  EnableRowVirtualization="False"
                   ItemsSource="{Binding ItemsSource,
                                         RelativeSource={RelativeSource FindAncestor,
                                                                        AncestorType=UserControl}}"
@@ -73,12 +73,14 @@
                 </ext:ExtendersCollection>
             </ext:ElementExtensions.Extenders>
             <pxy:FrameworkElementProxy.Proxy>
-                <lext:EnhancedDGProxy />
+                <pxy:FrameworkElementProxy />
             </pxy:FrameworkElementProxy.Proxy>
             <lext:UIServiceProvider.ServiceList>
                 <lext:UIServiceCollection>
                     <lext:DataGridCurrentCellService />
                     <lext:InputService />
+                    <lext:VirtualizedItemTemplatePersistencyService />
+                    <lext:DataGridVerticalScrollService />
                 </lext:UIServiceCollection>
             </lext:UIServiceProvider.ServiceList>
         </DataGrid>

@@ -2,8 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using log4net;
 using MagicSoftware.Common.Utils;
-using System.Windows.Threading;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -15,6 +15,16 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    [ImplementedService(typeof(ICurrentCellService))]
    internal class DataGridCurrentCellService : ICurrentCellService, IUIService
    {
+      /// <summary>
+      /// Determines whether the current cell change is of an external origin, i.e. the
+      /// cell position was changed by another component; or the change is caused by
+      /// this class (self induced).
+      /// </summary>
+      protected readonly AutoResetFlag isSelfInducedCellChange = new AutoResetFlag();
+
+      private System.Windows.Controls.DataGrid dataGrid;
+      private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
       #region CurrentCellChanging event.
 
       /// <summary>
@@ -68,15 +78,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       #endregion CurrentCellChanged event.
 
-      /// <summary>
-      /// Determines whether the current cell change is of an external origin, i.e. the
-      /// cell position was changed by another component; or the change is caused by
-      /// this class (self induced).
-      /// </summary>
-      protected readonly AutoResetFlag isSelfInducedCellChange = new AutoResetFlag();
-
-      private System.Windows.Controls.DataGrid dataGrid;
-
       public UniversalCellInfo CurrentCell
       {
          get;
@@ -88,6 +89,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          get { return null; }
       }
 
+      public virtual bool IsAttached { get { return dataGrid != null; } }
+
       public bool IsCellVisible
       {
          get
@@ -96,10 +99,16 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
+      private FrameworkElement CurrentItemContainer
+      {
+         get { return dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentItem) as FrameworkElement; }
+      }
+
       private ICellEnumerationService CurrentRowCellEnumerationService { get; set; }
 
       public void AttachToElement(FrameworkElement element)
       {
+         log.DebugFormat("Attaching service provider {0} to {1}", this.GetType().Name, element);
          this.dataGrid = (DataGrid)element;
          //currentRowService = UIServiceProvider.GetService<ICurrentItemService>(element);
          dataGrid.CurrentCellChanged += DataGrid_CurrentCellChanged;
@@ -147,23 +156,32 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          bool canceled;
 
+         log.DebugFormat("Moving to cell {0}", targetCell);
+
          UpdateCurrentCell();
 
          if (!CanMoveTo(targetCell))
-            return false;
+            return CannotMoveToCell(targetCell);
 
          RaisePreviewCurrentCellChangingEvent(targetCell, out canceled);
          if (canceled)
-            return false;
+            return OperationCanceled();
 
          using (isSelfInducedCellChange.Set())
          {
             if (targetCell.CellIndex >= dataGrid.Columns.Count)
                return false;
+
             dataGrid.CurrentCell = new DataGridCellInfo(targetCell.Item, dataGrid.ColumnFromDisplayIndex(targetCell.CellIndex));
          }
 
          return CurrentCell.Equals(targetCell);
+      }
+
+      private bool OperationCanceled()
+      {
+         log.DebugFormat("-- Operation was canceled.");
+         return false;
       }
 
       public bool MoveToBottom()
@@ -189,14 +207,18 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          var firstItem = dataGrid.Items[0];
          if (object.ReferenceEquals(CurrentCell.Item, firstItem))
             return true;
-         return MoveTo(new UniversalCellInfo(firstItem, dataGrid.CurrentColumn.DisplayIndex));
+
+         var targetColumnIndex = (dataGrid.CurrentColumn ?? dataGrid.Columns[0]).DisplayIndex;
+         return MoveTo(new UniversalCellInfo(firstItem, targetColumnIndex));
       }
 
       public bool MoveUp(uint distance)
       {
+         log.DebugFormat("Trying to move {0} lines up.", distance);
+
          int newIndex = IndexOf(CurrentCell.Item) - (int)distance;
          if (newIndex < 0)
-            return false;
+            return InvalidLineIndex(newIndex);
 
          return MoveTo(new UniversalCellInfo(dataGrid.Items[newIndex], CurrentCell.CellIndex));
       }
@@ -214,6 +236,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             return false;
 
          return true;
+      }
+
+      private bool CannotMoveToCell(UniversalCellInfo targetCell)
+      {
+         log.DebugFormat("Cannot move to cell {0}", targetCell);
+         return false;
       }
 
       private void DataGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)
@@ -244,18 +272,26 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return container;
       }
 
-      private FrameworkElement CurrentItemContainer
+      private FrameworkElement GetItemContainer(object item)
       {
-         get { return dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentItem) as FrameworkElement; }
+         return dataGrid.ItemContainerGenerator.ContainerFromItem(item) as FrameworkElement;
       }
 
       private ICellEnumerationService GetRowEnumerationServiceForItem(object item)
       {
-         var currentRow = CurrentItemContainer as DataGridRow;
+         log.DebugFormat(FrameworkElementFormatter.GetInstance(), "Trying to get row enumeration service for {0}", item);
+
+         var currentRow = GetItemContainer(item) as DataGridRow;
          if (currentRow == null)
+         {
+            log.Debug("-- Failed retrieving item container from");
             return null;
+         }
 
          var service = UIServiceProvider.GetService<ICellEnumerationService>(currentRow);
+
+         log.DebugFormat("-- Found service provider {0}", service);
+
          //((IUIService)service).AttachToElement(currentRow);
 
          return service;
@@ -269,11 +305,25 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return dataGrid.Items.IndexOf(item);
       }
 
+      private bool InvalidLineIndex(int index)
+      {
+         log.DebugFormat("-- Computed line index {0} is invalid. Aborting action.", index);
+         return false;
+      }
+
       private void UpdateCurrentCell()
       {
-         CurrentRowCellEnumerationService = GetRowEnumerationServiceForItem(dataGrid.CurrentItem);
-         if (CurrentRowCellEnumerationService != null)
-            CurrentCell = CurrentRowCellEnumerationService.GetCurrentCellInfo();
+         using (LoggingExtensions.Indent())
+         {
+            log.Debug("Updating current cell info");
+            CurrentRowCellEnumerationService = GetRowEnumerationServiceForItem(dataGrid.CurrentItem);
+            if (CurrentRowCellEnumerationService != null)
+            {
+               //if (!((IUIService)CurrentRowCellEnumerationService).IsAttached)
+               //   Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.Loaded, new Action(UpdateCurrentCell));
+               CurrentCell = CurrentRowCellEnumerationService.GetCurrentCellInfo();
+            }
+         }
       }
 
       #region IDisposable Members
@@ -288,6 +338,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    internal class EmptyRowCellEnumerationService : ICellEnumerationService, IUIService
    {
       #region IUIService Members
+
+      public virtual bool IsAttached { get { throw new NotImplementedException(); } }
 
       public void AttachToElement(FrameworkElement element)
       {
@@ -329,6 +381,49 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public UniversalCellInfo GetCurrentCellInfo()
       {
          throw new NotImplementedException();
+      }
+
+      private class CurrentCellAccessor : IDisposable
+      {
+         private UniversalCellInfo currentCell = new UniversalCellInfo();
+         private Func<UniversalCellInfo> currentCellUpdateCallback;
+         private DataGrid dataGrid;
+         private bool isValueValid = false;
+
+         public CurrentCellAccessor(DataGrid dataGrid, Func<UniversalCellInfo> currentCellUpdateCallback)
+         {
+            this.dataGrid = dataGrid;
+            dataGrid.CurrentCellChanged += DataGrid_CurrentCellChanged;
+            this.currentCellUpdateCallback = currentCellUpdateCallback;
+         }
+
+         private UniversalCellInfo Value
+         {
+            get
+            {
+               if (!isValueValid)
+               {
+                  currentCell = currentCellUpdateCallback();
+               }
+               return currentCell;
+            }
+         }
+
+         public void Dispose()
+         {
+            dataGrid.CurrentCellChanged -= DataGrid_CurrentCellChanged;
+            dataGrid = null;
+         }
+
+         private void DataGrid_CurrentCellChanged(object sender, EventArgs args)
+         {
+            InvalidateValue();
+         }
+
+         private void InvalidateValue()
+         {
+            isValueValid = false;
+         }
       }
    }
 }

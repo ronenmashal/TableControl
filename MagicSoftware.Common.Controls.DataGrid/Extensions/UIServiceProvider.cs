@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using log4net;
+using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -25,6 +26,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private static readonly DependencyProperty ServiceProviderProperty =
           DependencyProperty.RegisterAttached("ServiceProvider", typeof(UIServiceProvider), typeof(UIServiceProvider), new UIPropertyMetadata(null));
 
+      private static ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
       public static IUIService GetService(FrameworkElement element, Type serviceType)
       {
          IUIService service = null;
@@ -34,6 +37,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             var serviceList = GetServiceList(element);
             if (serviceList != null)
             {
+               log.DebugFormat("Creating a new service provider for {0}", element);
                serviceProvider = new UIServiceProvider();
                serviceProvider.AttachToElement(element, serviceList);
                SetServiceProvider(element, serviceProvider);
@@ -41,6 +45,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
          if (serviceProvider != null)
          {
+            if (!serviceProvider.IsFullyAttached)
+            {
+               log.DebugFormat("Enforcing service provider load on {0}", element);
+               serviceProvider.Element_Loaded(element, new RoutedEventArgs());
+            }
             service = serviceProvider.GetService(serviceType);
          }
          return service;
@@ -103,12 +112,20 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       //--------------------------------------------------------------------------------------------------------//
 
       private FrameworkElement element;
-      private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+      private bool isFullyAttached = false;
       private Window owningWindow;
       private Dictionary<Type, IUIService> serviceImplementations = new Dictionary<Type, IUIService>();
 
+      /// <summary>
+      /// Gets a value denoting whether the service is fully attached to the element or not.
+      /// 'Fully Attached' means that all services of this service provider where attached to
+      /// a loaded element.
+      /// </summary>
+      public bool IsFullyAttached { get { return isFullyAttached; } }
+
       public void Dispose()
       {
+         log.DebugFormat(FrameworkElementFormatter.GetInstance(), "Detaching service provider from {0}", element);
          if (owningWindow != null)
             owningWindow.Closed -= OwningWindow_Closed;
          LoadedEventManager.RemoveListener(element, this);
@@ -136,7 +153,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void AttachToElement(FrameworkElement element, IEnumerable<IUIService> serviceList)
       {
-         log.Debug("Setting service list for " + element);
+         if (isFullyAttached)
+            return;
+
+         log.DebugFormat(FrameworkElementFormatter.GetInstance(), "Attaching service list for {0}", element);
          this.element = element;
          foreach (var service in serviceList)
          {
@@ -157,12 +177,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void DetachFromElement(FrameworkElement element, IEnumerable<IUIService> oldServiceList)
       {
+         isFullyAttached = false;
          foreach (var service in oldServiceList)
             service.DetachFromElement(element);
       }
 
       private void Element_Loaded(object sender, RoutedEventArgs args)
       {
+         isFullyAttached = true;
+
          foreach (var service in serviceImplementations.Values)
             service.AttachToElement((FrameworkElement)sender);
 

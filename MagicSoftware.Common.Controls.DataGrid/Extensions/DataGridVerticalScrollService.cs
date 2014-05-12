@@ -26,6 +26,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
       }
 
+      public virtual bool IsAttached { get { return element != null; } }
+
       #endregion
 
       #region IDisposable Members

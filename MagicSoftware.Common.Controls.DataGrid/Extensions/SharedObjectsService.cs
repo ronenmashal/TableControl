@@ -33,6 +33,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public void DetachFromElement(FrameworkElement element)
       {}
 
+      public virtual bool IsAttached { get { throw new NotImplementedException(); } }
+
       #endregion
 
       #region IDisposable Members

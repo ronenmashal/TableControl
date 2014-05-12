@@ -132,6 +132,7 @@
     </Compile>
     <Compile Include="CellTypes\VirtualTableCell.cs" />
     <Compile Include="CellTypes\VirtualTextTableCell.cs" />
+    <Compile Include="Utils\DataGridRowFormatter.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

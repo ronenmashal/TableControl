@@ -22,6 +22,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          element = null;
       }
 
+      public virtual bool IsAttached { get { return element != null; } }
+
       public void Dispose()
       {
          if (element != null)

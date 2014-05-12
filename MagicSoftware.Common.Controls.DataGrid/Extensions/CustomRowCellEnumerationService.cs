@@ -47,6 +47,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       }
 
+      public virtual bool IsAttached { get { return row != null; } }
+
       public object RowTypeIdentifier { get; set; }
 
       public void AttachToElement(System.Windows.FrameworkElement element)

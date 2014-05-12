@@ -13,7 +13,7 @@
 
   <appender name="TestsGlobalLogFile" type="log4net.Appender.FileAppender">
     <!-- This file will be created in the 'Sources' folder -->
-    <file value="tests-log.txt" />
+    <file value="d:\temp\tests-log.txt" />
     <appendToFile value="false" />
     <!-- Minimal lock is required because the tests run concurrently -->
     <lockingModel type="log4net.Appender.FileAppender+MinimalLock" />

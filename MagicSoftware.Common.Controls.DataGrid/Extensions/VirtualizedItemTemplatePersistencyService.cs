@@ -41,6 +41,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          dataGrid = null;
       }
 
+      public virtual bool IsAttached { get { return dataGrid != null; } }
+
       public void Dispose()
       {
          if (dataGrid != null)

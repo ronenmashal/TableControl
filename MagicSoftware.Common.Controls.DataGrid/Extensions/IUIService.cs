@@ -10,5 +10,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
       void AttachToElement(FrameworkElement element);
       void DetachFromElement(FrameworkElement element);
+
+      bool IsAttached { get; }
    }
 }

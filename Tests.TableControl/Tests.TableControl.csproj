@@ -72,6 +72,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInitializer.cs" />
     <Compile Include="DataGridAsCurrentItemProviderTest.cs" />
     <Compile Include="DataGridAsEditingAdapterTest.cs" />
     <Compile Include="DataGridCurrentCellServiceTest.cs" />
@@ -113,7 +114,6 @@
     <Compile Include="EventHandlerTestHelper.cs" />
     <None Include="Tests.TableControl.notes" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>

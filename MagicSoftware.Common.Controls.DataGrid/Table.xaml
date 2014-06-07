@@ -29,7 +29,7 @@
                 <Setter Property="lext:UIServiceProvider.ServiceList">
                     <Setter.Value>
                         <lext:UIServiceCollection>
-                            <lext:DataGridStandardRowCellEnumerationService />
+                            <lext:CreateServiceByType ServiceType="{x:Type lext:DataGridStandardRowCellEnumerationService}"/>
                         </lext:UIServiceCollection>
                     </Setter.Value>
                 </Setter>
@@ -39,7 +39,7 @@
         <DataGrid x:Name="rootItemsControl"
                   CanUserAddRows="False"
                   CurrentItem="{Binding CurrentItem}"
-                  EnableRowVirtualization="False"
+                  EnableRowVirtualization="True"
                   ItemsSource="{Binding ItemsSource,
                                         RelativeSource={RelativeSource FindAncestor,
                                                                        AncestorType=UserControl}}"

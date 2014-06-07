@@ -21,7 +21,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// Defines the list of services assigned to an element.
       /// </summary>
       public static readonly DependencyProperty ServiceListProperty =
-          DependencyProperty.RegisterAttached("ServiceList", typeof(IEnumerable<IUIService>), typeof(UIServiceProvider), new UIPropertyMetadata(new List<IUIService>(), OnServiceListChanged));
+          DependencyProperty.RegisterAttached("ServiceList", typeof(IEnumerable<IUIServiceFactory>), typeof(UIServiceProvider), new UIPropertyMetadata(new UIServiceCollection(), OnServiceListChanged));
 
       private static readonly DependencyProperty ServiceProviderProperty =
           DependencyProperty.RegisterAttached("ServiceProvider", typeof(UIServiceProvider), typeof(UIServiceProvider), new UIPropertyMetadata(null));
@@ -60,14 +60,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return (T)GetService(element, typeof(T));
       }
 
-      public static void SetServiceList(DependencyObject obj, IEnumerable<IUIService> value)
+      public static void SetServiceList(DependencyObject obj, IEnumerable<IUIServiceFactory> value)
       {
          obj.SetValue(ServiceListProperty, value);
       }
 
-      private static IEnumerable<IUIService> GetServiceList(DependencyObject obj)
+      private static IEnumerable<IUIServiceFactory> GetServiceList(DependencyObject obj)
       {
-         return (IEnumerable<IUIService>)obj.GetValue(ServiceListProperty);
+         return (IEnumerable<IUIServiceFactory>)obj.GetValue(ServiceListProperty);
       }
 
       private static UIServiceProvider GetServiceProvider(DependencyObject obj)
@@ -151,15 +151,16 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return GetService(typeof(T)) as T;
       }
 
-      private void AttachToElement(FrameworkElement element, IEnumerable<IUIService> serviceList)
+      private void AttachToElement(FrameworkElement element, IEnumerable<IUIServiceFactory> serviceList)
       {
          if (isFullyAttached)
             return;
 
          log.DebugFormat(FrameworkElementFormatter.GetInstance(), "Attaching service list for {0}", element);
          this.element = element;
-         foreach (var service in serviceList)
+         foreach (var serviceFactory in serviceList)
          {
+            var service = serviceFactory.CreateUIService();
             var serviceType = service.GetType();
             var customAttrs = serviceType.GetCustomAttributes(typeof(ImplementedServiceAttribute), true);
             if (customAttrs != null && customAttrs.Count() > 0)

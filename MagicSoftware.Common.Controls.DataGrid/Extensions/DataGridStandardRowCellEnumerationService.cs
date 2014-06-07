@@ -27,9 +27,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void AttachToElement(FrameworkElement element)
       {
-         Debug.Assert(rowElement != null, this.GetType().Name + " is already attached.");
+         Debug.Assert(rowElement == null, this.GetType().Name + " is already attached.");
          rowElement = element as DataGridRow;
-         //rowElement.Dispatcher.Invoke(DispatcherPriority.Loaded, new Action(() => owningGrid = UIUtils.GetAncestor<DataGrid>(rowElement)));
          if (rowElement == null)
             throw new ArgumentException("Must be attached to DataGridRow");
       }

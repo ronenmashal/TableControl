@@ -81,6 +81,7 @@
     <Compile Include="Data\TestClassBase.cs" />
     <Compile Include="PrivateAccessHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceFactoryMock.cs" />
     <Compile Include="UIServiceProviderTest.cs" />
     <Compile Include="UI\EmptyWindow.xaml.cs">
       <DependentUpon>EmptyWindow.xaml</DependentUpon>

@@ -102,6 +102,7 @@
     <Compile Include="Extensions\IScrollService.cs" />
     <Compile Include="Extensions\IUIServiceFactory.cs" />
     <Compile Include="Extensions\NavigationCommandsMap.cs" />
+    <Compile Include="Extensions\ParameterlessUIServiceFactory.cs" />
     <Compile Include="Extensions\SharedObjectsService.cs" />
     <Compile Include="Extensions\ICurrentItemService.cs" />
     <Compile Include="Extensions\ImplementedServiceAttribute.cs" />

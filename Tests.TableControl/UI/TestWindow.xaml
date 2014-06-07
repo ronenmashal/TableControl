@@ -14,7 +14,7 @@
                     <Setter.Value>
                         <tblext:UIServiceCollection>
                             <!--<tblext:DataGridRowCurrentItemService />-->
-                            <tblext:DataGridStandardRowCellEnumerationService />
+                            <tblext:ParameterlessUIServiceFactory ServiceType="{x:Type tblext:DataGridStandardRowCellEnumerationService}" />
                         </tblext:UIServiceCollection>
                     </Setter.Value>
                 </Setter>
@@ -29,7 +29,7 @@
             </pxy:FrameworkElementProxy.Proxy>
             <tblext:UIServiceProvider.ServiceList>
                 <tblext:UIServiceCollection>
-                    <tblext:DataGridCurrentItemService />
+                    <tblext:ParameterlessUIServiceFactory ServiceType="{x:Type tblext:DataGridCurrentItemService}"/>
                 </tblext:UIServiceCollection>
             </tblext:UIServiceProvider.ServiceList>
         </DataGrid>

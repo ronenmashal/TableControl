@@ -29,7 +29,7 @@
                 <Setter Property="lext:UIServiceProvider.ServiceList">
                     <Setter.Value>
                         <lext:UIServiceCollection>
-                            <lext:CreateServiceByType ServiceType="{x:Type lext:DataGridStandardRowCellEnumerationService}"/>
+                            <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridStandardRowCellEnumerationService}"/>
                         </lext:UIServiceCollection>
                     </Setter.Value>
                 </Setter>
@@ -77,10 +77,10 @@
             </pxy:FrameworkElementProxy.Proxy>
             <lext:UIServiceProvider.ServiceList>
                 <lext:UIServiceCollection>
-                    <lext:DataGridCurrentCellService />
-                    <lext:InputService />
-                    <lext:VirtualizedItemTemplatePersistencyService />
-                    <lext:DataGridVerticalScrollService />
+                    <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridCurrentCellService}" />
+                    <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:InputService}" />
+                    <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:VirtualizedItemTemplatePersistencyService}" />
+                    <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridVerticalScrollService}" />
                 </lext:UIServiceCollection>
             </lext:UIServiceProvider.ServiceList>
         </DataGrid>

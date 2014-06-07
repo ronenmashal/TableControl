@@ -7,6 +7,7 @@ using MagicSoftware.Common.Controls.Table.CellTypes;
 using log4net;
 using MagicSoftware.Common.Utils;
 using LogLevel = log4net.Core.Level;
+using System.Windows.Media;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -27,14 +28,20 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private ItemsControl owner;
       private DataGridRow row;
 
-      public CustomRowCellEnumerationService()
+      public CustomRowCellEnumerationService(object rowTypeIdentifier)
       {
          id = IdGenerator.GetNewId(this);
+         this.RowTypeIdentifier = rowTypeIdentifier;
       }
 
       public int CellCount
       {
-         get { return cells.Count; }
+         get 
+         {
+            if (cells.Count == 0)
+               cells = row.GetDescendants<VirtualTableCell>();
+            return cells.Count; 
+         }
       }
 
       public int CurrentCellIndex
@@ -54,11 +61,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public virtual bool IsAttached { get { return row != null; } }
 
-      public object RowTypeIdentifier { get; set; }
+      public object RowTypeIdentifier { get; private set; }
 
       public void AttachToElement(System.Windows.FrameworkElement element)
       {
-         Debug.Assert(row == null, this.ToString() + " is already attached.");
+         if (row != null)
+         {
+            if (object.ReferenceEquals(element, row))
+               return;
+
+            throw new InvalidOperationException(this.ToString() + " is already attached to row " + row.Item.ToString());
+         }
 
          log.InfoFormat("Attaching {0} to {1}", this, element);
          row = element as DataGridRow;
@@ -68,11 +81,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          owner = UIUtils.GetAncestor<ItemsControl>(row);
          EnsureCurrentCellIndexTableExistance(owner);
 
-         cells = new List<VirtualTableCell>();
-         VisualTreeEnumerator vte = new VisualTreeEnumerator(element);
-         vte.Criteria = (c) => c is VirtualTableCell;
-         while (vte.MoveNext())
-            cells.Add((VirtualTableCell)vte.Current);
+         cells = row.GetDescendants<VirtualTableCell>();
       }
 
       public void DetachFromElement(System.Windows.FrameworkElement element)
@@ -123,4 +132,18 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          obj.SetValue(CurrentCellIndexTableProperty, value);
       }
    }
+
+   public class CustomRowCellEnumerationServiceFactory : IUIServiceFactory
+   {
+      public object RowTypeIdentifier { get; set; }
+
+      public IUIService CreateUIService()
+      {
+         if (RowTypeIdentifier == null)
+            throw new Exception("RowTypeIdentifier must be set on " + this.GetType().Name);
+
+         return new CustomRowCellEnumerationService(RowTypeIdentifier);
+      }
+   }
+
 }

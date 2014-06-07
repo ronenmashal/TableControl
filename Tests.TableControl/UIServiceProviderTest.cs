@@ -86,7 +86,7 @@ namespace Tests.TableControl
          {
             var serviceList = UIServiceProvider_Accessor.GetServiceList(button);
             Assert.IsNotNull(serviceList);
-            List<IUIService> serviceListWrapper = new List<IUIService>(serviceList);
+            List<IUIServiceFactory> serviceListWrapper = new List<IUIServiceFactory>(serviceList);
             Assert.AreEqual(0, serviceListWrapper.Count);
             Assert.IsNull(UIServiceProvider_Accessor.GetServiceProvider(button));
             var service = UIServiceProvider.GetService(button, typeof(TestServiceBase));
@@ -100,7 +100,7 @@ namespace Tests.TableControl
 
          UIServiceCollection serviceCollection = new UIServiceCollection();
          var serviceA = new TestServiceA();
-         serviceCollection.Add(serviceA);
+         serviceCollection.Add(new ServiceFactoryMock(serviceA));
          UIServiceProvider.SetServiceList(button, serviceCollection);
 
          using (TestUtils.AutoCloseWindow(window))
@@ -130,13 +130,13 @@ namespace Tests.TableControl
 
          UIServiceCollection serviceCollection = new UIServiceCollection();
          var serviceA = new TestServiceA();
-         serviceCollection.Add(serviceA);
+         serviceCollection.Add(new ServiceFactoryMock(serviceA));
          UIServiceProvider.SetServiceList(button, serviceCollection);
 
          // Replace the assigned, yet unattached services.
          serviceCollection = new UIServiceCollection();
          var serviceA2 = new TestServiceA();
-         serviceCollection.Add(serviceA2);
+         serviceCollection.Add(new ServiceFactoryMock(serviceA2));
          UIServiceProvider.SetServiceList(button, serviceCollection);
 
          // Verify the old service was disposed.

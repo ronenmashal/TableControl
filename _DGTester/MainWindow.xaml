@@ -40,7 +40,7 @@
                             <!--<tbl:SharedObjectsService />
                             <tbl:CustomRowCurrentItemService />-->
                             <!--<tbl:CustomRowCellEnumerationService RowTypeIdentifier="custom1" />-->
-                            <tbl:CreateServiceByType ServiceType="{x:Type tbl:CustomRowCellEnumerationService}"/>
+                            <tbl:CustomRowCellEnumerationServiceFactory RowTypeIdentifier="custom1"/>
                         </tbl:UIServiceCollection>
                     </Setter.Value>
                 </Setter>

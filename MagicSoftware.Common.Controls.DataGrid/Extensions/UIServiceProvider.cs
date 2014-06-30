@@ -21,7 +21,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// Defines the list of services assigned to an element.
       /// </summary>
       public static readonly DependencyProperty ServiceListProperty =
-          DependencyProperty.RegisterAttached("ServiceList", typeof(IEnumerable<IUIServiceFactory>), typeof(UIServiceProvider), new UIPropertyMetadata(new UIServiceCollection(), OnServiceListChanged));
+          DependencyProperty.RegisterAttached("ServiceList", typeof(UIServiceCollection), typeof(UIServiceProvider), new UIPropertyMetadata(new UIServiceCollection(), OnServiceListChanged));
 
       private static readonly DependencyProperty ServiceProviderProperty =
           DependencyProperty.RegisterAttached("ServiceProvider", typeof(UIServiceProvider), typeof(UIServiceProvider), new UIPropertyMetadata(null));
@@ -60,14 +60,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return (T)GetService(element, typeof(T));
       }
 
-      public static void SetServiceList(DependencyObject obj, IEnumerable<IUIServiceFactory> value)
+      public static void SetServiceList(DependencyObject obj, UIServiceCollection value)
       {
          obj.SetValue(ServiceListProperty, value);
       }
 
-      private static IEnumerable<IUIServiceFactory> GetServiceList(DependencyObject obj)
+      private static UIServiceCollection GetServiceList(DependencyObject obj)
       {
-         return (IEnumerable<IUIServiceFactory>)obj.GetValue(ServiceListProperty);
+         return (UIServiceCollection)obj.GetValue(ServiceListProperty);
       }
 
       private static UIServiceProvider GetServiceProvider(DependencyObject obj)

@@ -76,12 +76,10 @@
                 <pxy:FrameworkElementProxy />
             </pxy:FrameworkElementProxy.Proxy>
             <lext:UIServiceProvider.ServiceList>
-                <lext:UIServiceCollection>
-                    <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridCurrentCellService}" />
-                    <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:InputService}" />
-                    <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:VirtualizedItemTemplatePersistencyService}" />
-                    <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridVerticalScrollService}" />
-                </lext:UIServiceCollection>
+                <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridCurrentCellService}" />
+                <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:InputService}" />
+                <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:VirtualizedItemTemplatePersistencyService}" />
+                <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridVerticalScrollService}" />
             </lext:UIServiceProvider.ServiceList>
         </DataGrid>
     </Grid>

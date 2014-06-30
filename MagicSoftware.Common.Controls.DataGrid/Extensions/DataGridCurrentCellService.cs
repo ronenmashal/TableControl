@@ -179,7 +179,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             if (targetCell.CellIndex >= dataGrid.Columns.Count)
                return false;
 
-            dataGrid.CurrentCell = new DataGridCellInfo(targetCell.Item, dataGrid.ColumnFromDisplayIndex(targetCell.CellIndex));
+            GetRowEnumerationServiceForItem(targetCell.Item).MoveToCell(targetCell.CellIndex);
+            UpdateCurrentCell();
+            RaiseCurrentCellChangedEvent();
          }
 
          return CurrentCell.Equals(targetCell);
@@ -253,7 +255,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void DataGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)
       {
-         UpdateCurrentCell();
+         if (!isSelfInducedCellChange.IsSet)
+            UpdateCurrentCell();
       }
 
       private void DataGrid_CurrentCellChanged(object sender, EventArgs e)
@@ -261,7 +264,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (!isSelfInducedCellChange.IsSet)
             RaiseNonCancelablePreviewCurrentCellChangingEvent(CurrentCell);
          UpdateCurrentCell();
-         RaiseCurrentCellChangedEvent();
+         if (!isSelfInducedCellChange.IsSet)
+            RaiseCurrentCellChangedEvent();
       }
 
       private UIElement ForceContainerGeneration(object item)
@@ -340,97 +344,5 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       #endregion IDisposable Members
-   }
-
-   internal class EmptyRowCellEnumerationService : ICellEnumerationService, IUIService
-   {
-      #region IUIService Members
-
-      public virtual bool IsAttached { get { throw new NotImplementedException(); } }
-
-      public void AttachToElement(FrameworkElement element)
-      {
-      }
-
-      public void DetachFromElement(FrameworkElement element)
-      {
-      }
-
-      #endregion IUIService Members
-
-      #region IDisposable Members
-
-      public void Dispose()
-      {
-      }
-
-      #endregion IDisposable Members
-
-      #region ICellEnumerationService Members
-
-      public int CellCount
-      {
-         get { return 0; }
-      }
-
-      public FrameworkElement GetCellAt(int index)
-      {
-         throw new ArgumentOutOfRangeException("An empty row has no cells in it.");
-      }
-
-      #endregion ICellEnumerationService Members
-
-      public int CurrentCellIndex
-      {
-         get { throw new NotImplementedException(); }
-      }
-
-      public UniversalCellInfo GetCurrentCellInfo()
-      {
-         throw new NotImplementedException();
-      }
-
-      private class CurrentCellAccessor : IDisposable
-      {
-         private UniversalCellInfo currentCell = new UniversalCellInfo();
-         private Func<UniversalCellInfo> currentCellUpdateCallback;
-         private DataGrid dataGrid;
-         private bool isValueValid = false;
-
-         public CurrentCellAccessor(DataGrid dataGrid, Func<UniversalCellInfo> currentCellUpdateCallback)
-         {
-            this.dataGrid = dataGrid;
-            dataGrid.CurrentCellChanged += DataGrid_CurrentCellChanged;
-            this.currentCellUpdateCallback = currentCellUpdateCallback;
-         }
-
-         private UniversalCellInfo Value
-         {
-            get
-            {
-               if (!isValueValid)
-               {
-                  currentCell = currentCellUpdateCallback();
-               }
-               return currentCell;
-            }
-         }
-
-         public void Dispose()
-         {
-            dataGrid.CurrentCellChanged -= DataGrid_CurrentCellChanged;
-            dataGrid = null;
-         }
-
-         private void DataGrid_CurrentCellChanged(object sender, EventArgs args)
-         {
-            InvalidateValue();
-         }
-
-         private void InvalidateValue()
-         {
-            isValueValid = false;
-         }
-      }
    }
 }

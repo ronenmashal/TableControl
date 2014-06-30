@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
-using System.Diagnostics;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -25,6 +24,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       #region IUIService Members
 
+      public virtual bool IsAttached { get { return rowElement != null; } }
+
       public void AttachToElement(FrameworkElement element)
       {
          Debug.Assert(rowElement == null, this.GetType().Name + " is already attached.");
@@ -38,9 +39,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          rowElement = null;
          owningGrid = null;
       }
-
-      public virtual bool IsAttached { get { return rowElement != null; } }
-
 
       #endregion IUIService Members
 
@@ -80,6 +78,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       #endregion IDisposable Members
+
+      public bool MoveToCell(int cellIndex)
+      {
+         OwningGrid.CurrentCell = new DataGridCellInfo(rowElement.Item, OwningGrid.ColumnFromDisplayIndex(cellIndex));
+         return OwningGrid.CurrentCell.IsValid;
+      }
 
       private UniversalCellInfo ConvertDataGridCellInfo(DataGridCellInfo dgCellInfo)
       {

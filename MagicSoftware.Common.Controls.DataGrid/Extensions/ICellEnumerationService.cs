@@ -6,10 +6,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
       int CellCount { get; }
 
-      FrameworkElement GetCellAt(int index);
-
       int CurrentCellIndex { get; }
 
+      FrameworkElement GetCellAt(int index);
+
       UniversalCellInfo GetCurrentCellInfo();
+
+      bool MoveToCell(int cellIndex);
    }
 }

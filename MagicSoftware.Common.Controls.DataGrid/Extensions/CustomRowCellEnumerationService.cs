@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using MagicSoftware.Common.Controls.Table.CellTypes;
 using log4net;
+using MagicSoftware.Common.Controls.Table.CellTypes;
 using MagicSoftware.Common.Utils;
-using LogLevel = log4net.Core.Level;
-using System.Windows.Media;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -24,8 +22,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private List<VirtualTableCell> cells = new List<VirtualTableCell>();
 
       private int id;
-      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-      private ItemsControl owner;
+      private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+      private DataGrid owner;
       private DataGridRow row;
 
       public CustomRowCellEnumerationService(object rowTypeIdentifier)
@@ -36,11 +34,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public int CellCount
       {
-         get 
+         get
          {
             if (cells.Count == 0)
                cells = row.GetDescendants<VirtualTableCell>();
-            return cells.Count; 
+            return cells.Count;
          }
       }
 
@@ -56,6 +54,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                indexTable.Add(RowTypeIdentifier, index);
             }
             return index;
+         }
+         private set
+         {
+            var indexTable = GetCurrentCellIndexTable(owner);
+            indexTable[RowTypeIdentifier] = value;
          }
       }
 
@@ -78,7 +81,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          Debug.Assert(row != null);
 
-         owner = UIUtils.GetAncestor<ItemsControl>(row);
+         owner = UIUtils.GetAncestor<DataGrid>(row);
          EnsureCurrentCellIndexTableExistance(owner);
 
          cells = row.GetDescendants<VirtualTableCell>();
@@ -109,6 +112,16 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (row == null)
             return new UniversalCellInfo(null, -1);
          return new UniversalCellInfo(row.Item, CurrentCellIndex);
+      }
+
+      public bool MoveToCell(int cellIndex)
+      {
+         if (row == null)
+            return false;
+
+         owner.CurrentCell = new DataGridCellInfo(row.Item, owner.ColumnFromDisplayIndex(0));
+         CurrentCellIndex = cellIndex;
+         return true;
       }
 
       public override string ToString()
@@ -145,5 +158,4 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return new CustomRowCellEnumerationService(RowTypeIdentifier);
       }
    }
-
 }

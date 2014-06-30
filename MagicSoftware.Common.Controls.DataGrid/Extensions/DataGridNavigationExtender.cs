@@ -48,7 +48,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          RegisterActionGesture(MoveToLineByKeyboard, Key.Home, ModifierKeys.Control);
          RegisterActionGesture(MoveToLineByKeyboard, Key.End, ModifierKeys.Control);
 
-         RegisterActionGesture(MoveToFieldByKeyboard, Key.Tab, ModifierKeys.Shift);
+         RegisterActionGesture(MoveToFieldByKeyboard, Key.Tab, ModifierKeys.None, ModifierKeys.Shift);
          RegisterActionGesture(MoveToFieldByKeyboard, Key.Left, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
          RegisterActionGesture(MoveToFieldByKeyboard, Key.Right, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
          RegisterActionGesture(MoveToFieldByKeyboard, Key.Home);

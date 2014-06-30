@@ -86,7 +86,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public FrameworkElement CurrentCellElement
       {
-         get { return null; }
+         get 
+         {
+            if (CurrentRowCellEnumerationService != null)
+            {
+               return CurrentRowCellEnumerationService.GetCellAt(CurrentCell.CellIndex);
+            }
+            return null;
+         }
       }
 
       public virtual bool IsAttached { get { return dataGrid != null; } }

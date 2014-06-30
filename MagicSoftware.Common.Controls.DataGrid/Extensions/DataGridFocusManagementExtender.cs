@@ -12,49 +12,27 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    class DataGridFocusManagementExtender : ElementExtenderBase<DataGrid>
    {
-      public static IFocusManager GetFocusManager(DependencyObject obj)
-      {
-         return (IFocusManager)obj.GetValue(FocusManagerProperty);
-      }
-
-      public static void SetFocusManager(DependencyObject obj, IFocusManager value)
-      {
-         obj.SetValue(FocusManagerProperty, value);
-      }
-
-      // Using a DependencyProperty as the backing store for FocusManager.  This enables animation, styling, binding, etc...
-      public static readonly DependencyProperty FocusManagerProperty =
-          DependencyProperty.RegisterAttached("FocusManager", typeof(IFocusManager), typeof(DataGridFocusManagementExtender), new UIPropertyMetadata(null));
-
-
-      protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
-      protected ICurrentItemService CurrentItemTracker { get; private set; }
+      ICurrentCellService currentCellService;
 
       protected override void Setup()
       {
-         //TODO: replace following with ICurrentCellService.
-         //currentChangedService.CurrentChanged += CurrentItemTracker_CurrentChanged;
-         CurrentItemTracker = DataGridProxy.GetAdapter<ICurrentItemService>();
+         currentCellService = UIServiceProvider.GetService<ICurrentCellService>(TargetElement);
+         currentCellService.CurrentCellChanged += new EventHandler(currentCellService_CurrentCellChanged);
       }
 
       protected override void Cleanup()
       {
-         CurrentItemTracker.CurrentChanged -= CurrentItemTracker_CurrentChanged;
-         //TODO: ICurrentCellService
+         currentCellService.CurrentCellChanged -= new EventHandler(currentCellService_CurrentCellChanged);
+         currentCellService = null;
       }
 
-      void CurrentItemTracker_CurrentChanged(object sender, EventArgs e)
+      void currentCellService_CurrentCellChanged(object sender, EventArgs e)
       {
-         var currentItemContainer = DataGridProxy.CurrentItemContainer();
-         if (currentItemContainer == null)
+         var currentCellElement = currentCellService.CurrentCellElement;
+         if (currentCellElement == null)
             return;
 
-         var currentItemContainerProxy = DataGridProxy.GetItemContainerProxy(currentItemContainer);
-         ICurrentItemService currentItemService = currentItemContainerProxy.GetAdapter<ICurrentItemService>();
-         if (currentItemService.CurrentItem != null)
-         {
-            ((UIElement)currentItemService.CurrentItem).Focus();
-         }
+         currentCellElement.Focus();
       }
    }
 }

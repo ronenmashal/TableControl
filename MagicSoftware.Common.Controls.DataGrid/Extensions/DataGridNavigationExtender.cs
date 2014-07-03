@@ -12,9 +12,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
       private ICurrentCellService currentCellService;
 
-      //protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
-      //protected IEditingItemsControlProxy EditProxy { get; private set; }
-      //ICurrentItemService itemContainerCurrentItemService;
       private InputService inputService;
 
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -65,7 +62,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       protected override void Setup()
       {
-         //EditProxy = DataGridProxy.GetAdapter<IEditingItemsControlProxy>();
          currentCellService = UIServiceProvider.GetService<ICurrentCellService>(TargetElement);
          Debug.Assert(currentCellService != null);
 
@@ -90,9 +86,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          RegisterActionGesture(AsFieldKeyAction(MoveToLeftMost), new KeyGesturesFactory(Key.Home));
          RegisterActionGesture(AsFieldKeyAction(MoveToRightMost), new KeyGesturesFactory(Key.End));
-
-         //TargetElement.PreviewKeyDown += TargetElement_PreviewKeyDown;
-         //TargetElement.PreviewMouseDown += TargetElement_PreviewMouseDown;
       }
 
       private ModifierKeys[] AllCombinationsOf(params ModifierKeys[] modifiers)
@@ -204,12 +197,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          DataGridRow clickedRow = UIUtils.GetAncestor<DataGridRow>(e.OriginalSource as Visual) as DataGridRow;
          if (clickedRow == null)
             return;
-
-         //if (EditProxy.IsEditing && !TargetElement.CommitEdit(DataGridEditingUnit.Row, true))
-         //{
-         //   e.Handled = true;
-         //   return;
-         //}
 
          currentCellService.MoveTo(new UniversalCellInfo(clickedRow.Item, 0));
       }

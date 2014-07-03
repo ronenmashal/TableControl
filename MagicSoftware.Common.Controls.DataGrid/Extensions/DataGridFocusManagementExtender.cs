@@ -6,7 +6,6 @@ using MagicSoftware.Common.Controls.Extensibility;
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Input;
-using MagicSoftware.Common.Controls.Proxies;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {

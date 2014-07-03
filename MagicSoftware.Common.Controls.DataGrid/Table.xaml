@@ -139,6 +139,7 @@
                 </ext:ExtendersCollection>
             </ext:ElementExtensions.Extenders>
             <pxy:FrameworkElementProxy.Proxy>
+                <!-- This proxy definition is temporary, until the extenders will not be dependent on its existance. -->
                 <pxy:FrameworkElementProxy />
             </pxy:FrameworkElementProxy.Proxy>
             <lext:UIServiceProvider.ServiceList>

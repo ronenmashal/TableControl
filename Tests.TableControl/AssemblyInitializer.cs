@@ -18,7 +18,7 @@ namespace Tests.TableControl
       {
          TestLogUtils.InitializeLog(testContext);
          // Force LoggingExtensions class initialization.
-         using (LoggingExtensions.Indent()) ;
+         using (LoggingExtensions.Indent()) { }
 
          FrameworkElementFormatter.GetInstance().SetTypeFormatter(typeof(DataGridRow), new DataGridRowFormatter());
       }

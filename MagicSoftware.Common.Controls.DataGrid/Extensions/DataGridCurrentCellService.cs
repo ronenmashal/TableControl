@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using log4net;
 using MagicSoftware.Common.Utils;
+using System.Windows.Threading;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -86,7 +87,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public FrameworkElement CurrentCellElement
       {
-         get 
+         get
          {
             if (CurrentRowCellEnumerationService != null)
             {
@@ -161,37 +162,40 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool MoveTo(UniversalCellInfo targetCell)
       {
-         bool canceled;
-
-         log.DebugFormat("Moving to cell {0}", targetCell);
-
-         UpdateCurrentCell();
-
-         if (!CanMoveTo(targetCell))
-            return CannotMoveToCell(targetCell);
-
-         RaisePreviewCurrentCellChangingEvent(targetCell, out canceled);
-         if (canceled)
-            return OperationCanceled();
-
-         using (isSelfInducedCellChange.Set())
+         return (bool)dataGrid.Dispatcher.Invoke(DispatcherPriority.Loaded, new Func<bool>(() =>
          {
-            if (targetCell.CellIndex >= dataGrid.Columns.Count)
-               return false;
+            bool canceled;
 
-            var rowEnumSvc = GetRowEnumerationServiceForItem(targetCell.Item);
-            // If changing the row type (according to the row service), we should retake the cell index.
-            // Will this be a problem with the mouse? 
-            if (!rowEnumSvc.ServiceGroupIdentifier.Equals(CurrentRowCellEnumerationService.ServiceGroupIdentifier))
-               rowEnumSvc.MoveToCell(rowEnumSvc.CurrentCellIndex);
-            else
-               rowEnumSvc.MoveToCell(targetCell.CellIndex);
+            log.DebugFormat("Moving to cell {0}", targetCell);
 
             UpdateCurrentCell();
-            RaiseCurrentCellChangedEvent();
-         }
 
-         return CurrentCell.Equals(targetCell);
+            if (!CanMoveTo(targetCell))
+               return CannotMoveToCell(targetCell);
+
+            RaisePreviewCurrentCellChangingEvent(targetCell, out canceled);
+            if (canceled)
+               return OperationCanceled();
+
+            using (isSelfInducedCellChange.Set())
+            {
+               if (targetCell.CellIndex >= dataGrid.Columns.Count)
+                  return false;
+
+               var rowEnumSvc = GetRowEnumerationServiceForItem(targetCell.Item);
+               // If changing the row type (according to the row service), we should retake the cell index.
+               // Will this be a problem with the mouse? 
+               if (!rowEnumSvc.ServiceGroupIdentifier.Equals(CurrentRowCellEnumerationService.ServiceGroupIdentifier))
+                  rowEnumSvc.MoveToCell(rowEnumSvc.CurrentCellIndex);
+               else
+                  rowEnumSvc.MoveToCell(targetCell.CellIndex);
+
+               UpdateCurrentCell();
+               RaiseCurrentCellChangedEvent();
+            }
+            return CurrentCell.Equals(targetCell);
+         }));
+
       }
 
       private bool OperationCanceled()
@@ -205,7 +209,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          var lastItem = dataGrid.Items[dataGrid.Items.Count - 1];
          if (object.ReferenceEquals(CurrentCell.Item, lastItem))
             return true;
-         return MoveTo(new UniversalCellInfo(lastItem, dataGrid.CurrentColumn.DisplayIndex));
+         return MoveTo(new UniversalCellInfo(lastItem, CurrentCell.CellIndex));
       }
 
       public bool MoveToLeftMost()

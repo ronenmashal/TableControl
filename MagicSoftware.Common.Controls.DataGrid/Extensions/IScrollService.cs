@@ -1,13 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   interface IVerticalScrollService
+   internal interface IVerticalScrollService
    {
-      bool ScrollTo(object item);
       int ItemsPerPage { get; }
+
+      bool ScrollDown(uint distance);
+
+      bool ScrollTo(object item);
+
+      bool ScrollToBottom();
+
+      bool ScrollToTop();
+
+      bool ScrollUp(uint distance);
    }
 }

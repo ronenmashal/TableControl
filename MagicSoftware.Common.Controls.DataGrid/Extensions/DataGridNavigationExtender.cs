@@ -149,11 +149,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void MovePageDown()
       {
+         scrollService.ScrollDown((uint)scrollService.ItemsPerPage);
          currentCellService.MoveDown((uint)scrollService.ItemsPerPage);
       }
 
       private void MovePageUp()
       {
+         scrollService.ScrollUp((uint)scrollService.ItemsPerPage);
          currentCellService.MoveUp((uint)scrollService.ItemsPerPage);
       }
 
@@ -164,6 +166,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void MoveToBottom()
       {
+         scrollService.ScrollToBottom();
          currentCellService.MoveToBottom();
       }
 
@@ -179,6 +182,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void MoveToTop()
       {
+         scrollService.ScrollToTop();
          currentCellService.MoveToTop();
       }
 

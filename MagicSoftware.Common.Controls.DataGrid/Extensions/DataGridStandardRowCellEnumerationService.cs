@@ -12,6 +12,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private DataGridRow rowElement = null;
 
+      public object ServiceGroupIdentifier
+      {
+         get { return "__default row type__"; }
+      }
+
       private DataGrid OwningGrid
       {
          get
@@ -51,7 +56,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public int CurrentCellIndex
       {
-         get { return OwningGrid.CurrentColumn.DisplayIndex; }
+         get 
+         {
+            if (OwningGrid.CurrentColumn == null)
+               return 0;
+            return OwningGrid.CurrentColumn.DisplayIndex; 
+         }
       }
 
       public FrameworkElement GetCellAt(int index)

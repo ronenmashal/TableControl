@@ -179,7 +179,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             if (targetCell.CellIndex >= dataGrid.Columns.Count)
                return false;
 
-            GetRowEnumerationServiceForItem(targetCell.Item).MoveToCell(targetCell.CellIndex);
+            var rowEnumSvc = GetRowEnumerationServiceForItem(targetCell.Item);
+            // If changing the row type (according to the row service), we should retake the cell index.
+            // Will this be a problem with the mouse? 
+            if (!rowEnumSvc.ServiceGroupIdentifier.Equals(CurrentRowCellEnumerationService.ServiceGroupIdentifier))
+               rowEnumSvc.MoveToCell(rowEnumSvc.CurrentCellIndex);
+            else
+               rowEnumSvc.MoveToCell(targetCell.CellIndex);
+
             UpdateCurrentCell();
             RaiseCurrentCellChangedEvent();
          }

@@ -29,7 +29,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public CustomRowCellEnumerationService(object rowTypeIdentifier)
       {
          id = IdGenerator.GetNewId(this);
-         this.RowTypeIdentifier = rowTypeIdentifier;
+         this.ServiceGroupIdentifier = rowTypeIdentifier;
       }
 
       public int CellCount
@@ -48,23 +48,23 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             var indexTable = GetCurrentCellIndexTable(owner);
             int index;
-            if (!indexTable.TryGetValue(RowTypeIdentifier, out index))
+            if (!indexTable.TryGetValue(ServiceGroupIdentifier, out index))
             {
                index = cells.Count > 0 ? 0 : -1;
-               indexTable.Add(RowTypeIdentifier, index);
+               indexTable.Add(ServiceGroupIdentifier, index);
             }
             return index;
          }
          private set
          {
             var indexTable = GetCurrentCellIndexTable(owner);
-            indexTable[RowTypeIdentifier] = value;
+            indexTable[ServiceGroupIdentifier] = value;
          }
       }
 
       public virtual bool IsAttached { get { return row != null; } }
 
-      public object RowTypeIdentifier { get; private set; }
+      public object ServiceGroupIdentifier { get; private set; }
 
       public void AttachToElement(System.Windows.FrameworkElement element)
       {

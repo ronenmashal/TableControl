@@ -8,6 +8,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       int CurrentCellIndex { get; }
 
+      object ServiceGroupIdentifier { get; }
+
       FrameworkElement GetCellAt(int index);
 
       UniversalCellInfo GetCurrentCellInfo();

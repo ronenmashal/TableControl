@@ -1,33 +1,67 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MagicSoftware.Common.Controls.Extensibility;
+using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Input;
-using log4net;
-using System.Diagnostics;
-using System.Windows;
-using MagicSoftware.Common.Controls.Proxies;
-using LogLevel = log4net.Core.Level;
-using MagicSoftware.Common.Utils;
 using System.Windows.Media;
-using MagicSoftware.Common.Controls;
+using log4net;
+using MagicSoftware.Common.Controls.Extensibility;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class DataGridNavigationExtender : ElementExtenderBase<DataGrid>
+   internal class DataGridNavigationExtender : ElementExtenderBase<DataGrid>
    {
-      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+      private ICurrentCellService currentCellService;
 
       //protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
       //protected IEditingItemsControlProxy EditProxy { get; private set; }
-
-      ICurrentCellService currentCellService;
       //ICurrentItemService itemContainerCurrentItemService;
-      InputService inputService;
-      IVerticalScrollService scrollService;
+      private InputService inputService;
 
+      private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+      private IVerticalScrollService scrollService;
+
+      public static bool IsHorizontalNavigationKey(Key key)
+      {
+         switch (key)
+         {
+            case Key.Left:
+            case Key.Right:
+            case Key.Tab:
+               return true;
+         }
+
+         return false;
+      }
+
+      public static bool IsNavigationKey(Key key)
+      {
+         return IsVerticalNavigationKey(key) || IsHorizontalNavigationKey(key);
+      }
+
+      public static bool IsShiftKey(Key key)
+      {
+         return key == Key.LeftShift || key == Key.RightShift;
+      }
+
+      public static bool IsVerticalNavigationKey(Key key)
+      {
+         switch (key)
+         {
+            case Key.Up:
+            case Key.Down:
+            case Key.PageUp:
+            case Key.PageDown:
+            case Key.Home:
+            case Key.End:
+               return true;
+         }
+         return false;
+      }
+
+      protected override void Cleanup()
+      {
+         TargetElement.PreviewMouseDown -= TargetElement_PreviewMouseDown;
+      }
 
       protected override void Setup()
       {
@@ -41,24 +75,27 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          scrollService = UIServiceProvider.GetService<IVerticalScrollService>(TargetElement);
          Debug.Assert(scrollService != null);
 
-         RegisterActionGesture(MoveToLineByKeyboard, Key.Down, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
-         RegisterActionGesture(MoveToLineByKeyboard, Key.Up, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
-         RegisterActionGesture(MoveToLineByKeyboard, Key.PageDown, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
-         RegisterActionGesture(MoveToLineByKeyboard, Key.PageUp, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
-         RegisterActionGesture(MoveToLineByKeyboard, Key.Home, ModifierKeys.Control);
-         RegisterActionGesture(MoveToLineByKeyboard, Key.End, ModifierKeys.Control);
+         RegisterActionGesture(AsLineKeyAction(MoveLineDown), new KeyGesturesFactory(Key.Down, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         RegisterActionGesture(AsLineKeyAction(MoveLineUp), new KeyGesturesFactory(Key.Up, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         RegisterActionGesture(AsLineKeyAction(MovePageDown), new KeyGesturesFactory(Key.PageDown, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         RegisterActionGesture(AsLineKeyAction(MovePageUp), new KeyGesturesFactory(Key.PageUp, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         RegisterActionGesture(AsLineKeyAction(MoveToTop), new KeyGesturesFactory(Key.Home, ModifierKeys.Control));
+         RegisterActionGesture(AsLineKeyAction(MoveToBottom), new KeyGesturesFactory(Key.End, ModifierKeys.Control));
 
-         RegisterActionGesture(MoveToFieldByKeyboard, Key.Tab, ModifierKeys.None, ModifierKeys.Shift);
-         RegisterActionGesture(MoveToFieldByKeyboard, Key.Left, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
-         RegisterActionGesture(MoveToFieldByKeyboard, Key.Right, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift));
-         RegisterActionGesture(MoveToFieldByKeyboard, Key.Home);
-         RegisterActionGesture(MoveToFieldByKeyboard, Key.End);
+         RegisterActionGesture(AsFieldKeyAction(MoveRight), new KeyGesturesFactory(Key.Tab));
+         RegisterActionGesture(AsFieldKeyAction(MoveRight), new KeyGesturesFactory(Key.Right, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+
+         RegisterActionGesture(AsFieldKeyAction(MoveLeft), new KeyGesturesFactory(Key.Tab, ModifierKeys.Shift));
+         RegisterActionGesture(AsFieldKeyAction(MoveLeft), new KeyGesturesFactory(Key.Left, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+
+         RegisterActionGesture(AsFieldKeyAction(MoveToLeftMost), new KeyGesturesFactory(Key.Home));
+         RegisterActionGesture(AsFieldKeyAction(MoveToRightMost), new KeyGesturesFactory(Key.End));
 
          //TargetElement.PreviewKeyDown += TargetElement_PreviewKeyDown;
          //TargetElement.PreviewMouseDown += TargetElement_PreviewMouseDown;
       }
 
-      ModifierKeys[] AllCombinationsOf(params ModifierKeys[] modifiers)
+      private ModifierKeys[] AllCombinationsOf(params ModifierKeys[] modifiers)
       {
          ModifierKeys[] combinations = new ModifierKeys[modifiers.Length * modifiers.Length];
          combinations[0] = ModifierKeys.None;
@@ -74,102 +111,84 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return combinations;
       }
 
-      void RegisterActionGesture(Action<KeyEventArgs> action, Key key)
+      private Action<KeyEventArgs> AsFieldKeyAction(Action fieldAction)
       {
-         RegisterActionGesture(action, key, ModifierKeys.None);
+         return new Action<KeyEventArgs>((args) =>
+            {
+               log.DebugFormat("Beginning move on {0} using key \"{1}\"", args.Source, args.Key);
+               fieldAction();
+               args.Handled = true;
+            });
       }
 
-      void RegisterActionGesture(Action<KeyEventArgs> action, Key key, params ModifierKeys[] modifierCombinations)
+      private Action<KeyEventArgs> AsLineKeyAction(Action lineAction)
       {
-         foreach (var modifier in modifierCombinations)
-            inputService.RegisterKeyGestureAction(new KeyGesture(key, modifier), action);
+         return new Action<KeyEventArgs>((args) =>
+            {
+               log.DebugFormat("Beginning move on {0} using key \"{1}\"", args.Source, args.Key);
+               lineAction();
+               scrollService.ScrollTo(currentCellService.CurrentCell.Item);
+               args.Handled = true;
+            });
       }
 
-      protected override void Cleanup()
+      private void MoveLeft()
       {
-         TargetElement.PreviewMouseDown -= TargetElement_PreviewMouseDown;
+         currentCellService.MoveLeft(1);
       }
 
-      protected void TargetElement_PreviewKeyDown(object sender, KeyEventArgs e)
+      private void MoveLineDown()
       {
-         if (IsHorizontalNavigationKey(e.Key))
-            MoveToFieldByKeyboard(e);
+         currentCellService.MoveDown(1);
       }
 
-      private void MoveToFieldByKeyboard(KeyEventArgs e)
+      private void MoveLineUp()
       {
-         log.DebugFormat("Beginning move on {0} using key \"{1}\"", e.Source, e.Key);
-         switch (e.Key)
-         {
-            case Key.Tab:
-               if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
-                  currentCellService.MoveLeft(1);
-               else
-                  currentCellService.MoveRight(1);
-               e.Handled = true;
-               break;
-
-            case Key.Left:
-               e.Handled = true;
-               if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
-                  currentCellService.MoveToLeftMost();
-               else if (Keyboard.Modifiers.HasFlag(ModifierKeys.None))
-                  currentCellService.MoveLeft(1);
-               else
-                  e.Handled = false;
-               break;
-
-            case Key.Right:
-               e.Handled = true;
-               if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
-                  currentCellService.MoveToRightMost();
-               else if (Keyboard.Modifiers.HasFlag(ModifierKeys.None))
-                  currentCellService.MoveRight(1);
-               else
-                  e.Handled = false;
-               break;
-         }
+         currentCellService.MoveUp(1);
       }
 
-      void MoveToLineByKeyboard(KeyEventArgs eventArgs)
+      private void MovePageDown()
       {
-         log.DebugFormat("Beginning move on {0} using key \"{1}\"", eventArgs.Source, eventArgs.Key);
-         bool bMoved;
-         switch (eventArgs.Key)
-         {
-            case Key.Up:
-               bMoved = currentCellService.MoveUp(1);
-               break;
-
-            case Key.Down:
-               bMoved = currentCellService.MoveDown(1);
-               break;
-
-            case Key.PageUp:
-               bMoved = currentCellService.MoveUp((uint)scrollService.ItemsPerPage);
-               break;
-
-            case Key.PageDown:
-               bMoved = currentCellService.MoveDown((uint)scrollService.ItemsPerPage);
-               break;
-
-            case Key.Home:
-               bMoved = currentCellService.MoveToTop();
-               break;
-
-            case Key.End:
-               bMoved = currentCellService.MoveToBottom();
-               break;
-
-            default:
-               return;
-         }
-         eventArgs.Handled = true;
-         //DataGridProxy.ScrollIntoView(topContainerCurrentItemService.CurrentCell.Item);
-         scrollService.ScrollTo(currentCellService.CurrentCell.Item);
+         currentCellService.MoveDown((uint)scrollService.ItemsPerPage);
       }
 
-      void TargetElement_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+      private void MovePageUp()
+      {
+         currentCellService.MoveUp((uint)scrollService.ItemsPerPage);
+      }
+
+      private void MoveRight()
+      {
+         currentCellService.MoveRight(1);
+      }
+
+      private void MoveToBottom()
+      {
+         currentCellService.MoveToBottom();
+      }
+
+      private void MoveToLeftMost()
+      {
+         currentCellService.MoveToLeftMost();
+      }
+
+      private void MoveToRightMost()
+      {
+         currentCellService.MoveToRightMost();
+      }
+
+      private void MoveToTop()
+      {
+         currentCellService.MoveToTop();
+      }
+
+      private void RegisterActionGesture(Action<KeyEventArgs> action, KeyGesturesFactory gesturesFactory)
+      {
+         foreach (KeyGesture gesture in gesturesFactory.GetGestures())
+            inputService.RegisterKeyGestureAction(gesture, action);
+      }
+
+      private void TargetElement_PreviewMouseDown(object sender, MouseButtonEventArgs e)
       {
          Trace.WriteLine(String.Format("Mouse down on {0}: {1}, {2}", sender, e.OriginalSource, e.ClickCount));
 
@@ -190,43 +209,31 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          currentCellService.MoveTo(new UniversalCellInfo(clickedRow.Item, 0));
       }
+   }
 
-      public static bool IsNavigationKey(Key key)
+   internal abstract class InputGesturesFactory
+   {
+      public abstract InputGesture[] GetGestures();
+   }
+
+   internal class KeyGesturesFactory : InputGesturesFactory
+   {
+      private Key key;
+      private ModifierKeys[] modifierCombinations;
+
+      public KeyGesturesFactory(Key key, params ModifierKeys[] modifierCombinations)
       {
-         return IsVerticalNavigationKey(key) || IsHorizontalNavigationKey(key);
+         this.key = key;
+         this.modifierCombinations = modifierCombinations;
       }
 
-      public static bool IsVerticalNavigationKey(Key key)
+      public override InputGesture[] GetGestures()
       {
-         switch (key)
-         {
-            case Key.Up:
-            case Key.Down:
-            case Key.PageUp:
-            case Key.PageDown:
-            case Key.Home:
-            case Key.End:
-               return true;
-         }
-         return false;
-      }
-
-      public static bool IsHorizontalNavigationKey(Key key)
-      {
-         switch (key)
-         {
-            case Key.Left:
-            case Key.Right:
-            case Key.Tab:
-               return true;
-         }
-
-         return false;
-      }
-
-      public static bool IsShiftKey(Key key)
-      {
-         return key == Key.LeftShift || key == Key.RightShift;
+         InputGesture[] gestures = new InputGesture[modifierCombinations.Length];
+         int i = 0;
+         foreach (var modifier in modifierCombinations)
+            gestures[i++] = new KeyGesture(key, modifier);
+         return gestures;
       }
    }
 }

@@ -29,7 +29,7 @@
                 <Setter Property="lext:UIServiceProvider.ServiceList">
                     <Setter.Value>
                         <lext:UIServiceCollection>
-                            <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridStandardRowCellEnumerationService}"/>
+                            <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:StandardRowCellEnumerationService}"/>
                         </lext:UIServiceCollection>
                     </Setter.Value>
                 </Setter>

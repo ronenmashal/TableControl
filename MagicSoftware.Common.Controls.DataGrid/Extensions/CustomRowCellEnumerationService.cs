@@ -3,30 +3,43 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using MagicSoftware.Common.Utils;
 using log4net;
 using MagicSoftware.Common.Controls.Table.CellTypes;
-using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
+   public class CustomRowCellEnumerationServiceFactory : IUIServiceFactory
+   {
+      public object RowTypeIdentifier { get; set; }
+
+      public IUIService CreateUIService()
+      {
+         if (RowTypeIdentifier == null)
+            throw new Exception("RowTypeIdentifier must be set on " + this.GetType().Name);
+
+         return new CustomRowCellEnumerationService(RowTypeIdentifier);
+      }
+   }
+
    [ImplementedService(typeof(ICellEnumerationService))]
-   public class CustomRowCellEnumerationService : ICellEnumerationService, IUIService
+   internal abstract class CellEnumerationServiceBase : ICellEnumerationService, IUIService
    {
       /// <summary>
       /// Stores an table of 'current index' values.
       /// </summary>
       private static readonly DependencyProperty CurrentCellIndexTableProperty =
-          DependencyProperty.RegisterAttached("CurrentCellIndexTable", typeof(Dictionary<object, int>), typeof(CustomRowCellEnumerationService), new UIPropertyMetadata(null));
+          DependencyProperty.RegisterAttached("CurrentCellIndexTable", typeof(Dictionary<object, int>), typeof(ICellEnumerationService), new UIPropertyMetadata(null));
 
       // Move this into dependency property.
-      private List<VirtualTableCell> cells = new List<VirtualTableCell>();
+      private IList<FrameworkElement> cells;
 
       private int id;
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
       private DataGrid owner;
-      private DataGridRow row;
+      protected DataGridRow Row { get; private set; }
 
-      public CustomRowCellEnumerationService(object rowTypeIdentifier)
+      public CellEnumerationServiceBase(object rowTypeIdentifier)
       {
          id = IdGenerator.GetNewId(this);
          this.ServiceGroupIdentifier = rowTypeIdentifier;
@@ -37,7 +50,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          get
          {
             if (cells.Count == 0)
-               cells = row.GetDescendants<VirtualTableCell>();
+               cells = GetCells();
             return cells.Count;
          }
       }
@@ -62,29 +75,29 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
-      public virtual bool IsAttached { get { return row != null; } }
+      public virtual bool IsAttached { get { return Row != null; } }
 
       public object ServiceGroupIdentifier { get; private set; }
 
       public void AttachToElement(System.Windows.FrameworkElement element)
       {
-         if (row != null)
+         if (Row != null)
          {
-            if (object.ReferenceEquals(element, row))
+            if (object.ReferenceEquals(element, Row))
                return;
 
-            throw new InvalidOperationException(this.ToString() + " is already attached to row " + row.Item.ToString());
+            throw new InvalidOperationException(this.ToString() + " is already attached to row " + Row.Item.ToString());
          }
 
          log.InfoFormat("Attaching {0} to {1}", this, element);
-         row = element as DataGridRow;
+         Row = element as DataGridRow;
 
-         Debug.Assert(row != null);
+         Debug.Assert(Row != null);
 
-         owner = UIUtils.GetAncestor<DataGrid>(row);
+         owner = UIUtils.GetAncestor<DataGrid>(Row);
          EnsureCurrentCellIndexTableExistance(owner);
 
-         cells = row.GetDescendants<VirtualTableCell>();
+         cells = GetCells();
       }
 
       public void DetachFromElement(System.Windows.FrameworkElement element)
@@ -93,13 +106,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void Dispose()
       {
-         log.InfoFormat("Detaching {0} from {1}", this, row);
+         log.InfoFormat("Detaching {0} from {1}", this, Row);
 
          if (cells != null && cells.Count > 0)
             cells.Clear();
          cells = null;
          owner = null;
-         row = null;
+         Row = null;
       }
 
       public System.Windows.FrameworkElement GetCellAt(int index)
@@ -109,17 +122,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public UniversalCellInfo GetCurrentCellInfo()
       {
-         if (row == null)
+         if (Row == null)
             return new UniversalCellInfo(null, -1);
-         return new UniversalCellInfo(row.Item, CurrentCellIndex);
+         return new UniversalCellInfo(Row.Item, CurrentCellIndex);
       }
 
       public bool MoveToCell(int cellIndex)
       {
-         if (row == null)
+         if (Row == null)
             return false;
 
-         owner.CurrentCell = new DataGridCellInfo(row.Item, owner.ColumnFromDisplayIndex(0));
+         owner.CurrentCell = new DataGridCellInfo(Row.Item, owner.ColumnFromDisplayIndex(0));
          CurrentCellIndex = cellIndex;
          return true;
       }
@@ -128,6 +141,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          return this.GetType().Name + " #" + id;
       }
+
+      protected abstract IList<FrameworkElement> GetCells();
 
       private static void EnsureCurrentCellIndexTableExistance(DependencyObject obj)
       {
@@ -146,16 +161,29 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
    }
 
-   public class CustomRowCellEnumerationServiceFactory : IUIServiceFactory
+   internal class CustomRowCellEnumerationService : CellEnumerationServiceBase
    {
-      public object RowTypeIdentifier { get; set; }
-
-      public IUIService CreateUIService()
+      public CustomRowCellEnumerationService(object rowTypeIdentifier)
+         : base(rowTypeIdentifier)
       {
-         if (RowTypeIdentifier == null)
-            throw new Exception("RowTypeIdentifier must be set on " + this.GetType().Name);
+      }
 
-         return new CustomRowCellEnumerationService(RowTypeIdentifier);
+      protected override IList<FrameworkElement> GetCells()
+      {
+         return new List<FrameworkElement>(Row.GetDescendants<VirtualTableCell>());
+      }
+   }
+
+   internal class StandardRowCellEnumerationService : CellEnumerationServiceBase
+   {
+      public StandardRowCellEnumerationService()
+         : base("_default_")
+      {
+      }
+
+      protected override IList<FrameworkElement> GetCells()
+      {
+         return new List<FrameworkElement>(Row.GetDescendants<DataGridCell>());
       }
    }
 }

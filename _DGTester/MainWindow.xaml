@@ -37,9 +37,6 @@
                 <Setter Property="tbl:UIServiceProvider.ServiceList">
                     <Setter.Value>
                         <tbl:UIServiceCollection>
-                            <!--<tbl:SharedObjectsService />
-                            <tbl:CustomRowCurrentItemService />-->
-                            <!--<tbl:CustomRowCellEnumerationService RowTypeIdentifier="custom1" />-->
                             <tbl:CustomRowCellEnumerationServiceFactory RowTypeIdentifier="custom1"/>
                         </tbl:UIServiceCollection>
                     </Setter.Value>

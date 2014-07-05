@@ -12,7 +12,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       DataGrid OwnerDataGrid { get { return (DataGrid)Owner; } }
 
       public DataGridStandardRowCellEnumerationService()
-         : base("_default_")
+         : base("_default_", new DataGridTraits())
       {
       }
 

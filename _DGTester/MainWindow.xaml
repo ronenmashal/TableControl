@@ -37,7 +37,7 @@
                 <Setter Property="tbl:UIServiceProvider.ServiceList">
                     <Setter.Value>
                         <tbl:UIServiceCollection>
-                            <tbl:CustomRowCellEnumerationServiceFactory RowTypeIdentifier="custom1"/>
+                            <tbl:CustomRowCellEnumerationServiceFactory RowTypeIdentifier="custom1" OwnerTraitsType="{x:Type tbl:DataGridTraits}"/>
                         </tbl:UIServiceCollection>
                     </Setter.Value>
                 </Setter>

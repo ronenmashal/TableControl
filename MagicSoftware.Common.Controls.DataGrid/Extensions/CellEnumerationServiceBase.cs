@@ -22,7 +22,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private int id;
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-      public CellEnumerationServiceBase(object rowTypeIdentifier)
+      public CellEnumerationServiceBase(object rowTypeIdentifier, IItemsControlTraits ownerTraits)
       {
          id = IdGenerator.GetNewId(this);
          this.ServiceGroupIdentifier = rowTypeIdentifier;

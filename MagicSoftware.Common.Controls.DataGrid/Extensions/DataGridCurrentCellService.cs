@@ -2,9 +2,9 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Threading;
 using log4net;
 using MagicSoftware.Common.Utils;
-using System.Windows.Threading;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -184,24 +184,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
                var rowEnumSvc = GetRowEnumerationServiceForItem(targetCell.Item);
                // If changing the row type (according to the row service), we should retake the cell index.
-               // Will this be a problem with the mouse? 
-               if (!rowEnumSvc.ServiceGroupIdentifier.Equals(CurrentRowCellEnumerationService.ServiceGroupIdentifier))
-                  rowEnumSvc.MoveToCell(rowEnumSvc.CurrentCellIndex);
-               else
+               // Will this be a problem with the mouse?
+               if (CurrentRowCellEnumerationService == null || rowEnumSvc.ServiceGroupIdentifier.Equals(CurrentRowCellEnumerationService.ServiceGroupIdentifier))
                   rowEnumSvc.MoveToCell(targetCell.CellIndex);
+               else
+                  rowEnumSvc.MoveToCell(rowEnumSvc.CurrentCellIndex);
 
                UpdateCurrentCell();
                RaiseCurrentCellChangedEvent();
             }
             return CurrentCell.Equals(targetCell);
          }));
-
-      }
-
-      private bool OperationCanceled()
-      {
-         log.DebugFormat("-- Operation was canceled.");
-         return false;
       }
 
       public bool MoveToBottom()
@@ -333,6 +326,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return false;
       }
 
+      private bool OperationCanceled()
+      {
+         log.DebugFormat("-- Operation was canceled.");
+         return false;
+      }
+
       private void UpdateCurrentCell()
       {
          using (LoggingExtensions.Indent())
@@ -341,8 +340,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             CurrentRowCellEnumerationService = GetRowEnumerationServiceForItem(dataGrid.CurrentItem);
             if (CurrentRowCellEnumerationService != null)
             {
-               //if (!((IUIService)CurrentRowCellEnumerationService).IsAttached)
-               //   Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.Loaded, new Action(UpdateCurrentCell));
+               CurrentRowCellEnumerationService.UpdateCurrentCellIndex();
                CurrentCell = CurrentRowCellEnumerationService.GetCurrentCellInfo();
             }
          }

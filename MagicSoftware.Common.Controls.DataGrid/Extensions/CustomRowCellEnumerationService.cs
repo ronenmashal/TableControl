@@ -30,5 +30,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          return new List<FrameworkElement>(Row.GetDescendants<VirtualTableCell>());
       }
+
+      public override void UpdateCurrentCellIndex()
+      {
+         // Intentionally left blank.
+      }
    }
 }

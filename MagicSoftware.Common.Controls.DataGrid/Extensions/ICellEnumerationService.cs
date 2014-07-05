@@ -15,5 +15,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       UniversalCellInfo GetCurrentCellInfo();
 
       bool MoveToCell(int cellIndex);
+
+      void UpdateCurrentCellIndex();
    }
 }

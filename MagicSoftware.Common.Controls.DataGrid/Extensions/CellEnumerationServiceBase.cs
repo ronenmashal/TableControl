@@ -21,7 +21,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private int id;
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-      private DataGrid owner;
 
       public CellEnumerationServiceBase(object rowTypeIdentifier)
       {
@@ -43,7 +42,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          get
          {
-            var indexTable = GetCurrentCellIndexTable(owner);
+            var indexTable = GetCurrentCellIndexTable(Owner);
             int index;
             if (!indexTable.TryGetValue(ServiceGroupIdentifier, out index))
             {
@@ -52,9 +51,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             }
             return index;
          }
-         private set
+         protected set
          {
-            var indexTable = GetCurrentCellIndexTable(owner);
+            var indexTable = GetCurrentCellIndexTable(Owner);
             indexTable[ServiceGroupIdentifier] = value;
          }
       }
@@ -63,9 +62,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public object ServiceGroupIdentifier { get; private set; }
 
+      protected DataGrid Owner { get; private set; }
+
       protected DataGridRow Row { get; private set; }
 
-      public void AttachToElement(System.Windows.FrameworkElement element)
+      public virtual void AttachToElement(System.Windows.FrameworkElement element)
       {
          if (Row != null)
          {
@@ -80,25 +81,26 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          Debug.Assert(Row != null);
 
-         owner = UIUtils.GetAncestor<DataGrid>(Row);
-         EnsureCurrentCellIndexTableExistance(owner);
+         Owner = UIUtils.GetAncestor<DataGrid>(Row);
+         EnsureCurrentCellIndexTableExistance(Owner);
 
          cells = GetCells();
       }
 
-      public void DetachFromElement(System.Windows.FrameworkElement element)
-      {
-      }
-
-      public void Dispose()
+      public virtual void DetachFromElement(FrameworkElement element)
       {
          log.InfoFormat("Detaching {0} from {1}", this, Row);
 
          if (cells != null && cells.Count > 0)
             cells.Clear();
          cells = null;
-         owner = null;
+         Owner = null;
          Row = null;
+      }
+
+      public void Dispose()
+      {
+         DetachFromElement(Row);
       }
 
       public System.Windows.FrameworkElement GetCellAt(int index)
@@ -113,12 +115,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return new UniversalCellInfo(Row.Item, CurrentCellIndex);
       }
 
-      public bool MoveToCell(int cellIndex)
+      public virtual bool MoveToCell(int cellIndex)
       {
          if (Row == null)
             return false;
 
-         owner.CurrentCell = new DataGridCellInfo(Row.Item, owner.ColumnFromDisplayIndex(0));
+         Owner.CurrentCell = new DataGridCellInfo(Row.Item, Owner.ColumnFromDisplayIndex(cellIndex));
          CurrentCellIndex = cellIndex;
          return true;
       }
@@ -127,6 +129,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          return this.GetType().Name + " #" + id;
       }
+
+      public abstract void UpdateCurrentCellIndex();
 
       protected abstract IList<FrameworkElement> GetCells();
 

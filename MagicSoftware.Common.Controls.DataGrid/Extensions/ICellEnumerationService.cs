@@ -12,6 +12,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       FrameworkElement GetCellAt(int index);
 
+      UniversalCellInfo GetCellContaining(DependencyObject dependencyObject);
+
       UniversalCellInfo GetCurrentCellInfo();
 
       bool MoveToCell(int cellIndex);

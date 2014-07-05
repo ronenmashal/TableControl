@@ -21,7 +21,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private int id;
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-      IItemsControlTraits ownerTraits;
+      private IItemsControlTraits ownerTraits;
 
       public CellEnumerationServiceBase(object rowTypeIdentifier, IItemsControlTraits ownerTraits)
       {
@@ -110,6 +110,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return cells[index];
       }
 
+      public UniversalCellInfo GetCellContaining(DependencyObject dependencyObject)
+      {
+         var cell = GetCellContaining((UIElement)dependencyObject);
+         return new UniversalCellInfo(this.Row.Item, cells.IndexOf(cell));
+      }
+
       public UniversalCellInfo GetCurrentCellInfo()
       {
          if (Row == null)
@@ -133,6 +139,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       public abstract void UpdateCurrentCellIndex();
+
+      protected abstract FrameworkElement GetCellContaining(UIElement element);
 
       protected abstract IList<FrameworkElement> GetCells();
 

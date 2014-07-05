@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using MagicSoftware.Common.Controls.Table.CellTypes;
 using MagicSoftware.Common.Utils;
+using System.Windows.Controls;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -15,25 +16,27 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (RowTypeIdentifier == null)
             throw new Exception("RowTypeIdentifier must be set on " + this.GetType().Name);
 
-         return new CustomRowCellEnumerationService(RowTypeIdentifier);
+         IItemsControlTraits traits = ControlTraitsFactory.GetTraitsFor(typeof(DataGrid));
+
+         return new CustomRowCellEnumerationService(RowTypeIdentifier, traits);
       }
    }
 
    internal class CustomRowCellEnumerationService : CellEnumerationServiceBase
    {
-      public CustomRowCellEnumerationService(object rowTypeIdentifier)
-         : base(rowTypeIdentifier)
+      public CustomRowCellEnumerationService(object rowTypeIdentifier, IItemsControlTraits ownerTraits)
+         : base(rowTypeIdentifier, ownerTraits)
       {
-      }
-
-      protected override IList<FrameworkElement> GetCells()
-      {
-         return new List<FrameworkElement>(Row.GetDescendants<VirtualTableCell>());
       }
 
       public override void UpdateCurrentCellIndex()
       {
          // Intentionally left blank.
+      }
+
+      protected override IList<FrameworkElement> GetCells()
+      {
+         return new List<FrameworkElement>(Row.GetDescendants<VirtualTableCell>());
       }
    }
 }

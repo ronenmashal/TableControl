@@ -21,11 +21,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private int id;
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+      IItemsControlTraits ownerTraits;
 
       public CellEnumerationServiceBase(object rowTypeIdentifier, IItemsControlTraits ownerTraits)
       {
          id = IdGenerator.GetNewId(this);
          this.ServiceGroupIdentifier = rowTypeIdentifier;
+         this.ownerTraits = ownerTraits;
       }
 
       public int CellCount
@@ -62,7 +64,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public object ServiceGroupIdentifier { get; private set; }
 
-      protected DataGrid Owner { get; private set; }
+      protected ItemsControl Owner { get; private set; }
 
       protected DataGridRow Row { get; private set; }
 
@@ -81,7 +83,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          Debug.Assert(Row != null);
 
-         Owner = UIUtils.GetAncestor<DataGrid>(Row);
+         Owner = UIUtils.GetAncestor<ItemsControl>(Row);
          EnsureCurrentCellIndexTableExistance(Owner);
 
          cells = GetCells();
@@ -120,7 +122,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (Row == null)
             return false;
 
-         Owner.CurrentCell = new DataGridCellInfo(Row.Item, Owner.ColumnFromDisplayIndex(cellIndex));
+         ownerTraits.SetCurrentCell(Owner, new UniversalCellInfo(Row.Item, cellIndex));
          CurrentCellIndex = cellIndex;
          return true;
       }

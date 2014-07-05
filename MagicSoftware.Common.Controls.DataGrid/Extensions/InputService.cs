@@ -14,11 +14,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          this.element = element;
          element.PreviewKeyDown += element_PreviewKeyDown;
+         element.PreviewMouseDown += element_PreviewMouseDown;
       }
 
       public void DetachFromElement(FrameworkElement element)
       {
          element.PreviewKeyDown -= element_PreviewKeyDown;
+         element.PreviewMouseDown -= element_PreviewMouseDown;
          element = null;
       }
 
@@ -50,6 +52,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             if (mapping.Key.Matches(sender, e))
                mapping.Value(e);
          }
+      }
+
+      void element_PreviewMouseDown(object sender, MouseEventArgs e)
+      {
+         e.Handled = true;
       }
    }
 }

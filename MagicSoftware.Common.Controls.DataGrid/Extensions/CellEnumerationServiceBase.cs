@@ -113,6 +113,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public UniversalCellInfo GetCellContaining(DependencyObject dependencyObject)
       {
          var cell = GetCellContaining((UIElement)dependencyObject);
+         if (cells.Count == 0)
+            cells = GetCells();
          return new UniversalCellInfo(this.Row.Item, cells.IndexOf(cell));
       }
 

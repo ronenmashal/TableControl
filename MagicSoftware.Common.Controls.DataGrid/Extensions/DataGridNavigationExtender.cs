@@ -71,37 +71,23 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          scrollService = UIServiceProvider.GetService<IVerticalScrollService>(TargetElement);
          Debug.Assert(scrollService != null);
 
-         RegisterActionGesture(AsLineKeyAction(MoveLineDown), new KeyGesturesFactory(Key.Down, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
-         RegisterActionGesture(AsLineKeyAction(MoveLineUp), new KeyGesturesFactory(Key.Up, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
-         RegisterActionGesture(AsLineKeyAction(MovePageDown), new KeyGesturesFactory(Key.PageDown, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
-         RegisterActionGesture(AsLineKeyAction(MovePageUp), new KeyGesturesFactory(Key.PageUp, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
-         RegisterActionGesture(AsLineKeyAction(MoveToTop), new KeyGesturesFactory(Key.Home, ModifierKeys.Control));
-         RegisterActionGesture(AsLineKeyAction(MoveToBottom), new KeyGesturesFactory(Key.End, ModifierKeys.Control));
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MoveLineDown), new KeyGesturesFactory(Key.Down, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MoveLineUp), new KeyGesturesFactory(Key.Up, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MovePageDown), new KeyGesturesFactory(Key.PageDown, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MovePageUp), new KeyGesturesFactory(Key.PageUp, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MoveToTop), new KeyGesturesFactory(Key.Home, ModifierKeys.Control));
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MoveToBottom), new KeyGesturesFactory(Key.End, ModifierKeys.Control));
 
-         RegisterActionGesture(AsFieldKeyAction(MoveRight), new KeyGesturesFactory(Key.Tab));
-         RegisterActionGesture(AsFieldKeyAction(MoveRight), new KeyGesturesFactory(Key.Right, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveRight), new KeyGesturesFactory(Key.Tab));
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveRight), new KeyGesturesFactory(Key.Right, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
 
-         RegisterActionGesture(AsFieldKeyAction(MoveLeft), new KeyGesturesFactory(Key.Tab, ModifierKeys.Shift));
-         RegisterActionGesture(AsFieldKeyAction(MoveLeft), new KeyGesturesFactory(Key.Left, AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveLeft), new KeyGesturesFactory(Key.Tab, ModifierKeys.Shift));
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveLeft), new KeyGesturesFactory(Key.Left, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
 
-         RegisterActionGesture(AsFieldKeyAction(MoveToLeftMost), new KeyGesturesFactory(Key.Home));
-         RegisterActionGesture(AsFieldKeyAction(MoveToRightMost), new KeyGesturesFactory(Key.End));
-      }
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveToLeftMost), new KeyGesturesFactory(Key.Home));
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveToRightMost), new KeyGesturesFactory(Key.End));
 
-      private ModifierKeys[] AllCombinationsOf(params ModifierKeys[] modifiers)
-      {
-         ModifierKeys[] combinations = new ModifierKeys[modifiers.Length * modifiers.Length];
-         combinations[0] = ModifierKeys.None;
-         int c = 1;
-         for (int i = 0; i < modifiers.Length; i++)
-         {
-            combinations[c++] = modifiers[i];
-            for (int j = i + 1; j < modifiers.Length; j++)
-            {
-               combinations[c++] = modifiers[i] | modifiers[j];
-            }
-         }
-         return combinations;
+         inputService.RegisterMouseActionGestures(MouseClicked, new MouseGesturesFactory(MouseAction.LeftClick));
       }
 
       private Action<KeyEventArgs> AsFieldKeyAction(Action fieldAction)
@@ -123,6 +109,23 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                scrollService.ScrollTo(currentCellService.CurrentCell.Item);
                args.Handled = true;
             });
+      }
+
+      private void MouseClicked(MouseEventArgs eventArgs)
+      {
+         log.Debug("Mouse was clicked on " + eventArgs.OriginalSource);
+         HitTestResult hitTestResult = VisualTreeHelper.HitTest(TargetElement, Mouse.GetPosition(TargetElement));
+         var row = UIUtils.GetAncestor<DataGridRow>((Visual)hitTestResult.VisualHit);
+         if (row != null)
+         {
+            var rowEnumSvc = UIServiceProvider.GetService<ICellEnumerationService>(row);
+            UniversalCellInfo cellInfo = rowEnumSvc.GetCellContaining(hitTestResult.VisualHit);
+            if (!currentCellService.CurrentCell.Equals(cellInfo))
+            {
+               currentCellService.MoveTo(cellInfo);
+               eventArgs.Handled = true;
+            }
+         }
       }
 
       private void MoveLeft()
@@ -179,12 +182,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          currentCellService.MoveToTop();
       }
 
-      private void RegisterActionGesture(Action<KeyEventArgs> action, KeyGesturesFactory gesturesFactory)
-      {
-         foreach (KeyGesture gesture in gesturesFactory.GetGestures())
-            inputService.RegisterKeyGestureAction(gesture, action);
-      }
-
       private void TargetElement_PreviewMouseDown(object sender, MouseButtonEventArgs e)
       {
          Trace.WriteLine(String.Format("Mouse down on {0}: {1}, {2}", sender, e.OriginalSource, e.ClickCount));
@@ -202,29 +199,4 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
    }
 
-   internal abstract class InputGesturesFactory
-   {
-      public abstract InputGesture[] GetGestures();
-   }
-
-   internal class KeyGesturesFactory : InputGesturesFactory
-   {
-      private Key key;
-      private ModifierKeys[] modifierCombinations;
-
-      public KeyGesturesFactory(Key key, params ModifierKeys[] modifierCombinations)
-      {
-         this.key = key;
-         this.modifierCombinations = modifierCombinations;
-      }
-
-      public override InputGesture[] GetGestures()
-      {
-         InputGesture[] gestures = new InputGesture[modifierCombinations.Length];
-         int i = 0;
-         foreach (var modifier in modifierCombinations)
-            gestures[i++] = new KeyGesture(key, modifier);
-         return gestures;
-      }
-   }
 }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 using MagicSoftware.Common.Controls.Table.CellTypes;
 using MagicSoftware.Common.Utils;
-using System.Windows.Controls;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -32,6 +32,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public override void UpdateCurrentCellIndex()
       {
          // Intentionally left blank.
+      }
+
+      protected override FrameworkElement GetCellContaining(UIElement element)
+      {
+         return UIUtils.GetAncestor<VirtualTableCell>(element);
       }
 
       protected override IList<FrameworkElement> GetCells()

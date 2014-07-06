@@ -81,11 +81,12 @@ namespace Tests.TableControl
          DataGrid dataGrid;
          var target = new DataGridCurrentItemService();
          var serviceList = new UIServiceCollection();
-         serviceList.Add(target);
+         serviceList.Add(new ServiceFactoryMock(target));
          using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
             dataGrid.Items.MoveCurrentTo(null);
-            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(target); var provider = helper.Target;
+            var helper = new PrivateAccessHelper<DataGridCurrentItemService, DataGridCurrentItemService_Accessor>(target); 
+            var provider = helper.Target;
             var currentChangedEventHandlerHelper = new EventHandlerTestHelper<object, EventArgs>("CurrentChanged");
             provider.CurrentChanged += currentChangedEventHandlerHelper.Handler;
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
@@ -126,7 +127,7 @@ namespace Tests.TableControl
          DataGrid dataGrid;
          var target = new DataGridCurrentItemService();
          var serviceList = new UIServiceCollection();
-         serviceList.Add(target);
+         serviceList.Add(new ServiceFactoryMock(target));
          using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
             dataGrid.Items.MoveCurrentTo(null);
@@ -184,7 +185,7 @@ namespace Tests.TableControl
          DataGrid dataGrid;
          var target = new DataGridCurrentItemService();
          var serviceList = new UIServiceCollection();
-         serviceList.Add(target);
+         serviceList.Add(new ServiceFactoryMock(target));
          using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
             dataGrid.Items.MoveCurrentTo(null);
@@ -240,7 +241,7 @@ namespace Tests.TableControl
          DataGrid dataGrid;
          var target = new DataGridCurrentItemService();
          UIServiceCollection serviceList = new UIServiceCollection();
-         serviceList.Add(target);
+         serviceList.Add(new ServiceFactoryMock(target));
          using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
             dataGrid.CurrentItem = null;

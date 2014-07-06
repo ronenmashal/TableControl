@@ -104,7 +104,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
    }
 
-
    public class EnhancedDGProxy : ImprovedItemsControlProxy
    {
       private DataGrid DataGridElement { get { return (DataGrid)ProxiedElement; } }
@@ -193,8 +192,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          base.Initialize();
 
-         DataGridElement.LoadingRow += DataGridElement_LoadingRow;
-         DataGridElement.UnloadingRow += DataGridElement_UnloadingRow;
+         //DataGridElement.LoadingRow += DataGridElement_LoadingRow;
+         //DataGridElement.UnloadingRow += DataGridElement_UnloadingRow;
          defaultRowStyle = DataGridElement.FindResource(typeof(DataGridRow)) as Style;
       }
 

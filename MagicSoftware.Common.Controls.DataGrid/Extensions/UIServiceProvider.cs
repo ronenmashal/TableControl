@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using log4net;
+using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    /// <summary>
-   /// 
+   ///
    /// </summary>
    /// <example>
    /// var service = UIServiceProvider.GetServiceProvider(element).GetService(serviceType);
@@ -17,23 +17,65 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
       #region Static members
 
-      private static IEnumerable<IUIService> GetServiceList(DependencyObject obj)
-      {
-         return (IEnumerable<IUIService>)obj.GetValue(ServiceListProperty);
-      }
-
-      public static void SetServiceList(DependencyObject obj, IEnumerable<IUIService> value)
-      {
-         obj.SetValue(ServiceListProperty, value);
-      }
-
       /// <summary>
       /// Defines the list of services assigned to an element.
       /// </summary>
       public static readonly DependencyProperty ServiceListProperty =
-          DependencyProperty.RegisterAttached("ServiceList", typeof(IEnumerable<IUIService>), typeof(UIServiceProvider), new UIPropertyMetadata(new List<IUIService>(), OnServiceListChanged));
+          DependencyProperty.RegisterAttached("ServiceList", typeof(UIServiceCollection), typeof(UIServiceProvider), new UIPropertyMetadata(new UIServiceCollection(), OnServiceListChanged));
 
-      static void OnServiceListChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)
+      private static readonly DependencyProperty ServiceProviderProperty =
+          DependencyProperty.RegisterAttached("ServiceProvider", typeof(UIServiceProvider), typeof(UIServiceProvider), new UIPropertyMetadata(null));
+
+      private static ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+      public static IUIService GetService(FrameworkElement element, Type serviceType)
+      {
+         IUIService service = null;
+         var serviceProvider = GetServiceProvider(element);
+         if (serviceProvider == null)
+         {
+            var serviceList = GetServiceList(element);
+            if (serviceList != null)
+            {
+               log.DebugFormat("Creating a new service provider for {0}", element);
+               serviceProvider = new UIServiceProvider();
+               serviceProvider.AttachToElement(element, serviceList);
+               SetServiceProvider(element, serviceProvider);
+            }
+         }
+         if (serviceProvider != null)
+         {
+            if (!serviceProvider.IsFullyAttached)
+            {
+               log.DebugFormat("Enforcing service provider load on {0}", element);
+               serviceProvider.Element_Loaded(element, new RoutedEventArgs());
+            }
+            service = serviceProvider.GetService(serviceType);
+         }
+         return service;
+      }
+
+      public static T GetService<T>(FrameworkElement element)
+      {
+         return (T)GetService(element, typeof(T));
+      }
+
+      public static void SetServiceList(DependencyObject obj, UIServiceCollection value)
+      {
+         obj.SetValue(ServiceListProperty, value);
+      }
+
+      private static UIServiceCollection GetServiceList(DependencyObject obj)
+      {
+         return (UIServiceCollection)obj.GetValue(ServiceListProperty);
+      }
+
+      private static UIServiceProvider GetServiceProvider(DependencyObject obj)
+      {
+         return (UIServiceProvider)obj.GetValue(ServiceProviderProperty);
+      }
+
+      private static void OnServiceListChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)
       {
          var element = sender as FrameworkElement;
          var oldList = changeArgs.OldValue as UIServiceCollection;
@@ -58,101 +100,41 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
-      static UIServiceProvider GetServiceProvider(DependencyObject obj)
-      {
-         return (UIServiceProvider)obj.GetValue(ServiceProviderProperty);
-      }
-
-      static void SetServiceProvider(DependencyObject obj, UIServiceProvider value)
+      private static void SetServiceProvider(DependencyObject obj, UIServiceProvider value)
       {
          obj.SetValue(ServiceProviderProperty, value);
       }
 
-      static readonly DependencyProperty ServiceProviderProperty =
-          DependencyProperty.RegisterAttached("ServiceProvider", typeof(UIServiceProvider), typeof(UIServiceProvider), new UIPropertyMetadata(null));
-
-      public static IUIService GetService(FrameworkElement element, Type serviceType)
-      {
-         IUIService service = null;
-         var serviceProvider = GetServiceProvider(element);
-         if (serviceProvider == null)
-         {
-            var serviceList = GetServiceList(element);
-            if (serviceList != null)
-            {
-               serviceProvider = new UIServiceProvider();
-               serviceProvider.AttachToElement(element, serviceList);
-               SetServiceProvider(element, serviceProvider);
-            }
-         }
-         if (serviceProvider != null)
-         {
-            service = serviceProvider.GetService(serviceType);
-         }
-         return service;
-      }
-
-      public static T GetService<T>(FrameworkElement element)
-      {
-         return (T)GetService(element, typeof(T));
-      }
-
-      #endregion
+      #endregion Static members
 
       //--------------------------------------------------------------------------------------------------------//
       // End of static part.
       //--------------------------------------------------------------------------------------------------------//
 
-      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-      Dictionary<Type, IUIService> serviceImplementations = new Dictionary<Type, IUIService>();
-      FrameworkElement element;
-      Window owningWindow;
+      private FrameworkElement element;
+      private bool isFullyAttached = false;
+      private Window owningWindow;
+      private Dictionary<Type, IUIService> serviceImplementations = new Dictionary<Type, IUIService>();
 
-      void AttachToElement(FrameworkElement element, IEnumerable<IUIService> serviceList)
+      /// <summary>
+      /// Gets a value denoting whether the service is fully attached to the element or not.
+      /// 'Fully Attached' means that all services of this service provider where attached to
+      /// a loaded element.
+      /// </summary>
+      public bool IsFullyAttached { get { return isFullyAttached; } }
+
+      public void Dispose()
       {
-         log.Debug("Setting service list for " + element);
-         this.element = element;
-         foreach (var service in serviceList)
-         {
-            var serviceType = service.GetType();
-            var customAttrs = serviceType.GetCustomAttributes(typeof(ImplementedServiceAttribute), true);
-            if (customAttrs != null && customAttrs.Count() > 0)
-            {
-               serviceType = ((ImplementedServiceAttribute)customAttrs[0]).ImplementedServiceType;
-            }
-            log.DebugFormat("Adding service {0} => {1}", serviceType.Name, service.GetType().Name);
-            serviceImplementations.Add(serviceType, service);
-         }
-         LoadedEventManager.AddListener(element, this);
-         UnloadedEventManager.AddListener(element, this);
-         if (element.IsLoaded)
-            Element_Loaded(element, new RoutedEventArgs());
-      }
-
-      void DetachFromElement(FrameworkElement element, IEnumerable<IUIService> oldServiceList)
-      {
-         foreach (var service in oldServiceList)
-            service.DetachFromElement(element);
-      }
-
-      void Element_Loaded(object sender, RoutedEventArgs args)
-      {
-         foreach (var service in serviceImplementations.Values)
-            service.AttachToElement((FrameworkElement)sender);
-
-         owningWindow = UIUtils.GetAncestor<Window>(element);
+         log.DebugFormat(FrameworkElementFormatter.GetInstance(), "Detaching service provider from {0}", element);
          if (owningWindow != null)
-            owningWindow.Closed += OwningWindow_Closed;
-      }
-
-      void Element_Unloaded(object sender, RoutedEventArgs args)
-      {
-         DetachFromElement((FrameworkElement)sender, serviceImplementations.Values);
-      }
-
-      void OwningWindow_Closed(object sender, EventArgs e)
-      {
-         Dispose();
+            owningWindow.Closed -= OwningWindow_Closed;
+         LoadedEventManager.RemoveListener(element, this);
+         UnloadedEventManager.RemoveListener(element, this);
+         DetachFromElement(element, serviceImplementations.Values);
+         foreach (var service in serviceImplementations.Values)
+         {
+            service.Dispose();
+         }
       }
 
       public IUIService GetService(Type serviceType)
@@ -169,17 +151,58 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return GetService(typeof(T)) as T;
       }
 
-      public void Dispose()
+      private void AttachToElement(FrameworkElement element, IEnumerable<IUIServiceFactory> serviceList)
       {
-         if (owningWindow != null)
-            owningWindow.Closed -= OwningWindow_Closed;
-         LoadedEventManager.RemoveListener(element, this);
-         UnloadedEventManager.RemoveListener(element, this);
-         DetachFromElement(element, serviceImplementations.Values);
-         foreach (var service in serviceImplementations.Values)
+         if (isFullyAttached)
+            return;
+
+         log.DebugFormat(FrameworkElementFormatter.GetInstance(), "Attaching service list for {0}", element);
+         this.element = element;
+         foreach (var serviceFactory in serviceList)
          {
-            service.Dispose();
+            var service = serviceFactory.CreateUIService();
+            var serviceType = service.GetType();
+            var customAttrs = serviceType.GetCustomAttributes(typeof(ImplementedServiceAttribute), true);
+            if (customAttrs != null && customAttrs.Count() > 0)
+            {
+               serviceType = ((ImplementedServiceAttribute)customAttrs[0]).ImplementedServiceType;
+            }
+            log.DebugFormat("Adding service {0} => {1}", serviceType.Name, service.GetType().Name);
+            serviceImplementations.Add(serviceType, service);
          }
+         LoadedEventManager.AddListener(element, this);
+         UnloadedEventManager.AddListener(element, this);
+         if (element.IsLoaded)
+            Element_Loaded(element, new RoutedEventArgs());
+      }
+
+      private void DetachFromElement(FrameworkElement element, IEnumerable<IUIService> oldServiceList)
+      {
+         isFullyAttached = false;
+         foreach (var service in oldServiceList)
+            service.DetachFromElement(element);
+      }
+
+      private void Element_Loaded(object sender, RoutedEventArgs args)
+      {
+         isFullyAttached = true;
+
+         foreach (var service in serviceImplementations.Values)
+            service.AttachToElement((FrameworkElement)sender);
+
+         owningWindow = UIUtils.GetAncestor<Window>(element);
+         if (owningWindow != null)
+            owningWindow.Closed += OwningWindow_Closed;
+      }
+
+      private void Element_Unloaded(object sender, RoutedEventArgs args)
+      {
+         DetachFromElement((FrameworkElement)sender, serviceImplementations.Values);
+      }
+
+      private void OwningWindow_Closed(object sender, EventArgs e)
+      {
+         Dispose();
       }
 
       #region IWeakEventListener Members
@@ -196,47 +219,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return true;
       }
 
-      #endregion
+      #endregion IWeakEventListener Members
    }
 
-   abstract class RoutedEventManagerBase : WeakEventManager
-   {
-      public abstract RoutedEvent Event { get; }
-
-      protected override void StartListening(object source)
-      {
-         var sourceElement = (UIElement)source;
-         sourceElement.AddHandler(Event, new RoutedEventHandler(OnRoutedEvent), true);
-      }
-
-      protected override void StopListening(object source)
-      {
-         var sourceElement = (UIElement)source;
-         sourceElement.RemoveHandler(Event, new RoutedEventHandler(OnRoutedEvent));
-      }
-
-      void OnRoutedEvent(object sender, RoutedEventArgs args)
-      {
-         DeliverEvent(sender, args);
-      }
-
-      protected static T GetManager<T>()
-         where T : RoutedEventManagerBase, new()
-      {
-         var manager_type = typeof(T);
-         var manager = WeakEventManager.GetCurrentManager(manager_type) as T;
-
-         if (manager == null)
-         {
-            manager = new T();
-            WeakEventManager.SetCurrentManager(manager_type, manager);
-         }
-
-         return manager;
-      }
-   }
-
-   class LoadedEventManager : RoutedEventManagerBase
+   internal class LoadedEventManager : RoutedEventManagerBase
    {
       public override RoutedEvent Event
       {
@@ -254,7 +240,44 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
    }
 
-   class UnloadedEventManager : RoutedEventManagerBase
+   internal abstract class RoutedEventManagerBase : WeakEventManager
+   {
+      public abstract RoutedEvent Event { get; }
+
+      protected static T GetManager<T>()
+         where T : RoutedEventManagerBase, new()
+      {
+         var manager_type = typeof(T);
+         var manager = WeakEventManager.GetCurrentManager(manager_type) as T;
+
+         if (manager == null)
+         {
+            manager = new T();
+            WeakEventManager.SetCurrentManager(manager_type, manager);
+         }
+
+         return manager;
+      }
+
+      protected override void StartListening(object source)
+      {
+         var sourceElement = (UIElement)source;
+         sourceElement.AddHandler(Event, new RoutedEventHandler(OnRoutedEvent), true);
+      }
+
+      protected override void StopListening(object source)
+      {
+         var sourceElement = (UIElement)source;
+         sourceElement.RemoveHandler(Event, new RoutedEventHandler(OnRoutedEvent));
+      }
+
+      private void OnRoutedEvent(object sender, RoutedEventArgs args)
+      {
+         DeliverEvent(sender, args);
+      }
+   }
+
+   internal class UnloadedEventManager : RoutedEventManagerBase
    {
       public override RoutedEvent Event
       {
@@ -271,5 +294,4 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          GetManager<UnloadedEventManager>().ProtectedRemoveListener(source, listener);
       }
    }
-
 }

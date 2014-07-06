@@ -78,7 +78,11 @@
     <Compile Include="CellTypes\ComboBoxVirtualTableCell.cs" />
     <Compile Include="EnhancedDataGrid.cs" />
     <Compile Include="Extensions\CancelableEventArgs.cs" />
+    <Compile Include="Extensions\CellEnumerationServiceBase.cs" />
+    <Compile Include="Extensions\ControlTraitsFactory.cs" />
+    <Compile Include="Extensions\CreateServiceByType.cs" />
     <Compile Include="Extensions\CurrentItemServiceBase.cs" />
+    <Compile Include="Extensions\CustomRowCellEnumerationService.cs" />
     <Compile Include="Extensions\CustomRowCurrentItemService.cs" />
     <Compile Include="Extensions\DataGridAsEditingAdapter.cs" />
     <Compile Include="Extensions\DataGridCurrentCellService.cs" />
@@ -88,18 +92,27 @@
     <Compile Include="Extensions\DataGridRowCurrentItemService.cs" />
     <Compile Include="Extensions\DataGridSelectionExtender.cs" />
     <Compile Include="Extensions\DataGridCurrentItemService.cs" />
+    <Compile Include="Extensions\DataGridStandardRowCellEnumerationService.cs" />
     <Compile Include="Extensions\DataGridVerticalScrollService.cs" />
     <Compile Include="Extensions\DependencyPropertyChangeListener.cs" />
     <Compile Include="Extensions\EnhancedDGProxy.cs" />
+    <Compile Include="Extensions\ICellEnumerationService.cs" />
+    <Compile Include="Extensions\IItemsControlTraits.cs" />
     <Compile Include="Extensions\ICurrentCellService.cs" />
+    <Compile Include="Extensions\IdGenerator.cs" />
     <Compile Include="Extensions\IElementEditStateProxy.cs" />
+    <Compile Include="Extensions\InputService.cs" />
     <Compile Include="Extensions\IScrollService.cs" />
+    <Compile Include="Extensions\IUIServiceFactory.cs" />
+    <Compile Include="Extensions\NavigationCommandsMap.cs" />
+    <Compile Include="Extensions\ParameterlessUIServiceFactory.cs" />
     <Compile Include="Extensions\SharedObjectsService.cs" />
     <Compile Include="Extensions\ICurrentItemService.cs" />
     <Compile Include="Extensions\ImplementedServiceAttribute.cs" />
     <Compile Include="Extensions\IUIService.cs" />
     <Compile Include="Extensions\PreviewChangeEventArgs.cs" />
     <Compile Include="Extensions\SharedServiceAttribute.cs" />
+    <Compile Include="Extensions\VirtualizedItemTemplatePersistencyService.cs" />
     <Compile Include="Extensions\UIServiceCollection.cs" />
     <Compile Include="Extensions\UIServiceProvider.cs" />
     <Compile Include="Extensions\UniversalCellInfo.cs" />
@@ -126,6 +139,7 @@
     </Compile>
     <Compile Include="CellTypes\VirtualTableCell.cs" />
     <Compile Include="CellTypes\VirtualTextTableCell.cs" />
+    <Compile Include="Utils\DataGridRowFormatter.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

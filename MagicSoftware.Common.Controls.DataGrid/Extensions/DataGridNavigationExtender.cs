@@ -1,152 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MagicSoftware.Common.Controls.Extensibility;
+using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Input;
-using log4net;
-using System.Diagnostics;
-using System.Windows;
-using MagicSoftware.Common.Controls.Proxies;
-using LogLevel = log4net.Core.Level;
-using MagicSoftware.Common.Utils;
 using System.Windows.Media;
-using MagicSoftware.Common.Controls;
+using log4net;
+using MagicSoftware.Common.Controls.Extensibility;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class DataGridNavigationExtender : ElementExtenderBase<DataGrid>
+   internal class DataGridNavigationExtender : ElementExtenderBase<DataGrid>
    {
-      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+      private ICurrentCellService currentCellService;
 
-      protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
-      //protected IEditingItemsControlProxy EditProxy { get; private set; }
+      private InputService inputService;
 
-      ICurrentCellService topContainerCurrentItemService;
-      //ICurrentItemService itemContainerCurrentItemService;
+      private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+      private IVerticalScrollService scrollService;
 
-
-      protected override void Setup()
+      public static bool IsHorizontalNavigationKey(Key key)
       {
-         //EditProxy = DataGridProxy.GetAdapter<IEditingItemsControlProxy>();
-         topContainerCurrentItemService = UIServiceProvider.GetService<ICurrentCellService>(TargetElement);
-
-         TargetElement.PreviewKeyDown += TargetElement_PreviewKeyDown;
-         TargetElement.PreviewMouseDown += TargetElement_PreviewMouseDown;
-      }
-
-      protected override void Cleanup()
-      {
-         TargetElement.PreviewKeyDown -= TargetElement_PreviewKeyDown;
-         TargetElement.PreviewMouseDown -= TargetElement_PreviewMouseDown;
-      }
-
-      protected void TargetElement_PreviewKeyDown(object sender, KeyEventArgs e)
-      {
-         log.LogMessage(LogLevel.Finer, "Preview key down on {0}: {1}, {2}", sender, e.Key, e.OriginalSource);
-         if (IsVerticalNavigationKey(e.Key))
-            MoveToLineByKeyboard(e);
-         else if (IsHorizontalNavigationKey(e.Key))
-            MoveToFieldByKeyboard(e);
-      }
-
-      private void MoveToFieldByKeyboard(KeyEventArgs e)
-      {
-         switch (e.Key)
+         switch (key)
          {
-            case Key.Tab:
-               if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
-                  topContainerCurrentItemService.MoveLeft(1);
-               else
-                  topContainerCurrentItemService.MoveRight(1);
-               e.Handled = true;
-               break;
-
             case Key.Left:
-               e.Handled = true;
-               if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
-                  topContainerCurrentItemService.MoveToLeftMost();
-               else if (Keyboard.Modifiers.HasFlag(ModifierKeys.None))
-                  topContainerCurrentItemService.MoveLeft(1);
-               else
-                  e.Handled = false;
-               break;
-
             case Key.Right:
-               e.Handled = true;
-               if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
-                  topContainerCurrentItemService.MoveToRightMost();
-               else if (Keyboard.Modifiers.HasFlag(ModifierKeys.None))
-                  topContainerCurrentItemService.MoveRight(1);
-               else
-                  e.Handled = false;
-               break;
+            case Key.Tab:
+               return true;
          }
-      }
 
-      void MoveToLineByKeyboard(KeyEventArgs eventArgs)
-      {
-         log.DebugFormat("Beginning move on {0} using key \"{1}\"", eventArgs.Source, eventArgs.Key);
-         bool bMoved;
-         switch (eventArgs.Key)
-         {
-            case Key.Up:
-               bMoved = topContainerCurrentItemService.MoveUp(1);
-               break;
-
-            case Key.Down:
-               bMoved = topContainerCurrentItemService.MoveDown(1);
-               break;
-
-            case Key.PageUp:
-               bMoved = topContainerCurrentItemService.MoveUp((uint)DataGridProxy.RowsPerPage);
-               break;
-
-            case Key.PageDown:
-               bMoved = topContainerCurrentItemService.MoveDown((uint)DataGridProxy.RowsPerPage);
-               break;
-
-            case Key.Home:
-               bMoved = topContainerCurrentItemService.MoveToTop();
-               break;
-
-            case Key.End:
-               bMoved = topContainerCurrentItemService.MoveToBottom();
-               break;
-
-            default:
-               return;
-         }
-         eventArgs.Handled = true;
-         DataGridProxy.ScrollIntoView(topContainerCurrentItemService.CurrentCell.Item);
-      }
-
-      void TargetElement_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-      {
-         Trace.WriteLine(String.Format("Mouse down on {0}: {1}, {2}", sender, e.OriginalSource, e.ClickCount));
-
-         bool bClickedWithinFocusedElement = (VisualTreeHelper.HitTest(Keyboard.FocusedElement as Visual, e.GetPosition(Keyboard.FocusedElement)) != null);
-
-         if (bClickedWithinFocusedElement)
-            return;
-
-         DataGridRow clickedRow = UIUtils.GetAncestor<DataGridRow>(e.OriginalSource as Visual) as DataGridRow;
-         if (clickedRow == null)
-            return;
-
-         //if (EditProxy.IsEditing && !TargetElement.CommitEdit(DataGridEditingUnit.Row, true))
-         //{
-         //   e.Handled = true;
-         //   return;
-         //}
-
-         topContainerCurrentItemService.MoveTo(new UniversalCellInfo(clickedRow.Item, 0));
+         return false;
       }
 
       public static bool IsNavigationKey(Key key)
       {
          return IsVerticalNavigationKey(key) || IsHorizontalNavigationKey(key);
+      }
+
+      public static bool IsShiftKey(Key key)
+      {
+         return key == Key.LeftShift || key == Key.RightShift;
       }
 
       public static bool IsVerticalNavigationKey(Key key)
@@ -164,23 +55,148 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return false;
       }
 
-      public static bool IsHorizontalNavigationKey(Key key)
+      protected override void Cleanup()
       {
-         switch (key)
+         TargetElement.PreviewMouseDown -= TargetElement_PreviewMouseDown;
+      }
+
+      protected override void Setup()
+      {
+         currentCellService = UIServiceProvider.GetService<ICurrentCellService>(TargetElement);
+         Debug.Assert(currentCellService != null);
+
+         inputService = UIServiceProvider.GetService<InputService>(TargetElement);
+         Debug.Assert(inputService != null);
+
+         scrollService = UIServiceProvider.GetService<IVerticalScrollService>(TargetElement);
+         Debug.Assert(scrollService != null);
+
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MoveLineDown), new KeyGesturesFactory(Key.Down, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MoveLineUp), new KeyGesturesFactory(Key.Up, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MovePageDown), new KeyGesturesFactory(Key.PageDown, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MovePageUp), new KeyGesturesFactory(Key.PageUp, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MoveToTop), new KeyGesturesFactory(Key.Home, ModifierKeys.Control));
+         inputService.RegisterKeyActionGestures(AsLineKeyAction(MoveToBottom), new KeyGesturesFactory(Key.End, ModifierKeys.Control));
+
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveRight), new KeyGesturesFactory(Key.Tab));
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveRight), new KeyGesturesFactory(Key.Right, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveLeft), new KeyGesturesFactory(Key.Tab, ModifierKeys.Shift));
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveLeft), new KeyGesturesFactory(Key.Left, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Control, ModifierKeys.Shift)));
+
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveToLeftMost), new KeyGesturesFactory(Key.Home));
+         inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveToRightMost), new KeyGesturesFactory(Key.End));
+
+         inputService.RegisterMouseActionGestures(MouseClicked, new MouseGesturesFactory(MouseAction.LeftClick));
+      }
+
+      private Action<KeyEventArgs> AsFieldKeyAction(Action fieldAction)
+      {
+         return new Action<KeyEventArgs>((args) =>
+            {
+               log.DebugFormat("Beginning move on {0} using key \"{1}\"", args.Source, args.Key);
+               fieldAction();
+               args.Handled = true;
+            });
+      }
+
+      private Action<KeyEventArgs> AsLineKeyAction(Action lineAction)
+      {
+         return new Action<KeyEventArgs>((args) =>
+            {
+               log.DebugFormat("Beginning move on {0} using key \"{1}\"", args.Source, args.Key);
+               lineAction();
+               scrollService.ScrollTo(currentCellService.CurrentCell.Item);
+               args.Handled = true;
+            });
+      }
+
+      private void MouseClicked(MouseEventArgs eventArgs)
+      {
+         log.Debug("Mouse was clicked on " + eventArgs.OriginalSource);
+         HitTestResult hitTestResult = VisualTreeHelper.HitTest(TargetElement, Mouse.GetPosition(TargetElement));
+         var row = UIUtils.GetAncestor<DataGridRow>((Visual)hitTestResult.VisualHit);
+         if (row != null)
          {
-            case Key.Left:
-            case Key.Right:
-            case Key.Tab:
-               return true;
+            var rowEnumSvc = UIServiceProvider.GetService<ICellEnumerationService>(row);
+            UniversalCellInfo cellInfo = rowEnumSvc.GetCellContaining(hitTestResult.VisualHit);
+            if (!currentCellService.CurrentCell.Equals(cellInfo))
+            {
+               currentCellService.MoveTo(cellInfo);
+               eventArgs.Handled = true;
+            }
          }
-
-         return false;
       }
 
-      public static bool IsShiftKey(Key key)
+      private void MoveLeft()
       {
-         return key == Key.LeftShift || key == Key.RightShift;
+         currentCellService.MoveLeft(1);
       }
 
+      private void MoveLineDown()
+      {
+         currentCellService.MoveDown(1);
+      }
+
+      private void MoveLineUp()
+      {
+         currentCellService.MoveUp(1);
+      }
+
+      private void MovePageDown()
+      {
+         scrollService.ScrollDown((uint)scrollService.ItemsPerPage);
+         currentCellService.MoveDown((uint)scrollService.ItemsPerPage);
+      }
+
+      private void MovePageUp()
+      {
+         scrollService.ScrollUp((uint)scrollService.ItemsPerPage);
+         currentCellService.MoveUp((uint)scrollService.ItemsPerPage);
+      }
+
+      private void MoveRight()
+      {
+         currentCellService.MoveRight(1);
+      }
+
+      private void MoveToBottom()
+      {
+         scrollService.ScrollToBottom();
+         currentCellService.MoveToBottom();
+      }
+
+      private void MoveToLeftMost()
+      {
+         currentCellService.MoveToLeftMost();
+      }
+
+      private void MoveToRightMost()
+      {
+         currentCellService.MoveToRightMost();
+      }
+
+      private void MoveToTop()
+      {
+         scrollService.ScrollToTop();
+         currentCellService.MoveToTop();
+      }
+
+      private void TargetElement_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+      {
+         Trace.WriteLine(String.Format("Mouse down on {0}: {1}, {2}", sender, e.OriginalSource, e.ClickCount));
+
+         bool bClickedWithinFocusedElement = (VisualTreeHelper.HitTest(Keyboard.FocusedElement as Visual, e.GetPosition(Keyboard.FocusedElement)) != null);
+
+         if (bClickedWithinFocusedElement)
+            return;
+
+         DataGridRow clickedRow = UIUtils.GetAncestor<DataGridRow>(e.OriginalSource as Visual) as DataGridRow;
+         if (clickedRow == null)
+            return;
+
+         currentCellService.MoveTo(new UniversalCellInfo(clickedRow.Item, 0));
+      }
    }
+
 }

@@ -35,5 +35,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          hash = hash * 47 + CellIndex;
          return hash;
       }
+
+      public override string ToString()
+      {
+         return "{UniversalCellInfo: {" + this.Item + "}, " + this.CellIndex + "}";
+      }
    }
 }

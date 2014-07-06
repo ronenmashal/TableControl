@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -9,12 +6,14 @@ using System.Windows.Threading;
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    [ImplementedService(typeof(IVerticalScrollService))]
-   class DataGridVerticalScrollService : IUIService, IVerticalScrollService
+   internal class DataGridVerticalScrollService : IUIService, IVerticalScrollService
    {
-      DataGrid element;
-      ScrollViewer scrollViewer;
+      private DataGrid element;
+      private ScrollViewer scrollViewer;
 
       #region IUIService Members
+
+      public virtual bool IsAttached { get { return element != null; } }
 
       public void AttachToElement(FrameworkElement element)
       {
@@ -26,7 +25,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
       }
 
-      #endregion
+      #endregion IUIService Members
 
       #region IDisposable Members
 
@@ -36,9 +35,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          element = null;
       }
 
-      #endregion
+      #endregion IDisposable Members
 
       #region IVerticalScrollService Members
+
+      public int ItemsPerPage
+      {
+         get { return (int)scrollViewer.ViewportHeight; }
+      }
 
       public bool ScrollTo(object item)
       {
@@ -48,14 +52,41 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return itemContainer != null && itemContainer.IsVisible;
       }
 
-      public int ItemsPerPage
+      #endregion IVerticalScrollService Members
+
+      public bool ScrollDown(uint distance)
       {
-         get { return (int)scrollViewer.ViewportHeight; }
+         if (element.Items.Count == 0)
+            return false;
+         double currentItemIndex = element.Items.IndexOf(element.CurrentItem);
+         int targetItemIndex = Math.Min((int)(currentItemIndex + distance), element.Items.Count - 1);
+         object targetItem = element.Items[targetItemIndex];
+         return ScrollTo(targetItem);
       }
 
-      #endregion
+      public bool ScrollToBottom()
+      {
+         element.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() => scrollViewer.ScrollToBottom()));
+         return true;
+      }
 
-      void EnsureInvocationAfterLoad(FrameworkElement target, Action action)
+      public bool ScrollToTop()
+      {
+         scrollViewer.ScrollToTop();
+         return true;
+      }
+
+      public bool ScrollUp(uint distance)
+      {
+         if (element.Items.Count == 0)
+            return false;
+         double currentItemIndex = element.Items.IndexOf(element.CurrentItem);
+         int targetItemIndex = Math.Max((int)(currentItemIndex - distance), 0);
+         object targetItem = element.Items[targetItemIndex];
+         return ScrollTo(targetItem);
+      }
+
+      private void EnsureInvocationAfterLoad(FrameworkElement target, Action action)
       {
          if (target.IsLoaded)
             action();
@@ -69,9 +100,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             };
             target.Loaded -= handler;
          }
-
       }
-
    }
-
 }

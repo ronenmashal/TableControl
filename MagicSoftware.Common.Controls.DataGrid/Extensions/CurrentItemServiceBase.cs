@@ -86,6 +86,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          element = servedElement;
       }
 
+      public virtual bool IsAttached { get { return element != null; } }
+
       public abstract void DetachFromElement(FrameworkElement element);
 
       public abstract object CurrentItem { get; }

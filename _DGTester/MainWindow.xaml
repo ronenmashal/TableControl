@@ -37,8 +37,7 @@
                 <Setter Property="tbl:UIServiceProvider.ServiceList">
                     <Setter.Value>
                         <tbl:UIServiceCollection>
-                            <tbl:SharedObjectsService />
-                            <tbl:CustomRowCurrentItemService />
+                            <tbl:CustomRowCellEnumerationServiceFactory RowTypeIdentifier="custom1"/>
                         </tbl:UIServiceCollection>
                     </Setter.Value>
                 </Setter>
@@ -51,12 +50,13 @@
                                 <Border x:Name="brdr"
                                         Background="{TemplateBinding Background}"
                                         BorderBrush="{TemplateBinding BorderBrush}"
-                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                        BorderThickness="{TemplateBinding BorderThickness}" 
+                                        Focusable="False">
                                     <Border x:Name="underline"
                                             Background="{TemplateBinding Background}"
                                             BorderBrush="Black"
                                             BorderThickness="0,0,0,1"
-                                            Focusable="True">
+                                            Focusable="False">
                                         <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                             <tbl:VirtualTextTableCell Binding="{Binding StringValue}" />
                                             <tbl:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" />
@@ -189,6 +189,14 @@
                        ItemsSource="{Binding Items}"
                        Loaded="DataGrid_Loaded"
                        RowStyleSelector="{StaticResource TemplateSelector}">
+                <!--<tbl:Table.Navigation>
+                    <NavigationTable>
+                        <NavigationKeyGesture Key="Up" Modifiers="" Action="MoveToPreviousItem"/>
+                        <NavigationKeyGesture Key="Up" Modifiers="Control" Action="MoveToPreviousItem"/>
+                        <NavigationKeyGesture Key="Up" Modifiers="Shift" Action="MoveToPreviousItem"/>
+                        <NavigationKeyGesture Key="Up" Modifiers="Control+Shift" Action="MoveToPreviousItem"/>
+                    </NavigationTable>
+                </tbl:Table.Navigation>-->
                 <!--  SelectionMode="Extended"  -->
                 <!--
                     <dg:Table.Columns>

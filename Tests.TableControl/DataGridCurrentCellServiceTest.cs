@@ -100,18 +100,15 @@ namespace Tests.TableControl
 
             Assert.IsNull(target.CurrentCell.Item);
 
-            using (ExpectNonCancelableEvents(target))
-               dataGrid.CurrentCell = new DataGridCellInfo(dataList[1], dataGrid.Columns[0]);
+            ExpectNonCancelableEvents(target, () => { dataGrid.CurrentCell = new DataGridCellInfo(dataList[1], dataGrid.Columns[0]); });
             Assert.AreSame(dataList[1], target.CurrentCell.Item);
             Assert.AreEqual(0, target.CurrentCell.CellIndex);
 
-            using (ExpectNonCancelableEvents(target))
-               dataGrid.CurrentCell = new DataGridCellInfo(dataList[5], dataGrid.Columns[2]);
+            ExpectNonCancelableEvents(target, () => { dataGrid.CurrentCell = new DataGridCellInfo(dataList[5], dataGrid.Columns[2]); });
             Assert.AreSame(dataList[5], target.CurrentCell.Item);
             Assert.AreEqual(2, target.CurrentCell.CellIndex);
 
-            using (ExpectNoEvents(target))
-               dataGrid.CurrentColumn.DisplayIndex = 0;
+            ExpectNoEvents(target, () => { dataGrid.CurrentColumn.DisplayIndex = 0; });
             Assert.AreEqual(0, target.CurrentCell.CellIndex);
          }
       }
@@ -166,52 +163,42 @@ namespace Tests.TableControl
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveRight(1));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveRight(1)); });
 
             Assert.AreEqual(1, target.CurrentCell.CellIndex);
             Assert.AreEqual(dataGrid.CurrentCell.Column.DisplayIndex, target.CurrentCell.CellIndex);
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveRight(1));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveRight(1)); });
 
             Assert.AreEqual(dataGrid.CurrentCell.Column.DisplayIndex, target.CurrentCell.CellIndex);
 
-            using (ExpectNoEvents(target))
-               Assert.IsFalse(target.MoveRight(1));
+            ExpectNoEvents(target, () => { Assert.IsFalse(target.MoveRight(1)); });
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveLeft(1));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveLeft(1)); });
 
             Assert.AreEqual(1, target.CurrentCell.CellIndex);
             Assert.AreEqual(dataGrid.CurrentCell.Column.DisplayIndex, target.CurrentCell.CellIndex);
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveLeft(1));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveLeft(1)); });
 
             Assert.AreEqual(0, target.CurrentCell.CellIndex);
             Assert.AreEqual(dataGrid.CurrentCell.Column.DisplayIndex, target.CurrentCell.CellIndex);
 
-            using (ExpectNoEvents(target))
-               Assert.IsFalse(target.MoveLeft(1));
+            ExpectNoEvents(target, () => { Assert.IsFalse(target.MoveLeft(1)); });
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveRight(2));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveRight(2)); });
 
             Assert.AreEqual(2, target.CurrentCell.CellIndex);
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveLeft(2));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveLeft(2)); });
 
             Assert.AreEqual(0, target.CurrentCell.CellIndex);
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveToRightMost());
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveToRightMost()); });
 
             Assert.AreEqual(2, target.CurrentCell.CellIndex);
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveToLeftMost());
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveToLeftMost()); });
 
             Assert.AreEqual(0, target.CurrentCell.CellIndex);
 
@@ -221,16 +208,14 @@ namespace Tests.TableControl
             dataGrid.CurrentItem = dataList[60];
             Assert.AreEqual(0, target.CurrentCell.CellIndex);
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveRight(1));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveRight(1)); });
 
             dataGrid.CurrentColumn = dataGrid.Columns[2];
             dataGrid.ScrollIntoView(dataList[10]);
             dataGrid.CurrentItem = dataList[10];
             Assert.AreEqual(2, target.CurrentCell.CellIndex);
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveLeft(1));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveLeft(1)); });
          }
       }
 
@@ -250,41 +235,35 @@ namespace Tests.TableControl
             ((IUIService)target).AttachToElement(dataGrid);
 
             // Move down, when cell was not yet set, should move to the first cell.
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveDown(1));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveDown(1)); });
             Assert.AreSame(dataList[0], target.CurrentCell.Item);
             Assert.AreSame(dataGrid.CurrentItem, target.CurrentCell.Item);
             Assert.IsNotNull(target.CurrentCell.Item);
             Assert.AreSame(dataGrid.ColumnFromDisplayIndex(0), dataGrid.CurrentCell.Column);
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveDown(5));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveDown(5)); });
             Assert.AreSame(dataList[5], target.CurrentCell.Item);
             Assert.AreSame(dataList[5], dataGrid.CurrentCell.Item);
 
             // Verify an unloaded item cannot be reached.
-            using (ExpectNoEvents(target))
-               Assert.IsFalse(target.MoveDown(40));
+            ExpectNoEvents(target, () => { Assert.IsFalse(target.MoveDown(40)); });
 
             // Now force loading the target item by scrolling to it, and verify the service can move to it.
             dataGrid.ScrollIntoView(dataList[45]);
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveDown(40));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveDown(40)); });
             Assert.AreSame(dataList[45], dataGrid.CurrentCell.Item);
 
             // Scroll to the last item in the list.
             dataGrid.ScrollIntoView(dataList[dataList.Count - 1]);
 
             // Try to move beyond the last item in the list.
-            using (ExpectNoEvents(target))
-               Assert.IsFalse(target.MoveDown((uint)dataList.Count + 1));
+            ExpectNoEvents(target, () => { Assert.IsFalse(target.MoveDown((uint)dataList.Count + 1)); });
             Assert.IsNotNull(target.CurrentCell.Item);
 
             // Move to the last item
             Assert.IsTrue(target.MoveDown((uint)(dataGrid.Items.Count - 45 - 1)));
             // Try to move one more item down
-            using (ExpectNoEvents(target))
-               Assert.IsFalse(target.MoveDown(1));
+            ExpectNoEvents(target, () => { Assert.IsFalse(target.MoveDown(1)); });
          }
       }
 
@@ -313,8 +292,7 @@ namespace Tests.TableControl
             foreach (var cellPosition in cellPositions)
             {
                Trace.WriteLine("Trying cell position " + cellPosition);
-               using (ExpectCancelableEvents(target))
-                  Assert.IsTrue(target.MoveTo(new UniversalCellInfo(dataList[cellPosition.Item1], cellPosition.Item2)));
+               ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveTo(new UniversalCellInfo(dataList[cellPosition.Item1], cellPosition.Item2))); });
 
                Assert.AreEqual(dataGrid.Items[cellPosition.Item1], dataGrid.CurrentCell.Item, "Failed for cell position " + cellPosition);
                Assert.AreEqual(dataGrid.Items[cellPosition.Item1], dataGrid.CurrentItem, "Failed for cell position " + cellPosition);
@@ -322,8 +300,7 @@ namespace Tests.TableControl
             }
 
             // Move to an invalid column
-            using (ExpectNoEvents(target))
-               Assert.IsFalse(target.MoveTo(new UniversalCellInfo(dataList[4], 3)));
+            ExpectNoEvents(target, () => { Assert.IsFalse(target.MoveTo(new UniversalCellInfo(dataList[4], 3))); });
 
             Assert.AreEqual(dataGrid.CurrentItem, target.CurrentCell.Item);
             Assert.AreEqual(dataGrid.CurrentColumn.DisplayIndex, target.CurrentCell.CellIndex);
@@ -342,25 +319,20 @@ namespace Tests.TableControl
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveToTop());
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveToTop()); });
             Assert.AreEqual(dataList[0], dataGrid.CurrentItem);
 
-            using (ExpectNoEvents(target))
-               Assert.IsTrue(target.MoveToTop());
+            ExpectNoEvents(target, () => { Assert.IsTrue(target.MoveToTop()); });
 
             var lastItem = dataList[dataList.Count - 1];
             dataGrid.ScrollIntoView(lastItem);
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveToBottom());
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveToBottom()); });
             Assert.AreEqual(lastItem, dataGrid.CurrentItem);
 
-            using (ExpectNoEvents(target))
-               Assert.IsTrue(target.MoveToBottom());
+            ExpectNoEvents(target, () => { Assert.IsTrue(target.MoveToBottom()); });
 
             dataGrid.ScrollIntoView(dataList[0]);
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveToTop());
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveToTop()); });
             Assert.AreEqual(dataList[0], dataGrid.CurrentItem);
          }
       }
@@ -379,25 +351,22 @@ namespace Tests.TableControl
          {
             int currentItemIndex = dataList.Count - 1;
             dataGrid.ScrollIntoView(dataList[currentItemIndex], dataGrid.Columns[0]);
-            dataGrid.CurrentItem = dataList[currentItemIndex];
+            dataGrid.CurrentCell = new DataGridCellInfo(dataList[currentItemIndex], dataGrid.Columns[0]);
             ICurrentCellService target = new DataGridCurrentCellService();
             ((IUIService)target).AttachToElement(dataGrid);
 
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveUp(1));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveUp(1)); });
             currentItemIndex--;
             Assert.AreSame(dataList[currentItemIndex], target.CurrentCell.Item);
             Assert.AreSame(dataGrid.CurrentItem, target.CurrentCell.Item);
             Assert.IsNotNull(target.CurrentCell.Item);
             Assert.AreSame(dataGrid.ColumnFromDisplayIndex(0), dataGrid.CurrentCell.Column);
 
-            using (ExpectNoEvents(target))
-               Assert.IsFalse(target.MoveUp(40));
+            ExpectNoEvents(target, () => { Assert.IsFalse(target.MoveUp(40)); });
 
             currentItemIndex -= 40;
             dataGrid.ScrollIntoView(dataList[currentItemIndex]);
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveUp(40));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveUp(40)); });
             Assert.AreSame(dataList[currentItemIndex], target.CurrentCell.Item);
             Assert.AreSame(dataGrid.CurrentItem, target.CurrentCell.Item);
             Assert.IsNotNull(target.CurrentCell.Item);
@@ -406,15 +375,13 @@ namespace Tests.TableControl
             dataGrid.CurrentColumn = dataGrid.ColumnFromDisplayIndex(2);
             currentItemIndex -= 10;
             dataGrid.ScrollIntoView(dataList[currentItemIndex]);
-            using (ExpectCancelableEvents(target))
-               Assert.IsTrue(target.MoveUp(10));
+            ExpectCancelableEvents(target, () => { Assert.IsTrue(target.MoveUp(10)); });
             Assert.AreSame(dataList[currentItemIndex], target.CurrentCell.Item);
             Assert.AreSame(dataGrid.CurrentItem, target.CurrentCell.Item);
             Assert.IsNotNull(target.CurrentCell.Item);
             Assert.AreSame(dataGrid.ColumnFromDisplayIndex(2), dataGrid.CurrentCell.Column);
 
-            using (ExpectNoEvents(target))
-               Assert.IsFalse(target.MoveUp(90));
+            ExpectNoEvents(target, () => { Assert.IsFalse(target.MoveUp(90)); });
             Assert.IsNotNull(target.CurrentCell.Item);
          }
       }
@@ -429,36 +396,40 @@ namespace Tests.TableControl
          return list;
       }
 
-      private IDisposable ExpectCancelableEvents(ICurrentCellService target)
+      private void ExpectCancelableEvents(ICurrentCellService target, Action test)
       {
-         return new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
+         var helper = new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
             {
-               Assert.AreEqual(1, pc.HandlerInvocationCount);
-               Assert.IsTrue(pc.LastInocationEventArgs.IsCancelable);
-               Assert.AreEqual(1, c.HandlerInvocationCount);
+               Assert.AreEqual(1, pc.HandlerInvocationCount, "Expected preview change event to be raised once.");
+               Assert.IsTrue(pc.LastInocationEventArgs.IsCancelable, "Expected preview change to be cancelable.");
+               Assert.AreEqual(1, c.HandlerInvocationCount, "Expected changed event to be raised once.");
             }));
+
+         helper.RunTest(test);
       }
 
-      private IDisposable ExpectNoEvents(ICurrentCellService target)
+      private void ExpectNoEvents(ICurrentCellService target, Action test)
       {
-         return new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
+         var helper = new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
             {
                Assert.IsFalse(pc.HandlerInvoked, "PreviewChange event was raised");
                Assert.IsFalse(c.HandlerInvoked, "Changed event was raised");
             }));
+         helper.RunTest(test);
       }
 
-      private IDisposable ExpectNonCancelableEvents(ICurrentCellService target)
+      private void ExpectNonCancelableEvents(ICurrentCellService target, Action test)
       {
-         return new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
+         var helper = new CurrentCellServiceEventsHelper(target, new CurrentCellServiceEventsHelper.EventInvocationValidator((pc, c) =>
             {
-               Assert.AreEqual(1, pc.HandlerInvocationCount);
-               Assert.IsFalse(pc.LastInocationEventArgs.IsCancelable);
-               Assert.AreEqual(1, c.HandlerInvocationCount);
+               Assert.AreEqual(1, pc.HandlerInvocationCount, "Expected preview change to be raised once.");
+               Assert.IsFalse(pc.LastInocationEventArgs.IsCancelable, "Expected preview change to non-cancelable.");
+               Assert.AreEqual(1, c.HandlerInvocationCount, "Expected change event to be raised once.");
             }));
+         helper.RunTest(test);
       }
 
-      private class CurrentCellServiceEventsHelper : IDisposable
+      private class CurrentCellServiceEventsHelper
       {
          private EventInvocationValidator assertConditions;
 
@@ -483,9 +454,7 @@ namespace Tests.TableControl
             set { cellChangingEventHelper.AdditionalHandling = value; }
          }
 
-         #region IDisposable Members
-
-         public void Dispose()
+         public void TestEventsInvocation()
          {
             assertConditions(cellChangingEventHelper, cellChangedEventHelper);
 
@@ -493,7 +462,20 @@ namespace Tests.TableControl
             target.CurrentCellChanged += cellChangedEventHelper.Handler;
          }
 
-         #endregion IDisposable Members
+         public void RunTest(Action test)
+         {
+            bool testEvents = false;
+            try
+            {
+               test();
+               testEvents = true;
+            }
+            finally
+            {
+               if (testEvents)
+                  TestEventsInvocation();
+            }
+         }
       }
 
       private class TestData
@@ -503,6 +485,11 @@ namespace Tests.TableControl
          public int IntValue { get; set; }
 
          public string StrValue { get; set; }
+
+         public override string ToString()
+         {
+            return String.Format("TestData: {0}, {1}, {2}", StrValue, IntValue, BoolValue); 
+         }
       }
    }
 }

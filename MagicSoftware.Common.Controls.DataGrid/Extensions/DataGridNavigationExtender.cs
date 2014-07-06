@@ -120,8 +120,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             var rowEnumSvc = UIServiceProvider.GetService<ICellEnumerationService>(row);
             UniversalCellInfo cellInfo = rowEnumSvc.GetCellContaining(hitTestResult.VisualHit);
-            currentCellService.MoveTo(cellInfo);
-            eventArgs.Handled = true;
+            if (!currentCellService.CurrentCell.Equals(cellInfo))
+            {
+               currentCellService.MoveTo(cellInfo);
+               eventArgs.Handled = true;
+            }
          }
       }
 

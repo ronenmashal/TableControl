@@ -22,15 +22,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
       ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-      protected EnhancedDGProxy DataGridProxy { get { return (EnhancedDGProxy)TargetElementProxy; } }
-      protected IEditingItemsControlProxy EditProxy { get; private set; }
-
       SelectionModeManager selectionModeManager;
 
       protected override void Setup()
       {
-         EditProxy = DataGridProxy.GetAdapter<IEditingItemsControlProxy>();
-         var currentItemProvider = DataGridProxy.GetAdapter<ICurrentItemService>();
+         var currentItemProvider = UIServiceProvider.GetService<ICurrentItemService>(TargetElement);
          selectionModeManager = new SelectionModeManager(TargetElement, currentItemProvider);
       }
 

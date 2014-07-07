@@ -128,9 +128,9 @@
 
                     <lext:DataGridNavigationExtender />
                     <lext:DataGridFocusManagementExtender />
-                    
+                    <lext:DataGridSelectionExtender />
+
                     <!--
-                        <lext:DataGridSelectionExtender />
                         
                         <lext:DataGridEditingExtender />
                         

@@ -6,7 +6,7 @@ using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   [ImplementedService(typeof(ICellEnumerationService))]
+   //[ImplementedService(typeof(ICellEnumerationService))]
    internal class DataGridStandardRowCellEnumerationService : CellEnumerationServiceBase
    {
       public DataGridStandardRowCellEnumerationService()

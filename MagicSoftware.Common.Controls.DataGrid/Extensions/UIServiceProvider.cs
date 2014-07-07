@@ -151,6 +151,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return GetService(typeof(T)) as T;
       }
 
+      private void AddServiceAs(Type serviceType, IUIService service)
+      {
+         log.DebugFormat("Adding service {0} => {1}", serviceType.Name, service.GetType().Name);
+         serviceImplementations.Add(serviceType, service);
+      }
+
       private void AttachToElement(FrameworkElement element, IEnumerable<IUIServiceFactory> serviceList)
       {
          if (isFullyAttached)
@@ -165,10 +171,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             var customAttrs = serviceType.GetCustomAttributes(typeof(ImplementedServiceAttribute), true);
             if (customAttrs != null && customAttrs.Count() > 0)
             {
-               serviceType = ((ImplementedServiceAttribute)customAttrs[0]).ImplementedServiceType;
+               foreach (ImplementedServiceAttribute customAttr in customAttrs)
+               {
+                  serviceType = customAttr.ImplementedServiceType;
+                  AddServiceAs(serviceType, service);
+               }
             }
-            log.DebugFormat("Adding service {0} => {1}", serviceType.Name, service.GetType().Name);
-            serviceImplementations.Add(serviceType, service);
+            else
+               AddServiceAs(serviceType, service);
          }
          LoadedEventManager.AddListener(element, this);
          UnloadedEventManager.AddListener(element, this);

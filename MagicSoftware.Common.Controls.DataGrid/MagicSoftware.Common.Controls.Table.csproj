@@ -121,6 +121,7 @@
       <DependentUpon>LineEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Markup\StringWidth.cs" />
+    <Compile Include="Models\ISelectionView.cs" />
     <Compile Include="ObjectEqualityConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -141,6 +142,7 @@
     <Compile Include="CellTypes\VirtualTableCell.cs" />
     <Compile Include="CellTypes\VirtualTextTableCell.cs" />
     <Compile Include="Utils\DataGridRowFormatter.cs" />
+    <Compile Include="Utils\SelectionViewManager.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

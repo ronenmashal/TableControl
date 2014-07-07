@@ -314,7 +314,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             RaiseNonCancelablePreviewCurrentCellChangingEvent(CurrentCell);
             var newRowService = GetRowEnumerationServiceForItem(dataGrid.CurrentCell.Item);
-            currentCellPosition.SetCurrentCellIndex(newRowService, dataGrid.CurrentCell.Column.DisplayIndex);
+            if (newRowService != null)
+               currentCellPosition.SetCurrentCellIndex(newRowService, dataGrid.CurrentCell.Column.DisplayIndex);
          }
          UpdateCurrentCell();
          if (!isSelfInducedCellChange.IsSet)

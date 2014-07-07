@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using _DGTester.Data;
 using MagicSoftware.Common.Controls.ProxiesX;
+using MagicSoftware.Common.Controls.Table.Models;
 
 namespace _DGTester
 {
@@ -21,6 +22,7 @@ namespace _DGTester
    /// </summary>
    public partial class MainWindow : Window
    {
+      MultiSelectionView selectionView = new MultiSelectionView();
 
       static MainWindow()
       {
@@ -28,12 +30,21 @@ namespace _DGTester
          ElementProxyFactory.Instance.RegisterProxyType(typeof(TextBoxProxy), typeof(TextBox));
          ElementProxyFactory.Instance.RegisterProxyType(typeof(CheckBoxProxy), typeof(CheckBox));
          ElementProxyFactory.Instance.RegisterProxyType(typeof(ComboBoxProxy), typeof(ComboBox));
+
       }
 
       public MainWindow()
       {
          InitializeComponent();
          DataContext = new View1();
+         this.DG.SelectionView = selectionView;
+         selectionView.Selection = new object[] {
+            ((View1)DataContext).Items.GetItemAt(3),
+            ((View1)DataContext).Items.GetItemAt(5),
+            ((View1)DataContext).Items.GetItemAt(23),
+            ((View1)DataContext).Items.GetItemAt(24),
+            ((View1)DataContext).Items.GetItemAt(56)
+         };
       }
 
       private void DataGrid_Loaded(object sender, RoutedEventArgs e)
@@ -60,10 +71,12 @@ namespace _DGTester
 
       private void GetSelection_Click(object sender, RoutedEventArgs e)
       {
-         var proxy = ElementProxyFactory.Instance.GetProxy(DG) as MultiSelectorProxy;
          StringBuilder selection = new StringBuilder();
-         foreach (var item in proxy.SelectedItems)
-            selection.Append(item.ToString() + Environment.NewLine);
+         if (selectionView.Selection != null)
+         {
+            foreach (var item in selectionView.Selection)
+               selection.Append(item.ToString() + Environment.NewLine);
+         }
          MessageBox.Show(selection.ToString());
       }
 

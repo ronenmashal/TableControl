@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Collections;
+using log4net;
 using MagicSoftware.Common.Controls.Table.Extensions;
+using MagicSoftware.Common.Controls.Table.Models;
+using MagicSoftware.Common.Controls.Table.Utils;
 
 namespace MagicSoftware.Common.Controls.Table
 {
@@ -21,22 +14,28 @@ namespace MagicSoftware.Common.Controls.Table
    /// </summary>
    public partial class Table : UserControl
    {
-      public StyleSelector RowStyleSelector
-      {
-         get { return (StyleSelector)GetValue(RowStyleSelectorProperty); }
-         set { SetValue(RowStyleSelectorProperty, value); }
-      }
+      public static readonly DependencyProperty ItemsSourceProperty =
+          DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(Table), new UIPropertyMetadata(null));
 
       public static readonly DependencyProperty RowStyleSelectorProperty =
           DependencyProperty.Register("RowStyleSelector", typeof(StyleSelector), typeof(Table), new UIPropertyMetadata(null, OnRowStyleSelectorChanged));
 
-      static void OnRowStyleSelectorChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)
+      public static readonly DependencyProperty SelectionViewProperty =
+          DependencyProperty.Register("SelectionView", typeof(ISelectionView), typeof(Table), new UIPropertyMetadata(null, OnSelectionViewChanged));
+
+      private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+      private SelectionViewManager selectionViewManager = null;
+
+      public Table()
       {
-      	var table = sender as Table;
-      	if (table != null)
-      	{
-            ((InternalRowStyleSelector)(table.rootItemsControl.RowStyleSelector)).WrappedSelector = changeArgs.NewValue as StyleSelector;
-      	}
+         InitializeComponent();
+      }
+
+      public ItemsControlEditMode EditMode
+      {
+         get { return (ItemsControlEditMode)DataGridEditingExtender.GetEditMode(rootItemsControl); }
+         set { DataGridEditingExtender.SetEditMode(rootItemsControl, value); }
       }
 
       public IEnumerable ItemsSource
@@ -45,27 +44,49 @@ namespace MagicSoftware.Common.Controls.Table
          set { SetValue(ItemsSourceProperty, value); }
       }
 
-      // Using a DependencyProperty as the backing store for ItemsSource.  This enables animation, styling, binding, etc...
-      public static readonly DependencyProperty ItemsSourceProperty =
-          DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(Table), new UIPropertyMetadata(null));
-
-
-
-
-      public ItemsControlEditMode EditMode
+      public StyleSelector RowStyleSelector
       {
-         get { return (ItemsControlEditMode)DataGridEditingExtender.GetEditMode(rootItemsControl); }
-         set { DataGridEditingExtender.SetEditMode(rootItemsControl, value); }
+         get { return (StyleSelector)GetValue(RowStyleSelectorProperty); }
+         set { SetValue(RowStyleSelectorProperty, value); }
       }
 
-
-      public Table()
+      public ISelectionView SelectionView
       {
-         InitializeComponent();
+         get { return (ISelectionView)GetValue(SelectionViewProperty); }
+         set { SetValue(SelectionViewProperty, value); }
+      }
+
+      private static void OnRowStyleSelectorChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)
+      {
+         var table = sender as Table;
+         if (table != null)
+         {
+            ((InternalRowStyleSelector)(table.rootItemsControl.RowStyleSelector)).WrappedSelector = changeArgs.NewValue as StyleSelector;
+         }
+      }
+
+      private static void OnSelectionViewChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+      {
+         var table = sender as Table;
+         if (table != null)
+         {
+            table.SetSelectionView((ISelectionView)args.NewValue);
+         }
+      }
+
+      private void SetSelectionView(ISelectionView selectionView)
+      {
+         if (selectionViewManager != null)
+            selectionViewManager.Dispose();
+
+         if (selectionView == null)
+            selectionViewManager = null;
+         else
+            selectionViewManager = new SelectionViewManager(rootItemsControl, selectionView);
       }
    }
 
-   class InternalRowStyleSelector : StyleSelector
+   internal class InternalRowStyleSelector : StyleSelector
    {
       public StyleSelector WrappedSelector { get; set; }
 

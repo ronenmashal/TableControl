@@ -18,7 +18,7 @@ using MagicSoftware.Common.ViewModel;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class DataGridSelectionExtender : ElementExtenderBase<DataGrid>
+   class DataGridSelectionExtender : ElementExtenderBase<MultiSelector>
    {
       ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 

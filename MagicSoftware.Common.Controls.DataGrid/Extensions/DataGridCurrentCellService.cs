@@ -15,7 +15,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    /// placed on an item that was not loaded (due to virtualization, for example).
    /// </summary>
    [ImplementedService(typeof(ICurrentCellService))]
-   internal class DataGridCurrentCellService : ICurrentCellService, IUIService
+   [ImplementedService(typeof(ICurrentItemService))]
+   internal class DataGridCurrentCellService : ICurrentCellService, ICurrentItemService, IUIService
    {
       /// <summary>
       /// Determines whether the current cell change is of an external origin, i.e. the
@@ -24,6 +25,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// </summary>
       protected readonly AutoResetFlag isSelfInducedCellChange = new AutoResetFlag();
 
+      private ColumnReorderingHandler columnReorderingHandler;
       private FrameworkElement currentCellElement;
       private ICurrentCellPosition currentCellPosition = new CellPositionPerLineType((s) => { return ((CellEnumerationServiceBase)s).ServiceGroupIdentifier; });
       private System.Windows.Controls.DataGrid dataGrid;
@@ -31,6 +33,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
       #region CurrentCellChanging event.
+
+      private bool isCurrentItemChanged = false;
 
       /// <summary>
       /// Event raised before changing the 'current item' indicator on the items control.
@@ -46,6 +50,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             var eventArgs = new PreviewChangeEventArgs(CurrentCell, newValue, false);
             PreviewCurrentCellChanging(this, eventArgs);
+         }
+         if (PreviewCurrentChanging != null && CurrentCell.Item != newValue.Item)
+         {
+            isCurrentItemChanged = true;
+            var eventArgs = new PreviewChangeEventArgs(CurrentCell.Item, newValue.Item, false);
+            PreviewCurrentChanging(this, eventArgs);
          }
       }
 
@@ -64,6 +74,16 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             PreviewCurrentCellChanging(this, eventArgs);
             canceled = eventArgs.Canceled;
          }
+         if (!canceled)
+         {
+            if (PreviewCurrentChanging != null && CurrentCell.Item != newValue.Item)
+            {
+               var eventArgs = new PreviewChangeEventArgs(CurrentCell.Item, newValue.Item, false);
+               PreviewCurrentChanging(this, eventArgs);
+               canceled = eventArgs.Canceled;
+               isCurrentItemChanged = !canceled;
+            }
+         }
       }
 
       #endregion CurrentCellChanging event.
@@ -79,9 +99,16 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          if (CurrentCellChanged != null)
             CurrentCellChanged(this, new EventArgs());
+
+         if (CurrentChanged != null)
+            CurrentChanged(this, new EventArgs());
       }
 
       #endregion CurrentCellChanged event.
+
+      public event EventHandler CurrentChanged;
+
+      public event EventHandler<PreviewChangeEventArgs> PreviewCurrentChanging;
 
       public UniversalCellInfo CurrentCell
       {
@@ -117,8 +144,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       private ICellEnumerationService CurrentRowCellEnumerationService { get; set; }
-
-      ColumnReorderingHandler columnReorderingHandler;
 
       public void AttachToElement(FrameworkElement element)
       {
@@ -385,8 +410,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private class ColumnReorderingHandler : IDisposable
       {
          private FrameworkElement cellElementBeforeReordering;
+         private DataGridCurrentCellService cellService;
          private DataGrid dataGrid;
-         DataGridCurrentCellService cellService;
 
          public ColumnReorderingHandler(DataGrid dataGrid, DataGridCurrentCellService cellService)
          {
@@ -415,5 +440,67 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             cellService.UpdateCurrentCell();
          }
       }
+
+      #region ICurrentItemService implementation
+
+      object ICurrentItemService.CurrentItem
+      {
+         get { return CurrentCell.Item; }
+      }
+
+      int ICurrentItemService.CurrentPosition
+      {
+         get { return dataGrid.Items.IndexOf(((ICurrentItemService)this).CurrentItem); }
+      }
+
+      IDisposable ICurrentItemService.InhibitChangeEvents()
+      {
+         throw new NotImplementedException();
+      }
+
+      bool ICurrentItemService.MoveCurrentTo(object item)
+      {
+         return MoveTo(new UniversalCellInfo(item, CurrentCell.CellIndex));
+      }
+
+      bool ICurrentItemService.MoveCurrentToFirst()
+      {
+         return MoveToTop();
+      }
+
+      bool ICurrentItemService.MoveCurrentToLast()
+      {
+         return MoveToBottom();
+      }
+
+      bool ICurrentItemService.MoveCurrentToNext()
+      {
+         return MoveDown(1);
+      }
+
+      bool ICurrentItemService.MoveCurrentToPosition(int position)
+      {
+         if (position < 0 || position >= dataGrid.Items.Count)
+            return false;
+         return MoveTo(new UniversalCellInfo(dataGrid.Items[position], CurrentCell.CellIndex));
+      }
+
+      bool ICurrentItemService.MoveCurrentToPrevious()
+      {
+         return MoveUp(1);
+      }
+
+      bool ICurrentItemService.MoveCurrentToRelativePosition(int offset)
+      {
+         if (offset > 0)
+            return MoveDown((uint)offset);
+
+         if (offset < 0)
+            return MoveUp((uint)Math.Abs(offset));
+
+         return true;
+      }
+
+      #endregion ICurrentItemService implementation
    }
 }

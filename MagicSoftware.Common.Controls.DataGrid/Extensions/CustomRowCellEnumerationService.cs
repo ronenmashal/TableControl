@@ -18,20 +18,67 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          IItemsControlTraits traits = ControlTraitsFactory.GetTraitsFor(typeof(DataGrid));
 
-         return new CustomRowCellEnumerationService(RowTypeIdentifier, traits);
+         return new CustomRowCellEnumerationService(RowTypeIdentifier);
       }
    }
 
    internal class CustomRowCellEnumerationService : CellEnumerationServiceBase
    {
-      public CustomRowCellEnumerationService(object rowTypeIdentifier, IItemsControlTraits ownerTraits)
-         : base(rowTypeIdentifier, ownerTraits)
+      private IList<FrameworkElement> cells;
+
+      public CustomRowCellEnumerationService(object rowTypeIdentifier)
+         : base(rowTypeIdentifier)
       {
       }
 
-      public override void UpdateCurrentCellIndex()
+      public override int CellCount
       {
-         // Intentionally left blank.
+         get
+         {
+            if (cells.Count == 0)
+               UpdateCellsCollection();
+            return cells.Count;
+         }
+      }
+
+      public override void AttachToElement(FrameworkElement element)
+      {
+         base.AttachToElement(element);
+         UpdateCellsCollection();
+      }
+
+      public override void DetachFromElement(FrameworkElement element)
+      {
+         if (cells != null && cells.Count > 0)
+            cells.Clear();
+         cells = null;
+
+         base.DetachFromElement(element);
+      }
+
+      public override FrameworkElement GetCellAt(int index)
+      {
+         if (cells.Count == 0)
+            UpdateCellsCollection();
+         return cells[index];
+      }
+
+      public override UniversalCellInfo GetCellContaining(DependencyObject dependencyObject)
+      {
+         var cell = GetCellContaining((UIElement)dependencyObject);
+         if (cells.Count == 0)
+            UpdateCellsCollection();
+         return new UniversalCellInfo(this.Row.Item, cells.IndexOf(cell));
+      }
+
+      public override UniversalCellInfo GetCellInfo(int displayIndex)
+      {
+         return new UniversalCellInfo(this.Row.Item, displayIndex);
+      }
+
+      public override int GetCellIndex(FrameworkElement cellElement)
+      {
+         return cells.IndexOf(cellElement);
       }
 
       protected override FrameworkElement GetCellContaining(UIElement element)
@@ -42,6 +89,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       protected override IList<FrameworkElement> GetCells()
       {
          return new List<FrameworkElement>(Row.GetDescendants<VirtualTableCell>());
+      }
+
+      protected void UpdateCellsCollection()
+      {
+         cells = GetCells();
       }
    }
 }

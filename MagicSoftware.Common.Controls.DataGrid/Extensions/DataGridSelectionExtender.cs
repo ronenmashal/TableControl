@@ -314,8 +314,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             var item = Element.Items.GetItemAt(fromItemIndex);
             if (!Element.SelectedItems.Contains(item))
-               break;
-            Element.SelectedItems.Add(item);
+               continue;
+            Element.SelectedItems.Remove(item);
          }
       }
    }

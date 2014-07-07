@@ -6,18 +6,16 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
       int CellCount { get; }
 
-      int CurrentCellIndex { get; }
-
       object ServiceGroupIdentifier { get; }
 
       FrameworkElement GetCellAt(int index);
 
       UniversalCellInfo GetCellContaining(DependencyObject dependencyObject);
 
-      UniversalCellInfo GetCurrentCellInfo();
+      UniversalCellInfo GetCellInfo(int displayIndex);
 
       bool MoveToCell(int cellIndex);
 
-      void UpdateCurrentCellIndex();
+      int GetCellIndex(FrameworkElement cellElement);
    }
 }

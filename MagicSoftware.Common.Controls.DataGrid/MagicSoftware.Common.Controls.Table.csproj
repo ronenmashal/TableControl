@@ -79,6 +79,7 @@
     <Compile Include="EnhancedDataGrid.cs" />
     <Compile Include="Extensions\CancelableEventArgs.cs" />
     <Compile Include="Extensions\CellEnumerationServiceBase.cs" />
+    <Compile Include="Extensions\CellPositioning\CellPositionPerLineType.cs" />
     <Compile Include="Extensions\ControlTraitsFactory.cs" />
     <Compile Include="Extensions\CreateServiceByType.cs" />
     <Compile Include="Extensions\CurrentItemServiceBase.cs" />

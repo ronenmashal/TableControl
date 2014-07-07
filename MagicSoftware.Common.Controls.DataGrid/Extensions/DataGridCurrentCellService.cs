@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 using log4net;
+using MagicSoftware.Common.Controls.Table.Extensions.CellPositioning;
 using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
@@ -23,7 +24,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// </summary>
       protected readonly AutoResetFlag isSelfInducedCellChange = new AutoResetFlag();
 
+      private FrameworkElement currentCellElement;
+      private ICurrentCellPosition currentCellPosition = new CellPositionPerLineType((s) => { return ((CellEnumerationServiceBase)s).ServiceGroupIdentifier; });
       private System.Windows.Controls.DataGrid dataGrid;
+      private IItemsControlTraits elementTraits;
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
       #region CurrentCellChanging event.
@@ -114,21 +118,26 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private ICellEnumerationService CurrentRowCellEnumerationService { get; set; }
 
+      ColumnReorderingHandler columnReorderingHandler;
+
       public void AttachToElement(FrameworkElement element)
       {
          log.DebugFormat("Attaching service provider {0} to {1}", this.GetType().Name, element);
          this.dataGrid = (DataGrid)element;
          //currentRowService = UIServiceProvider.GetService<ICurrentItemService>(element);
          dataGrid.CurrentCellChanged += DataGrid_CurrentCellChanged;
-         dataGrid.ColumnDisplayIndexChanged += DataGrid_ColumnDisplayIndexChanged;
-
+         elementTraits = ControlTraitsFactory.GetTraitsFor(typeof(DataGrid));
          UpdateCurrentCell();
+         columnReorderingHandler = new ColumnReorderingHandler(dataGrid, this);
+
+         //dataGrid.ColumnReordering += new EventHandler<DataGridColumnReorderingEventArgs>(dataGrid_ColumnReordering);
+         //dataGrid.ColumnReordered += new EventHandler<DataGridColumnEventArgs>(dataGrid_ColumnReordered);
+         //dataGrid.ColumnDisplayIndexChanged += new EventHandler<DataGridColumnEventArgs>(dataGrid_ColumnDisplayIndexChanged);
       }
 
       public void DetachFromElement(FrameworkElement element)
       {
          dataGrid.CurrentCellChanged -= DataGrid_CurrentCellChanged;
-         dataGrid.ColumnDisplayIndexChanged -= DataGrid_ColumnDisplayIndexChanged;
       }
 
       public bool MoveDown(uint distance)
@@ -184,13 +193,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
                var rowEnumSvc = GetRowEnumerationServiceForItem(targetCell.Item);
                // If changing the row type (according to the row service), we should retake the cell index.
-               // Will this be a problem with the mouse?
                if (CurrentRowCellEnumerationService == null || rowEnumSvc.ServiceGroupIdentifier.Equals(CurrentRowCellEnumerationService.ServiceGroupIdentifier))
-                  rowEnumSvc.MoveToCell(targetCell.CellIndex);
-               else
-                  rowEnumSvc.MoveToCell(rowEnumSvc.CurrentCellIndex);
+                  currentCellPosition.SetCurrentCellIndex(rowEnumSvc, targetCell.CellIndex);
 
+               var newCell = rowEnumSvc.GetCellInfo(currentCellPosition.GetCurrentCellIndex(rowEnumSvc));
+               elementTraits.SetCurrentCell(this.dataGrid, newCell);
                UpdateCurrentCell();
+
                RaiseCurrentCellChangedEvent();
             }
             return CurrentCell.Equals(targetCell);
@@ -257,16 +266,31 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return false;
       }
 
-      private void DataGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)
+      private void dataGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)
       {
-         if (!isSelfInducedCellChange.IsSet)
-            UpdateCurrentCell();
+         currentCellPosition.SetCurrentCellIndex(CurrentRowCellEnumerationService, CurrentRowCellEnumerationService.GetCellIndex(currentCellElement));
+         UpdateCurrentCell();
+      }
+
+      private void dataGrid_ColumnReordered(object sender, DataGridColumnEventArgs e)
+      {
+         currentCellPosition.SetCurrentCellIndex(CurrentRowCellEnumerationService, CurrentRowCellEnumerationService.GetCellIndex(currentCellElement));
+         UpdateCurrentCell();
+      }
+
+      private void dataGrid_ColumnReordering(object sender, DataGridColumnReorderingEventArgs e)
+      {
+         currentCellElement = CurrentCellElement;
       }
 
       private void DataGrid_CurrentCellChanged(object sender, EventArgs e)
       {
          if (!isSelfInducedCellChange.IsSet)
+         {
             RaiseNonCancelablePreviewCurrentCellChangingEvent(CurrentCell);
+            var newRowService = GetRowEnumerationServiceForItem(dataGrid.CurrentCell.Item);
+            currentCellPosition.SetCurrentCellIndex(newRowService, dataGrid.CurrentCell.Column.DisplayIndex);
+         }
          UpdateCurrentCell();
          if (!isSelfInducedCellChange.IsSet)
             RaiseCurrentCellChangedEvent();
@@ -332,6 +356,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return false;
       }
 
+      private void SetCurrentCell(FrameworkElement cellElement)
+      {
+         currentCellPosition.SetCurrentCellIndex(CurrentRowCellEnumerationService, CurrentRowCellEnumerationService.GetCellIndex(cellElement));
+      }
+
       private void UpdateCurrentCell()
       {
          using (LoggingExtensions.Indent())
@@ -340,8 +369,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             CurrentRowCellEnumerationService = GetRowEnumerationServiceForItem(dataGrid.CurrentItem);
             if (CurrentRowCellEnumerationService != null)
             {
-               CurrentRowCellEnumerationService.UpdateCurrentCellIndex();
-               CurrentCell = CurrentRowCellEnumerationService.GetCurrentCellInfo();
+               CurrentCell = CurrentRowCellEnumerationService.GetCellInfo(currentCellPosition.GetCurrentCellIndex(CurrentRowCellEnumerationService));
             }
          }
       }
@@ -353,5 +381,39 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       #endregion IDisposable Members
+
+      private class ColumnReorderingHandler : IDisposable
+      {
+         private FrameworkElement cellElementBeforeReordering;
+         private DataGrid dataGrid;
+         DataGridCurrentCellService cellService;
+
+         public ColumnReorderingHandler(DataGrid dataGrid, DataGridCurrentCellService cellService)
+         {
+            this.dataGrid = dataGrid;
+            this.cellService = cellService;
+            cellService.CurrentCellChanged += new EventHandler(cellService_CurrentCellChanged);
+            dataGrid.ColumnDisplayIndexChanged += new EventHandler<DataGridColumnEventArgs>(dataGrid_ColumnDisplayIndexChanged);
+         }
+
+         public void Dispose()
+         {
+            cellService.CurrentCellChanged -= new EventHandler(cellService_CurrentCellChanged);
+            dataGrid.ColumnDisplayIndexChanged -= new EventHandler<DataGridColumnEventArgs>(dataGrid_ColumnDisplayIndexChanged);
+            this.dataGrid = null;
+            this.cellService = null;
+         }
+
+         private void cellService_CurrentCellChanged(object sender, EventArgs e)
+         {
+            dataGrid.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() => { cellElementBeforeReordering = cellService.CurrentCellElement; }));
+         }
+
+         private void dataGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)
+         {
+            cellService.SetCurrentCell(cellElementBeforeReordering);
+            cellService.UpdateCurrentCell();
+         }
+      }
    }
 }

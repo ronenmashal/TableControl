@@ -26,6 +26,26 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private static readonly DependencyProperty ServiceProviderProperty =
           DependencyProperty.RegisterAttached("ServiceProvider", typeof(UIServiceProvider), typeof(UIServiceProvider), new UIPropertyMetadata(null));
 
+      public static RoutedEvent ServiceProviderFullyAttachedEvent = EventManager.RegisterRoutedEvent("ServiceProviderFullyAttachedEvent", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(UIServiceProvider));
+
+      public static void AddServiceProviderFullyAttachedHandler(DependencyObject obj, RoutedEventHandler handler)
+      {
+         UIElement uie = obj as UIElement;
+         if (uie != null)
+         {
+            uie.AddHandler(UIServiceProvider.ServiceProviderFullyAttachedEvent, handler);
+         }
+      }
+
+      public static void RemoveServiceProviderFullyAttachedHandler(DependencyObject obj, RoutedEventHandler handler)
+      {
+         UIElement uie = obj as UIElement;
+         if (uie != null)
+         {
+            uie.RemoveHandler(UIServiceProvider.ServiceProviderFullyAttachedEvent, handler);
+         }
+      }
+
       private static ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
       public static IUIService GetService(FrameworkElement element, Type serviceType)
@@ -39,8 +59,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             {
                log.DebugFormat("Creating a new service provider for {0}", element);
                serviceProvider = new UIServiceProvider();
-               serviceProvider.AttachToElement(element, serviceList);
                SetServiceProvider(element, serviceProvider);
+               serviceProvider.AttachToElement(element, serviceList);
             }
          }
          if (serviceProvider != null)
@@ -137,6 +157,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
+      void OnFullyAttached()
+      {
+         var args = new RoutedEventArgs(UIServiceProvider.ServiceProviderFullyAttachedEvent, this);
+         this.element.RaiseEvent(args);
+      }
+
       public IUIService GetService(Type serviceType)
       {
          if (serviceImplementations.ContainsKey(serviceType))
@@ -203,6 +229,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          owningWindow = UIUtils.GetAncestor<Window>(element);
          if (owningWindow != null)
             owningWindow.Closed += OwningWindow_Closed;
+
+         OnFullyAttached();
       }
 
       private void Element_Unloaded(object sender, RoutedEventArgs args)

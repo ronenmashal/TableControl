@@ -107,6 +107,11 @@
     <Compile Include="Extensions\IUIServiceFactory.cs" />
     <Compile Include="Extensions\NavigationCommandsMap.cs" />
     <Compile Include="Extensions\ParameterlessUIServiceFactory.cs" />
+    <Compile Include="Extensions\Selection\IdleSelectionMode.cs" />
+    <Compile Include="Extensions\Selection\MultiSelectionMode.cs" />
+    <Compile Include="Extensions\Selection\SelectionMode.cs" />
+    <Compile Include="Extensions\Selection\SelectionModeManager.cs" />
+    <Compile Include="Extensions\Selection\SingleSelectionMode.cs" />
     <Compile Include="Extensions\SharedObjectsService.cs" />
     <Compile Include="Extensions\ICurrentItemService.cs" />
     <Compile Include="Extensions\ImplementedServiceAttribute.cs" />
@@ -154,6 +159,7 @@
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>

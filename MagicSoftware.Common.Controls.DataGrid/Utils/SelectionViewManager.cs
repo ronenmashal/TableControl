@@ -18,22 +18,14 @@ namespace MagicSoftware.Common.Controls.Table.Utils
       {
          this.attachedElement = attachedElement;
          this.selectionView = selectionView;
-         attachedElement.SelectionChanged += attachedElement_SelectionChanged;
+         //attachedElement.SelectionChanged += attachedElement_SelectionChanged;
          selectionView.PropertyChanged += selectionView_PropertyChanged;
-         if (!attachedElement.IsLoaded)
-            attachedElement.Loaded += attachedElement_Loaded;
       }
 
       public void Dispose()
       {
-         attachedElement.SelectionChanged -= attachedElement_SelectionChanged;
+         //attachedElement.SelectionChanged -= attachedElement_SelectionChanged;
          selectionView.PropertyChanged -= selectionView_PropertyChanged;
-      }
-
-      private void attachedElement_Loaded(object sender, System.Windows.RoutedEventArgs e)
-      {
-         attachedElement.Loaded -= attachedElement_Loaded;
-         UpdateSelectionFromSelectionView();
       }
 
       private void attachedElement_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -62,7 +54,7 @@ namespace MagicSoftware.Common.Controls.Table.Utils
          }
       }
 
-      private void UpdateSelectionFromSelectionView()
+      public void UpdateSelectionFromSelectionView()
       {
          using (isReadingFromView.Set())
          {
@@ -70,14 +62,17 @@ namespace MagicSoftware.Common.Controls.Table.Utils
                return;
 
             attachedElement.SelectedItems.Clear();
-            if (selectionView.Selection == null)
+            if (selectionView.Selection == null || selectionView.Selection.Length == 0)
                return;
 
+            attachedElement.SelectedItem = selectionView.Selection[0];
             foreach (var item in selectionView.Selection)
             {
                attachedElement.SelectedItems.Add(item);
             }
          }
       }
+
+      public int CountSelectedItems { get { return selectionView.Selection.Length; } }
    }
 }

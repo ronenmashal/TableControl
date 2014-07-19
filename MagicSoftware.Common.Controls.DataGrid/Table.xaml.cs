@@ -25,8 +25,6 @@ namespace MagicSoftware.Common.Controls.Table
 
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-      private SelectionViewManager selectionViewManager = null;
-
       public Table()
       {
          InitializeComponent();
@@ -70,19 +68,8 @@ namespace MagicSoftware.Common.Controls.Table
          var table = sender as Table;
          if (table != null)
          {
-            table.SetSelectionView((ISelectionView)args.NewValue);
+            DataGridSelectionExtender.SetSelectionView(table.rootItemsControl, (ISelectionView)args.NewValue);
          }
-      }
-
-      private void SetSelectionView(ISelectionView selectionView)
-      {
-         if (selectionViewManager != null)
-            selectionViewManager.Dispose();
-
-         if (selectionView == null)
-            selectionViewManager = null;
-         else
-            selectionViewManager = new SelectionViewManager(rootItemsControl, selectionView);
       }
    }
 

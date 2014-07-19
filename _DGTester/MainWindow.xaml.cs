@@ -37,7 +37,6 @@ namespace _DGTester
       {
          InitializeComponent();
          DataContext = new View1();
-         this.DG.SelectionView = selectionView;
          selectionView.Selection = new object[] {
             ((View1)DataContext).Items.GetItemAt(3),
             ((View1)DataContext).Items.GetItemAt(5),
@@ -45,6 +44,7 @@ namespace _DGTester
             ((View1)DataContext).Items.GetItemAt(24),
             ((View1)DataContext).Items.GetItemAt(56)
          };
+         this.DG.SelectionView = selectionView;
       }
 
       private void DataGrid_Loaded(object sender, RoutedEventArgs e)

@@ -24,6 +24,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       /// this class (self induced).
       /// </summary>
       protected readonly AutoResetFlag isSelfInducedCellChange = new AutoResetFlag();
+      protected readonly AutoResetFlag isRegainingFocus = new AutoResetFlag();
 
       private ColumnReorderingHandler columnReorderingHandler;
       private FrameworkElement currentCellElement;
@@ -155,9 +156,22 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          UpdateCurrentCell();
          columnReorderingHandler = new ColumnReorderingHandler(dataGrid, this);
 
+         dataGrid.IsKeyboardFocusWithinChanged += new DependencyPropertyChangedEventHandler(dataGrid_IsKeyboardFocusWithinChanged);
          //dataGrid.ColumnReordering += new EventHandler<DataGridColumnReorderingEventArgs>(dataGrid_ColumnReordering);
          //dataGrid.ColumnReordered += new EventHandler<DataGridColumnEventArgs>(dataGrid_ColumnReordered);
          //dataGrid.ColumnDisplayIndexChanged += new EventHandler<DataGridColumnEventArgs>(dataGrid_ColumnDisplayIndexChanged);
+      }
+
+      void dataGrid_IsKeyboardFocusWithinChanged(object sender, DependencyPropertyChangedEventArgs e)
+      {
+         bool isKeyboardFocusWithin = (bool)e.NewValue;
+         if (isKeyboardFocusWithin)
+         {
+            using (isRegainingFocus.Set())
+            {
+               MoveTo(CurrentCell);
+            }
+         }
       }
 
       public void DetachFromElement(FrameworkElement element)
@@ -207,9 +221,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             if (!CanMoveTo(targetCell))
                return CannotMoveToCell(targetCell);
 
-            RaisePreviewCurrentCellChangingEvent(targetCell, out canceled);
-            if (canceled)
-               return OperationCanceled();
+            if (!isRegainingFocus.IsSet)
+            {
+               RaisePreviewCurrentCellChangingEvent(targetCell, out canceled);
+               if (canceled)
+                  return OperationCanceled();
+            }
 
             using (isSelfInducedCellChange.Set())
             {
@@ -225,7 +242,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                elementTraits.SetCurrentCell(this.dataGrid, newCell);
                UpdateCurrentCell();
 
-               RaiseCurrentCellChangedEvent();
+               if (!isRegainingFocus.IsSet)
+                  RaiseCurrentCellChangedEvent();
             }
             return CurrentCell.Equals(targetCell);
          }));

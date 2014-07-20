@@ -14,6 +14,9 @@ using System.Windows.Shapes;
 using _DGTester.Data;
 using MagicSoftware.Common.Controls.ProxiesX;
 using MagicSoftware.Common.Controls.Table.Models;
+using log4net;
+using MagicSoftware.Common.Utils;
+using LogLevel = log4net.Core.Level;
 
 namespace _DGTester
 {
@@ -69,8 +72,10 @@ namespace _DGTester
          ColVisibility = (Visibility)(((int)ColVisibility + 1) % 3);
       }
 
+      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
       private void GetSelection_Click(object sender, RoutedEventArgs e)
       {
+         log.Info("-------------------------------------------- Get selection --------------------------");
          StringBuilder selection = new StringBuilder();
          if (selectionView.Selection != null)
          {

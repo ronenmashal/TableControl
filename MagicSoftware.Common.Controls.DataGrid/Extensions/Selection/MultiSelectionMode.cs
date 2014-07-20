@@ -31,6 +31,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
 
       public override void OnCurrentItemChanged()
       {
+         if (!Element.IsKeyboardFocusWithin)
+            return;
+
          UpdateKeyboardStatus();
          if (!ctrlIsDown || shiftIsDown)
          {
@@ -64,17 +67,18 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
             if (SelectionModeManager.IsMultiSelectionKey(keyEventArgs.Key))
                return this;
 
-            ModifierKeys modifiers = keyEventArgs.KeyboardDevice.Modifiers;
-            if (!(modifiers.HasFlag(ModifierKeys.Shift) || modifiers.HasFlag(ModifierKeys.Control)))
-            {
-               return SelectionModeManager.SingleSelectionMode;
-            }
-
             if (ToggleSelectionKey.Matches(sender, keyEventArgs))
             {
                log.Debug("Toggling current item's selection");
                ToggleItemSelection();
+               keyEventArgs.Handled = true;
             }
+         }
+         else if (keyEventArgs.IsUp)
+         {
+            UpdateKeyboardStatus();
+            if (!ctrlIsDown && !shiftIsDown)
+               return SelectionModeManager.SingleSelectionMode;
          }
 
          return this;

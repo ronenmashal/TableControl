@@ -18,6 +18,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
 
       public override void OnCurrentItemChanged()
       {
+         if (!Element.IsKeyboardFocusWithin)
+            return;
       }
 
       protected override SelectionMode HandleKeyboardEvent(object sender, KeyEventArgs keyEventArgs)

@@ -19,6 +19,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
 
       public override void OnCurrentItemChanged()
       {
+         if (!Element.IsKeyboardFocusWithin)
+            return;
+
+         log.Debug("Changing the selected item.");
          Element.SelectedItem = CurrentItemTracker.CurrentItem;
       }
 

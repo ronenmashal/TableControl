@@ -38,7 +38,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
          SingleSelectionMode.Initialize(element, currentItemTracker);
          MultiSelectionMode.Initialize(element, currentItemTracker);
 
-         SetCurrentSelectionMode(IdleSelectionMode);
+         SetCurrentSelectionMode(SingleSelectionMode);
          currentSelectionMode.Enter();
       }
 

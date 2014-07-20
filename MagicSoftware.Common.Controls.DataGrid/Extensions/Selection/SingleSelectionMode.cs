@@ -11,7 +11,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
       public override void Enter()
       {
          log.Debug("Entering single selection mode");
-         Element.SelectedItem = CurrentItemTracker.CurrentItem;
       }
 
       public override void Leave()

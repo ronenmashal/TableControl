@@ -12,7 +12,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
 {
    internal abstract class SelectionMode
    {
-      protected ILog log = log4net.LogManager.GetLogger(DataGridSelectionExtender.LoggerName);
+      protected ILog log = log4net.LogManager.GetLogger(DataGridSelectionService.LoggerName);
 
       protected ICurrentItemService CurrentItemTracker { get; private set; }
 

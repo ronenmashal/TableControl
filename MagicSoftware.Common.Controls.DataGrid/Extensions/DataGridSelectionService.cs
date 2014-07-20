@@ -16,7 +16,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    }
 
    [ImplementedService(typeof(ISelectionService))]
-   internal class DataGridSelectionExtender : ISelectionService, IUIService
+   internal class DataGridSelectionService : ISelectionService, IUIService
    {
 
 
@@ -31,12 +31,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       public static readonly DependencyProperty SelectionViewProperty =
-          DependencyProperty.RegisterAttached("SelectionView", typeof(ISelectionView), typeof(DataGridSelectionExtender), new UIPropertyMetadata(null, OnSelectionViewChanged));
+          DependencyProperty.RegisterAttached("SelectionView", typeof(ISelectionView), typeof(DataGridSelectionService), new UIPropertyMetadata(null, OnSelectionViewChanged));
 
       static void OnSelectionViewChanged(object obj, DependencyPropertyChangedEventArgs args)
       {
          var target = (FrameworkElement)obj;
-         var selectionSvc = UIServiceProvider.GetService<DataGridSelectionExtender>(target);
+         var selectionSvc = UIServiceProvider.GetService<DataGridSelectionService>(target);
          // Selection service may be null because it was either (1) not loaded yet or (2) not assigned.
          if (selectionSvc != null)
             selectionSvc.SetSelectionView((ISelectionView)args.NewValue);
@@ -48,7 +48,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private SelectionModeManager selectionModeManager;
 
-      public DataGridSelectionExtender()
+      public DataGridSelectionService()
       {
          id = IdGenerator.GetNewId(this);
       }

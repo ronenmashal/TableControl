@@ -19,7 +19,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
       public static readonly IdleSelectionMode IdleSelectionMode = new IdleSelectionMode();
       public static readonly MultiSelectionMode MultiSelectionMode = new MultiSelectionMode();
       public static readonly SingleSelectionMode SingleSelectionMode = new SingleSelectionMode();
-      protected ILog log = log4net.LogManager.GetLogger(DataGridSelectionExtender.LoggerName);
+      protected ILog log = log4net.LogManager.GetLogger(DataGridSelectionService.LoggerName);
 
       private SelectionMode currentSelectionMode;
 

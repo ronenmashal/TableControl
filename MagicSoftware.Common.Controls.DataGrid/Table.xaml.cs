@@ -68,7 +68,7 @@ namespace MagicSoftware.Common.Controls.Table
          var table = sender as Table;
          if (table != null)
          {
-            DataGridSelectionExtender.SetSelectionView(table.rootItemsControl, (ISelectionView)args.NewValue);
+            DataGridSelectionService.SetSelectionView(table.rootItemsControl, (ISelectionView)args.NewValue);
          }
       }
    }

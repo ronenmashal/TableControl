@@ -21,7 +21,7 @@ namespace MagicSoftware.Common.Controls.Table
           DependencyProperty.Register("RowStyleSelector", typeof(StyleSelector), typeof(Table), new UIPropertyMetadata(null, OnRowStyleSelectorChanged));
 
       public static readonly DependencyProperty SelectionViewProperty =
-          DependencyProperty.Register("SelectionView", typeof(ISelectionView), typeof(Table), new UIPropertyMetadata(null, OnSelectionViewChanged));
+          DependencyProperty.Register("SelectionView", typeof(SelectionView), typeof(Table), new UIPropertyMetadata(null, OnSelectionViewChanged));
 
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -48,9 +48,9 @@ namespace MagicSoftware.Common.Controls.Table
          set { SetValue(RowStyleSelectorProperty, value); }
       }
 
-      public ISelectionView SelectionView
+      public SelectionView SelectionView
       {
-         get { return (ISelectionView)GetValue(SelectionViewProperty); }
+         get { return (SelectionView)GetValue(SelectionViewProperty); }
          set { SetValue(SelectionViewProperty, value); }
       }
 
@@ -68,7 +68,7 @@ namespace MagicSoftware.Common.Controls.Table
          var table = sender as Table;
          if (table != null)
          {
-            DataGridSelectionService.SetSelectionView(table.rootItemsControl, (ISelectionView)args.NewValue);
+            DataGridSelectionService.SetSelectionView(table.rootItemsControl, (SelectionView)args.NewValue);
          }
       }
    }

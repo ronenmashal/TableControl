@@ -12,49 +12,29 @@ namespace MagicSoftware.Common.Controls.Table.Utils
       private readonly AutoResetFlag isUpdatingView = new AutoResetFlag();
       private MultiSelector attachedElement;
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-      private ISelectionView selectionView;
+      private SelectionView selectionView;
 
-      public SelectionViewManager(MultiSelector attachedElement, ISelectionView selectionView)
+      public SelectionViewManager(MultiSelector attachedElement, SelectionView selectionView)
       {
          this.attachedElement = attachedElement;
          this.selectionView = selectionView;
-         //attachedElement.SelectionChanged += attachedElement_SelectionChanged;
-         selectionView.PropertyChanged += selectionView_PropertyChanged;
+         selectionView.SelectionChanged += selectionView_SelectionChanged;
       }
+
+      public int CountSelectedItems { get { return selectionView.Count; } }
 
       public void Dispose()
       {
-         //attachedElement.SelectionChanged -= attachedElement_SelectionChanged;
-         selectionView.PropertyChanged -= selectionView_PropertyChanged;
+         attachedElement.SelectionChanged -= attachedElement_SelectionChanged;
+         selectionView.SelectionChanged -= selectionView_SelectionChanged;
       }
 
-      private void attachedElement_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+      public void RegisterSelectionChangeEvents()
       {
-         if (!isReadingFromView.IsSet)
-         {
-            using (isUpdatingView.Set())
-            {
-               log.Debug("Selection changed. " + attachedElement.SelectedItems.Count);
-               object[] selection = new object[attachedElement.SelectedItems.Count];
-               int i = 0;
-               foreach (var item in attachedElement.SelectedItems)
-               {
-                  selection[i++] = item;
-               }
-               selectionView.Selection = selection;
-            }
-         }
+         attachedElement.SelectionChanged += attachedElement_SelectionChanged;
       }
 
-      private void selectionView_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-      {
-         if (!isUpdatingView.IsSet)
-         {
-            UpdateSelectionFromSelectionView();
-         }
-      }
-
-      public void UpdateSelectionFromSelectionView()
+      public void SelectItemsOnElement()
       {
          using (isReadingFromView.Set())
          {
@@ -62,17 +42,43 @@ namespace MagicSoftware.Common.Controls.Table.Utils
                return;
 
             attachedElement.SelectedItems.Clear();
-            if (selectionView.Selection == null || selectionView.Selection.Length == 0)
+            if (selectionView.Count == 0)
                return;
 
-            attachedElement.SelectedItem = selectionView.Selection[0];
-            foreach (var item in selectionView.Selection)
+            var selectionEnumerator = selectionView.GetEnumerator();
+            selectionEnumerator.MoveNext();
+            attachedElement.SelectedItem = selectionEnumerator.Current;
+            while (selectionEnumerator.MoveNext())
             {
-               attachedElement.SelectedItems.Add(item);
+               attachedElement.SelectedItems.Add(selectionEnumerator.Current);
             }
          }
       }
 
-      public int CountSelectedItems { get { return selectionView.Selection.Length; } }
+      public void UpdateViewFromElement()
+      {
+         using (isUpdatingView.Set())
+         {
+            selectionView.SetSelection(attachedElement.SelectedItems);
+         }
+      }
+
+      private void attachedElement_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+      {
+         if (!isReadingFromView.IsSet)
+         {
+            log.Debug("Selection changed on attached element: Updating view.");
+            UpdateViewFromElement();
+         }
+      }
+
+      void selectionView_SelectionChanged(object sender, EventArgs e)
+      {
+         if (!isUpdatingView.IsSet)
+         {
+            log.Debug("Selection changed on view: Updating element.");
+            SelectItemsOnElement();
+         }
+      }
    }
 }

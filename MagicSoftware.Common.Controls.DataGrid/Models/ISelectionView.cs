@@ -1,64 +1,84 @@
 ﻿using System;
-using System.ComponentModel;
-using MagicSoftware.Common.ViewModel;
+using System.Collections;
+using System.Collections.Generic;
+using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Models
 {
-   public interface ISelectionView : INotifyPropertyChanged
+   public class SelectionView
    {
-      bool IsMultiSelection { get; }
+      private readonly AutoResetFlag suppressSelectionChangeEvents = new AutoResetFlag();
+      private List<object> selection = new List<object>();
 
-      object[] Selection { get; set; }
-   }
+      public event EventHandler SelectionChanged;
 
-   public class MultiSelectionView : ObservableObject, ISelectionView
-   {
-      private object[] selection;
-
-      public bool IsMultiSelection
+      public int Count
       {
-         get { return true; }
+         get { return selection.Count; }
       }
 
-      public object[] Selection
-      {
-         get { return selection; }
-         set
-         {
-            selection = value;
-            OnPropertyChanged("Selection");
-         }
-      }
-   }
-
-   public class SingleItemSelectionView : ObservableObject, ISelectionView
-   {
-      private object selectedItem;
-
-      object[] ISelectionView.Selection
-      {
-         get { return new object[] { selectedItem }; }
-         set
-         {
-            if (value == null || value.Length == 0)
-               Selection = null;
-            Selection = value[0];
-         }
-      }
-
-      public bool IsMultiSelection
+      public bool IsSynchronized
       {
          get { return false; }
       }
 
-      public object Selection
+      public object SyncRoot
       {
-         get { return selectedItem; }
-         set
+         get { return null; }
+      }
+
+      public void ClearSelection()
+      {
+         selection.Clear();
+         OnSelectionChanged();
+      }
+
+      public void CopyTo(Array array, int index)
+      {
+         selection.CopyTo((object[])array, index);
+      }
+
+      public IEnumerator GetEnumerator()
+      {
+         return selection.GetEnumerator();
+      }
+
+      public void SelectAll(IEnumerable<object> sourceCollection)
+      {
+         selection.Clear();
+         selection.AddRange(sourceCollection);
+         OnSelectionChanged();
+      }
+
+      public void SelectItem(object item)
+      {
+         selection.Add(item);
+         OnSelectionChanged();
+      }
+
+      public void SetSelection(ICollection selection)
+      {
+         using (suppressSelectionChangeEvents.Set())
          {
-            selectedItem = value;
-            OnPropertyChanged("Selection");
+            ClearSelection();
+            foreach (var item in selection)
+            {
+               SelectItem(item);
+            }
          }
+         OnSelectionChanged();
+      }
+
+      public void UnselectItem(object item)
+      {
+         selection.Remove(item);
+         OnSelectionChanged();
+      }
+
+      private void OnSelectionChanged()
+      {
+         if (SelectionChanged != null && !suppressSelectionChangeEvents.IsSet)
+            SelectionChanged(this, new EventArgs());
       }
    }
 }

@@ -68,7 +68,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
          CurrentItemTracker = null;
       }
 
-      public void SetSelectionView(ISelectionView selectionView)
+      public void SetSelectionView(SelectionView selectionView)
       {
          if (selectionViewManager != null)
             selectionViewManager.Dispose();
@@ -81,7 +81,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
          selectionViewManager = new SelectionViewManager(Element, selectionView);
          Element.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() =>
          {
-            selectionViewManager.UpdateSelectionFromSelectionView();
+            selectionViewManager.SelectItemsOnElement();
          }));
       }
 
@@ -98,6 +98,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
       private void CurrentItemTracker_CurrentChanged(object sender, EventArgs args)
       {
          currentSelectionMode.OnCurrentItemChanged();
+         Element.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
+         {
+            if (selectionViewManager != null)
+               selectionViewManager.UpdateViewFromElement();
+         }));
       }
 
       private void SetCurrentSelectionMode(SelectionMode nextSelectionMode)

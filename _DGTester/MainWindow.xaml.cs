@@ -25,7 +25,7 @@ namespace _DGTester
    /// </summary>
    public partial class MainWindow : Window
    {
-      MultiSelectionView selectionView = new MultiSelectionView();
+      SelectionView selectionView = new SelectionView();
 
       static MainWindow()
       {
@@ -40,13 +40,13 @@ namespace _DGTester
       {
          InitializeComponent();
          DataContext = new View1();
-         selectionView.Selection = new object[] {
+         selectionView.SetSelection(new object[] {
             ((View1)DataContext).Items.GetItemAt(3),
             ((View1)DataContext).Items.GetItemAt(5),
             ((View1)DataContext).Items.GetItemAt(23),
             ((View1)DataContext).Items.GetItemAt(24),
             ((View1)DataContext).Items.GetItemAt(56)
-         };
+         });
          this.DG.SelectionView = selectionView;
       }
 
@@ -77,11 +77,8 @@ namespace _DGTester
       {
          log.Info("-------------------------------------------- Get selection --------------------------");
          StringBuilder selection = new StringBuilder();
-         if (selectionView.Selection != null)
-         {
-            foreach (var item in selectionView.Selection)
-               selection.Append(item.ToString() + Environment.NewLine);
-         }
+         foreach (var item in selectionView)
+            selection.Append(item.ToString() + Environment.NewLine);
          MessageBox.Show(selection.ToString());
       }
 

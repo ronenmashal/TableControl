@@ -12,7 +12,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    public interface ISelectionService
    {
-      void SetSelectionView(ISelectionView selectionView);
+      void SetSelectionView(SelectionView selectionView);
    }
 
    [ImplementedService(typeof(ISelectionService))]
@@ -20,18 +20,18 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
 
 
-      public static ISelectionView GetSelectionView(DependencyObject obj)
+      public static SelectionView GetSelectionView(DependencyObject obj)
       {
-         return (ISelectionView)obj.GetValue(SelectionViewProperty);
+         return (SelectionView)obj.GetValue(SelectionViewProperty);
       }
 
-      public static void SetSelectionView(DependencyObject obj, ISelectionView value)
+      public static void SetSelectionView(DependencyObject obj, SelectionView value)
       {
          obj.SetValue(SelectionViewProperty, value);
       }
 
       public static readonly DependencyProperty SelectionViewProperty =
-          DependencyProperty.RegisterAttached("SelectionView", typeof(ISelectionView), typeof(DataGridSelectionService), new UIPropertyMetadata(null, OnSelectionViewChanged));
+          DependencyProperty.RegisterAttached("SelectionView", typeof(SelectionView), typeof(DataGridSelectionService), new UIPropertyMetadata(null, OnSelectionViewChanged));
 
       static void OnSelectionViewChanged(object obj, DependencyPropertyChangedEventArgs args)
       {
@@ -39,7 +39,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          var selectionSvc = UIServiceProvider.GetService<DataGridSelectionService>(target);
          // Selection service may be null because it was either (1) not loaded yet or (2) not assigned.
          if (selectionSvc != null)
-            selectionSvc.SetSelectionView((ISelectionView)args.NewValue);
+            selectionSvc.SetSelectionView((SelectionView)args.NewValue);
       }
 
       public static readonly string LoggerName = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Namespace + ".SelectionService";
@@ -86,7 +86,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          DetachFromElement(TargetElement);
       }
 
-      public void SetSelectionView(ISelectionView selectionView)
+      public void SetSelectionView(SelectionView selectionView)
       {
          if (selectionModeManager != null)
             selectionModeManager.SetSelectionView(selectionView);

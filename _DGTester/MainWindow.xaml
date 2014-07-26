@@ -6,6 +6,8 @@
         xmlns:mg="http://schemas.magicsoftware.com/common/2011/controls"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:tbl="http://schemas.magicsoftware.com/common/controls/table"
+        xmlns:ext="clr-namespace:MagicSoftware.Common.Controls.Extensibility;assembly=MagicSoftware.Common"
+             xmlns:pxy="clr-namespace:MagicSoftware.Common.Controls.Proxies;assembly=MagicSoftware.Common"
         Title="MainWindow"
         Width="1000"
         Height="400">
@@ -225,13 +227,18 @@
                 ElementName=DG}"
                 SelectionMode="Extended" />
             -->
-            <tbl:LineEditor Grid.Column="1" ItemsSource="{Binding Items}">
+            <!--<tbl:LineEditor Grid.Column="1" ItemsSource="{Binding Items}">
                 <tbl:LineEditor.Resources>
                     <DataTemplate x:Key="{x:Type data:MyHeaderView}">
                         <tbl:VirtualTextTableCell Binding="{Binding StringValue}" />
                     </DataTemplate>
                 </tbl:LineEditor.Resources>
-            </tbl:LineEditor>
+            </tbl:LineEditor>-->
+            <ListBox Grid.Column="1" ItemsSource="{Binding Items}" SelectionMode="Multiple" tbl:SelectionExtender.SelectionView="{Binding SelectedItems}">
+                <tbl:UIServiceProvider.ServiceList>
+                    <tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:SelectionExtender}" />
+                </tbl:UIServiceProvider.ServiceList>
+            </ListBox>
         </Grid>
         <!--
             <DataGrid CanUserAddRows="False"

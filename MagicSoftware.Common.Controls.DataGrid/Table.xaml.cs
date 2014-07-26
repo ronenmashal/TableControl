@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using log4net;
 using MagicSoftware.Common.Controls.Table.Extensions;
 using MagicSoftware.Common.Controls.Table.Models;
-using MagicSoftware.Common.Controls.Table.Utils;
 
 namespace MagicSoftware.Common.Controls.Table
 {
@@ -19,6 +19,9 @@ namespace MagicSoftware.Common.Controls.Table
 
       public static readonly DependencyProperty RowStyleSelectorProperty =
           DependencyProperty.Register("RowStyleSelector", typeof(StyleSelector), typeof(Table), new UIPropertyMetadata(null, OnRowStyleSelectorChanged));
+
+      public static readonly DependencyProperty SelectedItemsProperty =
+          DependencyProperty.Register("SelectedItems", typeof(ObservableCollection<object>), typeof(Table), new UIPropertyMetadata(new ObservableCollection<object>()));
 
       public static readonly DependencyProperty SelectionViewProperty =
           DependencyProperty.Register("SelectionView", typeof(SelectionView), typeof(Table), new UIPropertyMetadata(null, OnSelectionViewChanged));
@@ -48,6 +51,12 @@ namespace MagicSoftware.Common.Controls.Table
          set { SetValue(RowStyleSelectorProperty, value); }
       }
 
+      public ObservableCollection<object> SelectedItems
+      {
+         get { return (ObservableCollection<object>)GetValue(SelectedItemsProperty); }
+         set { SetValue(SelectedItemsProperty, value); }
+      }
+
       public SelectionView SelectionView
       {
          get { return (SelectionView)GetValue(SelectionViewProperty); }
@@ -68,7 +77,7 @@ namespace MagicSoftware.Common.Controls.Table
          var table = sender as Table;
          if (table != null)
          {
-            DataGridSelectionService.SetSelectionView(table.rootItemsControl, (SelectionView)args.NewValue);
+            //DataGridSelectionService.SetSelectionView(table.rootItemsControl, (SelectionView)args.NewValue);
          }
       }
    }

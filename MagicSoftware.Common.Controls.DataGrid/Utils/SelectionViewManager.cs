@@ -18,20 +18,20 @@ namespace MagicSoftware.Common.Controls.Table.Utils
       {
          this.attachedElement = attachedElement;
          this.selectionView = selectionView;
-         selectionView.SelectionChanged += selectionView_SelectionChanged;
+         //selectionView.SelectionChanged += selectionView_SelectionChanged;
       }
 
       public int CountSelectedItems { get { return selectionView.Count; } }
 
       public void Dispose()
       {
-         attachedElement.SelectionChanged -= attachedElement_SelectionChanged;
-         selectionView.SelectionChanged -= selectionView_SelectionChanged;
+         //attachedElement.SelectionChanged -= attachedElement_SelectionChanged;
+         //selectionView.SelectionChanged -= selectionView_SelectionChanged;
       }
 
       public void RegisterSelectionChangeEvents()
       {
-         attachedElement.SelectionChanged += attachedElement_SelectionChanged;
+         //attachedElement.SelectionChanged += attachedElement_SelectionChanged;
       }
 
       public void SelectItemsOnElement()

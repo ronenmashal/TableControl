@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicEditorTester", "..\Log
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z_GeneratorPosition", "z_GeneratorPosition\z_GeneratorPosition.csproj", "{BC7C5106-D9B9-4A38-9555-0A002D761F90}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIServiceTests", "UIServiceTests\UIServiceTests.csproj", "{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = TableControl.vsmdi
@@ -105,6 +107,16 @@ Global
 		{BC7C5106-D9B9-4A38-9555-0A002D761F90}.Release|Mixed Platforms.Build.0 = Release|x86
 		{BC7C5106-D9B9-4A38-9555-0A002D761F90}.Release|x86.ActiveCfg = Release|x86
 		{BC7C5106-D9B9-4A38-9555-0A002D761F90}.Release|x86.Build.0 = Release|x86
+		{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}.Debug|x86.ActiveCfg = Debug|x86
+		{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}.Debug|x86.Build.0 = Debug|x86
+		{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}.Release|Any CPU.ActiveCfg = Release|x86
+		{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}.Release|Mixed Platforms.Build.0 = Release|x86
+		{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}.Release|x86.ActiveCfg = Release|x86
+		{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -7,6 +7,7 @@ using MagicSoftware.Common.Controls.Table.Models;
 using MagicSoftware.Common.Controls.Table.Utils;
 using System.Windows.Threading;
 using MagicSoftware.Common.Controls.Table.Extensions.Selection;
+using System.Collections.ObjectModel;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -19,6 +20,21 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    internal class DataGridSelectionService : ISelectionService, IUIService
    {
 
+
+      public static ObservableCollection<object> GetSelectedItems(DependencyObject obj)
+      {
+         return (ObservableCollection<object>)obj.GetValue(SelectedItemsProperty);
+      }
+
+      public static void SetSelectedItems(DependencyObject obj, ObservableCollection<object> value)
+      {
+         obj.SetValue(SelectedItemsProperty, value);
+      }
+
+      public static readonly DependencyProperty SelectedItemsProperty =
+          DependencyProperty.RegisterAttached("SelectedItems", typeof(ObservableCollection<object>), typeof(DataGridSelectionService), new UIPropertyMetadata(new ObservableCollection<object>()));
+
+      
 
       public static SelectionView GetSelectionView(DependencyObject obj)
       {

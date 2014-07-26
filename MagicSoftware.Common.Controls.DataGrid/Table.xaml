@@ -112,7 +112,8 @@
                   lext:EnhancedDGProxy.SelectAllButtonTemplate="{StaticResource SelectAllButton}"
                   RowHeaderWidth="{lmrkup:TextRenderWidth 88888}"
                   SelectionMode="Extended"
-                  SelectionUnit="FullRow">
+                  SelectionUnit="FullRow"
+                  lext:SelectionExtender.SelectionView="{Binding SelectedItems}">
             <DataGrid.RowStyleSelector>
                 <tbl:InternalRowStyleSelector />
             </DataGrid.RowStyleSelector>
@@ -127,7 +128,7 @@
                     -->
 
                     <lext:DataGridNavigationExtender />
-                    <lext:DataGridFocusManagementExtender />
+                    <!--<lext:DataGridFocusManagementExtender />-->
                     
                     <!-- <lext:DataGridEditingExtender />  -->
                 </ext:ExtendersCollection>
@@ -143,6 +144,7 @@
                 <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridVerticalScrollService}" />
                 <!-- This extender collides with the selection view -->
                 <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridSelectionService}" />
+                <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:SelectionExtender}" />
             </lext:UIServiceProvider.ServiceList>
         </DataGrid>
     </Grid>

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   class ParameterlessUIServiceFactory : IUIServiceFactory
+   public class ParameterlessUIServiceFactory : IUIServiceFactory
    {
       public Type ServiceType { get; set; }
 

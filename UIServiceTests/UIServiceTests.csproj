@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{86336AA2-D4B3-4BC6-82C8-0BB44005D809}</ProjectGuid>
+    <ProjectGuid>{BE88C9D5-934B-42D1-8E0E-C29D4B807D74}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>_DGTester</RootNamespace>
-    <AssemblyName>_DGTester</AssemblyName>
+    <RootNamespace>UIServiceTests</RootNamespace>
+    <AssemblyName>UIServiceTests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -37,15 +37,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\log4net.dll</HintPath>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\MagicSoftware.Common.ViewModel\bin\Debug\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="MagicSoftware.Common, Version=2.0.0.691, Culture=neutral, PublicKeyToken=7dc14d2003666719, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MagicSoftware.Common.dll</HintPath>
+    <Reference Include="MagicSoftware.Common">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Studio\MagicSoftware.Common\bin\debug\MagicSoftware.Common.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -64,12 +62,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="MyValidationAdornerFactory.cs" />
-    <Compile Include="Data\XXXValidationRule.cs" />
-    <Compile Include="MyErrorAdorner.cs" />
-    <Compile Include="MyWarningAdorner.cs" />
-    <Compile Include="RowStyleSelector.cs" />
-    <Compile Include="Data\MyHeaderView.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -78,9 +70,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\MyDataView.cs" />
-    <Compile Include="Data\Animal.cs" />
-    <Compile Include="Data\View1.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -104,9 +93,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -118,12 +105,7 @@
       <Project>{C3C28FAF-DFE9-4DB3-A021-881EE6939633}</Project>
       <Name>MagicSoftware.Common.Controls.Table</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MagicSoftware.Common.Controls.Extensibility\MagicSoftware.Common.Controls.Extensibility.csproj">
-      <Project>{44B6574A-5DE1-41E9-BC71-78427A7A8C44}</Project>
-      <Name>MagicSoftware.Common.Controls.Extensibility</Name>
-    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

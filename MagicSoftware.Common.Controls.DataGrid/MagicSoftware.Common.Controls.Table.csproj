@@ -107,6 +107,7 @@
     <Compile Include="Extensions\IUIServiceFactory.cs" />
     <Compile Include="Extensions\NavigationCommandsMap.cs" />
     <Compile Include="Extensions\ParameterlessUIServiceFactory.cs" />
+    <Compile Include="Extensions\SelectionExtender.cs" />
     <Compile Include="Extensions\Selection\IdleSelectionMode.cs" />
     <Compile Include="Extensions\Selection\MultiSelectionMode.cs" />
     <Compile Include="Extensions\Selection\SelectionMode.cs" />

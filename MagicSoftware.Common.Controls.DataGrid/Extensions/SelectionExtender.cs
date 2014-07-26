@@ -9,31 +9,18 @@ using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   internal interface IMultiSelectorAdapter
-   {
-      event SelectionChangedEventHandler SelectionChanged;
-
-      FrameworkElement Element { get; }
-
-      IList SelectedItems { get; }
-   }
-
+   /// <summary>
+   /// Provides selection services such as connecting with an selected items view.
+   /// </summary>
    public class SelectionExtender : IUIService
    {
       public static readonly DependencyProperty SelectionViewProperty =
           DependencyProperty.RegisterAttached("SelectionView", typeof(ObservableCollection<object>), typeof(SelectionExtender), new UIPropertyMetadata(new ObservableCollection<object>(), OnSelectionViewChanged));
 
-      private static readonly DependencyProperty SelectionExtenderProperty =
-          DependencyProperty.RegisterAttached("SelectionExtender", typeof(SelectionExtender), typeof(SelectionExtender), new UIPropertyMetadata(null));
-
-      private readonly AutoResetFlag suppressChangeHandling = new AutoResetFlag();
-
       public bool IsAttached
       {
          get { return TargetElement != null; }
       }
-
-      private IMultiSelectorAdapter TargetElement { get; set; }
 
       public static SelectionExtender GetSelectionExtender(DependencyObject obj)
       {
@@ -81,6 +68,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (IsAttached)
             DetachFromElement(TargetElement.Element);
       }
+
+      private static readonly DependencyProperty SelectionExtenderProperty =
+          DependencyProperty.RegisterAttached("SelectionExtender", typeof(SelectionExtender), typeof(SelectionExtender), new UIPropertyMetadata(null));
+
+      private readonly AutoResetFlag suppressChangeHandling = new AutoResetFlag();
+
+      private IMultiSelectorAdapter TargetElement { get; set; }
 
       private static void OnSelectionViewChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)
       {
@@ -145,6 +139,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             }
          }
       }
+   }
+
+   internal interface IMultiSelectorAdapter
+   {
+      event SelectionChangedEventHandler SelectionChanged;
+
+      FrameworkElement Element { get; }
+
+      IList SelectedItems { get; }
    }
 
    internal class ListBoxMultiSelectorAdapter : MultiSelectorAdapter<ListBox>

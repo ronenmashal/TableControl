@@ -13,6 +13,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using _DGTester.Data;
 using MagicSoftware.Common.Controls.ProxiesX;
+using MagicSoftware.Common.Controls.Table.Models;
+using log4net;
+using MagicSoftware.Common.Utils;
+using LogLevel = log4net.Core.Level;
 
 namespace _DGTester
 {
@@ -21,6 +25,7 @@ namespace _DGTester
    /// </summary>
    public partial class MainWindow : Window
    {
+      SelectionView selectionView = new SelectionView();
 
       static MainWindow()
       {
@@ -28,12 +33,21 @@ namespace _DGTester
          ElementProxyFactory.Instance.RegisterProxyType(typeof(TextBoxProxy), typeof(TextBox));
          ElementProxyFactory.Instance.RegisterProxyType(typeof(CheckBoxProxy), typeof(CheckBox));
          ElementProxyFactory.Instance.RegisterProxyType(typeof(ComboBoxProxy), typeof(ComboBox));
+
       }
 
       public MainWindow()
       {
          InitializeComponent();
          DataContext = new View1();
+         selectionView.SetSelection(new object[] {
+            ((View1)DataContext).Items.GetItemAt(3),
+            ((View1)DataContext).Items.GetItemAt(5),
+            ((View1)DataContext).Items.GetItemAt(23),
+            ((View1)DataContext).Items.GetItemAt(24),
+            ((View1)DataContext).Items.GetItemAt(56)
+         });
+         this.DG.SelectionView = selectionView;
       }
 
       private void DataGrid_Loaded(object sender, RoutedEventArgs e)
@@ -58,11 +72,12 @@ namespace _DGTester
          ColVisibility = (Visibility)(((int)ColVisibility + 1) % 3);
       }
 
+      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
       private void GetSelection_Click(object sender, RoutedEventArgs e)
       {
-         var proxy = ElementProxyFactory.Instance.GetProxy(DG) as MultiSelectorProxy;
+         log.Info("-------------------------------------------- Get selection --------------------------");
          StringBuilder selection = new StringBuilder();
-         foreach (var item in proxy.SelectedItems)
+         foreach (var item in selectionView)
             selection.Append(item.ToString() + Environment.NewLine);
          MessageBox.Show(selection.ToString());
       }

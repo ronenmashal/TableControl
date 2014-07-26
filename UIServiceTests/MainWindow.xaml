@@ -1,0 +1,32 @@
+﻿<Window x:Class="UIServiceTests.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:tbl="http://schemas.magicsoftware.com/common/controls/table"
+        xmlns:ext="clr-namespace:MagicSoftware.Common.Controls.Extensibility;assembly=MagicSoftware.Common"
+        xmlns:pxy="clr-namespace:MagicSoftware.Common.Controls.Proxies;assembly=MagicSoftware.Common"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+
+        <ListBox SelectionMode="Multiple" ItemsSource="{Binding Items}" tbl:SelectionExtender.SelectionView="{Binding SelectedItems}">
+            <tbl:UIServiceProvider.ServiceList>
+                <tbl:UIServiceCollection>
+                    <tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:SelectionExtender}" />
+                </tbl:UIServiceCollection>
+            </tbl:UIServiceProvider.ServiceList>
+        </ListBox>
+
+        <ListBox ItemsSource="{Binding Items}" Grid.Column="1" tbl:SelectionExtender.SelectionView="{Binding SelectedItems}" SelectionMode="Multiple">
+            <tbl:UIServiceProvider.ServiceList>
+                <tbl:UIServiceCollection>
+                    <tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:SelectionExtender}" />
+                </tbl:UIServiceCollection>
+            </tbl:UIServiceProvider.ServiceList>
+        </ListBox>
+
+    </Grid>
+</Window>

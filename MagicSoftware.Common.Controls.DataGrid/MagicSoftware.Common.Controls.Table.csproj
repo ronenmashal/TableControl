@@ -91,7 +91,7 @@
     <Compile Include="Extensions\DataGridFocusManagementExtender.cs" />
     <Compile Include="Extensions\DataGridNavigationExtender.cs" />
     <Compile Include="Extensions\DataGridRowCurrentItemService.cs" />
-    <Compile Include="Extensions\DataGridSelectionExtender.cs" />
+    <Compile Include="Extensions\DataGridSelectionService.cs" />
     <Compile Include="Extensions\DataGridCurrentItemService.cs" />
     <Compile Include="Extensions\DataGridStandardRowCellEnumerationService.cs" />
     <Compile Include="Extensions\DataGridVerticalScrollService.cs" />
@@ -107,6 +107,12 @@
     <Compile Include="Extensions\IUIServiceFactory.cs" />
     <Compile Include="Extensions\NavigationCommandsMap.cs" />
     <Compile Include="Extensions\ParameterlessUIServiceFactory.cs" />
+    <Compile Include="Extensions\SelectionExtender.cs" />
+    <Compile Include="Extensions\Selection\IdleSelectionMode.cs" />
+    <Compile Include="Extensions\Selection\MultiSelectionMode.cs" />
+    <Compile Include="Extensions\Selection\SelectionMode.cs" />
+    <Compile Include="Extensions\Selection\SelectionModeManager.cs" />
+    <Compile Include="Extensions\Selection\SingleSelectionMode.cs" />
     <Compile Include="Extensions\SharedObjectsService.cs" />
     <Compile Include="Extensions\ICurrentItemService.cs" />
     <Compile Include="Extensions\ImplementedServiceAttribute.cs" />
@@ -121,6 +127,7 @@
       <DependentUpon>LineEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Markup\StringWidth.cs" />
+    <Compile Include="Models\ISelectionView.cs" />
     <Compile Include="ObjectEqualityConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -141,6 +148,7 @@
     <Compile Include="CellTypes\VirtualTableCell.cs" />
     <Compile Include="CellTypes\VirtualTextTableCell.cs" />
     <Compile Include="Utils\DataGridRowFormatter.cs" />
+    <Compile Include="Utils\SelectionViewManager.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -152,6 +160,7 @@
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>

@@ -13,7 +13,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool IsAttached
       {
-         get { throw new NotImplementedException(); }
+         get { return dataGrid != null; }
       }
 
       public void AttachToElement(FrameworkElement element)
@@ -28,16 +28,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void DetachFromElement(System.Windows.FrameworkElement element)
       {
-         throw new NotImplementedException();
-      }
-
-      public void Dispose()
-      {
          dataGrid.BeginningEdit -= dataGrid_BeginningEdit;
          dataGrid.CellEditEnding -= dataGrid_CellEditEnding;
          dataGrid.RowEditEnding -= dataGrid_RowEditEnding;
          CurrentEdit = null;
          this.dataGrid = null;
+      }
+
+      public void Dispose()
+      {
+         if (IsAttached)
+            DetachFromElement(dataGrid);
       }
 
       private void dataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using log4net;
 using MagicSoftware.Common.Utils;
+using System.Diagnostics;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -72,6 +73,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             }
             service = serviceProvider.GetService(serviceType);
          }
+         if (service == null)
+            throw new Exception("A requested service of type " + serviceType + " was not found on " + element);
          return service;
       }
 

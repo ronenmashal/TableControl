@@ -1,20 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows.Controls;
 using MagicSoftware.Common.Controls.Table.Extensions;
-using System.Collections.Generic;
-using System.Windows;
-using Tests.Common;
-using System.Windows.Threading;
-using System.ComponentModel;
-using System.Windows.Data;
-using System.Collections.ObjectModel;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Tests.TableControl.UI;
 
 namespace Tests.TableControl
 {
-
-
    /// <summary>
    ///This is a test class for DataGridAsEditingAdapterTest and is intended
    ///to contain all DataGridAsEditingAdapterTest Unit Tests
@@ -22,8 +15,6 @@ namespace Tests.TableControl
    [TestClass()]
    public class DataGridAsEditingAdapterTest
    {
-
-
       private TestContext testContextInstance;
 
       /// <summary>
@@ -43,7 +34,8 @@ namespace Tests.TableControl
       }
 
       #region Additional test attributes
-      // 
+
+      //
       //You can use the following additional attributes as you write your tests:
       //
       //Use ClassInitialize to run code before running the first test in the class
@@ -70,57 +62,8 @@ namespace Tests.TableControl
       //{
       //}
       //
-      #endregion
 
-
-      /// <summary>
-      ///A test for DataGridAsEditingAdapter Constructor
-      ///</summary>
-      [TestMethod()]
-      public void DataGridAsEditingAdapterConstructorTest()
-      {
-         ObservableCollection<TestData> dataList = new ObservableCollection<TestData>()
-         {
-            new TestData() { StrValue = "A" },
-            new TestData() { StrValue = "B" },
-            new TestData() { StrValue = "C" }
-         };
-
-         DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
-         {
-            dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
-
-            PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
-            helper.Invoke("AttachTo", dataGrid);
-            DataGridEditStateService target;
-
-            // Instantiate a new editing adapter and verify its IsEditing property is correct.
-            using (target = new DataGridEditStateService(dataGrid, helper.Target))
-            {
-               Assert.IsFalse(target.IsEditing);
-            }
-
-            // Begin editing on the data grid and verify that a _newly_ created adapter will show
-            // that the grid is editing.
-            if (!dataGrid.BeginEdit())
-               Assert.Inconclusive("Could not begin edit on data grid.");
-            using (target = new DataGridEditStateService(dataGrid, helper.Target))
-            {
-               Assert.IsTrue(target.IsEditing);
-            }
-
-            // Now commit the row to exit editing.
-            if (!dataGrid.CommitEdit(DataGridEditingUnit.Row, true))
-               Assert.Inconclusive("Could not commit edit on data grid.");
-
-            using (target = new DataGridEditStateService(dataGrid, helper.Target))
-            {
-               Assert.IsFalse(target.IsEditing);
-            }
-
-         }
-      }
+      #endregion Additional test attributes
 
       /// <summary>
       ///A test for BeginEdit
@@ -135,30 +78,29 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
+         var target = new DataGridEditStateService();
+         var serviceList = new UIServiceCollection();
+         serviceList.Add(new ServiceFactoryMock(target));
+         serviceList.Add(new ParameterlessUIServiceFactory() { ServiceType = typeof(DataGridCurrentCellService) });
+         serviceList.Add(new ParameterlessUIServiceFactory() { ServiceType = typeof(DefaultCommandRegulationService) });
+
          DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
+         using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
-            PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
-            helper.Invoke("AttachTo", dataGrid);
-            DataGridEditStateService target;
-
-            using (target = new DataGridEditStateService(dataGrid, helper.Target))
+            using (var eventsSink = new DGEventsSink(dataGrid))
             {
-               using (var eventsSink = new DGEventsSink(dataGrid))
-               {
-                  Assert.IsFalse(target.BeginEdit(), "Begin edit should have failed, because the data grid has no selected cell.");
-                  Assert.IsFalse(eventsSink.BeginningEditEventRaised);
+               Assert.IsFalse(target.BeginEdit(), "Begin edit should have failed, because the data grid has no selected cell.");
+               Assert.IsFalse(eventsSink.BeginningEditEventRaised);
 
-                  // Select a cell eligible for editing.
-                  dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
-                  Assert.IsTrue(target.BeginEdit(), "Begin edit should have succeeded.");
-                  Assert.IsTrue(eventsSink.BeginningEditEventRaised);
-                  Assert.IsTrue(target.IsEditing);
+               // Select a cell eligible for editing.
+               dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
+               Assert.IsTrue(target.BeginEdit(), "Begin edit should have succeeded.");
+               Assert.IsTrue(eventsSink.BeginningEditEventRaised);
+               Assert.IsTrue(target.IsEditing);
 
-                  eventsSink.Reset();
-                  Assert.IsTrue(target.BeginEdit(), "Although no new editing began, begin edit should return true - meaning the grid is in edit mode.");
-                  Assert.IsFalse(eventsSink.BeginningEditEventRaised);
-               }
+               eventsSink.Reset();
+               Assert.IsTrue(target.BeginEdit(), "Although no new editing began, begin edit should return true - meaning the grid is in edit mode.");
+               Assert.IsFalse(eventsSink.BeginningEditEventRaised);
             }
          }
       }
@@ -176,31 +118,30 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
+         var target = new DataGridEditStateService();
+         var serviceList = new UIServiceCollection();
+         serviceList.Add(new ServiceFactoryMock(target));
+         serviceList.Add(new ParameterlessUIServiceFactory() { ServiceType = typeof(DataGridCurrentCellService) });
+         serviceList.Add(new ParameterlessUIServiceFactory() { ServiceType = typeof(DefaultCommandRegulationService) });
+
          DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
+         using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
-            PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
-            helper.Invoke("AttachTo", dataGrid);
-            DataGridEditStateService target;
+            // Begin edit and ensure the grid is indeed in edit mode.
+            dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
+            Assert.IsTrue(target.BeginEdit(), "Begin edit should have succeeded.");
+            Assert.IsTrue(target.IsEditing);
 
-            using (target = new DataGridEditStateService(dataGrid, helper.Target))
+            using (var eventsSink = new DGEventsSink(dataGrid))
             {
-               // Begin edit and ensure the grid is indeed in edit mode.
-               dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
-               Assert.IsTrue(target.BeginEdit(), "Begin edit should have succeeded.");
-               Assert.IsTrue(target.IsEditing);
+               Assert.IsTrue(target.CancelEdit());
+               Assert.IsTrue(eventsSink.RowEditEndingEventRaised);
+               Assert.IsTrue(eventsSink.CellEditEndingEventRaised);
 
-               using (var eventsSink = new DGEventsSink(dataGrid))
-               {
-                  Assert.IsTrue(target.CancelEdit());
-                  Assert.IsTrue(eventsSink.RowEditEndingEventRaised);
-                  Assert.IsTrue(eventsSink.CellEditEndingEventRaised);
-
-                  eventsSink.Reset();
-                  Assert.IsTrue(target.CancelEdit());
-                  Assert.IsFalse(eventsSink.RowEditEndingEventRaised);
-                  Assert.IsFalse(eventsSink.CellEditEndingEventRaised);
-               }
+               eventsSink.Reset();
+               Assert.IsTrue(target.CancelEdit());
+               Assert.IsFalse(eventsSink.RowEditEndingEventRaised);
+               Assert.IsFalse(eventsSink.CellEditEndingEventRaised);
             }
          }
       }
@@ -218,80 +159,32 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
+         var target = new DataGridEditStateService();
+         var serviceList = new UIServiceCollection();
+         serviceList.Add(new ServiceFactoryMock(target));
+         serviceList.Add(new ParameterlessUIServiceFactory() { ServiceType = typeof(DataGridCurrentCellService) });
+         serviceList.Add(new ParameterlessUIServiceFactory() { ServiceType = typeof(DefaultCommandRegulationService) });
+
          DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
+         using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
-            PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
-            helper.Invoke("AttachTo", dataGrid);
-            DataGridEditStateService target;
+            // Begin edit and ensure the grid is indeed in edit mode.
+            dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
+            Assert.IsTrue(target.BeginEdit(), "Begin edit should have succeeded.");
+            Assert.IsTrue(target.IsEditing);
 
-            using (target = new DataGridEditStateService(dataGrid, helper.Target))
+            using (var eventsSink = new DGEventsSink(dataGrid))
             {
-               // Begin edit and ensure the grid is indeed in edit mode.
-               dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
-               Assert.IsTrue(target.BeginEdit(), "Begin edit should have succeeded.");
-               Assert.IsTrue(target.IsEditing);
+               Assert.IsTrue(target.CommitEdit());
+               Assert.IsTrue(eventsSink.RowEditEndingEventRaised);
+               Assert.IsTrue(eventsSink.CellEditEndingEventRaised);
 
-               using (var eventsSink = new DGEventsSink(dataGrid))
-               {
-                  Assert.IsTrue(target.CommitEdit());
-                  Assert.IsTrue(eventsSink.RowEditEndingEventRaised);
-                  Assert.IsTrue(eventsSink.CellEditEndingEventRaised);
-
-                  eventsSink.Reset();
-                  Assert.IsTrue(target.CommitEdit());
-                  Assert.IsFalse(eventsSink.RowEditEndingEventRaised);
-                  Assert.IsFalse(eventsSink.CellEditEndingEventRaised);
-               }
+               eventsSink.Reset();
+               Assert.IsTrue(target.CommitEdit());
+               Assert.IsFalse(eventsSink.RowEditEndingEventRaised);
+               Assert.IsFalse(eventsSink.CellEditEndingEventRaised);
             }
          }
-      }
-
-      /// <summary>
-      ///A test for Dispose
-      ///</summary>
-      [TestMethod()]
-      public void DisposeTest()
-      {
-         ObservableCollection<TestData> dataList = new ObservableCollection<TestData>()
-         {
-            new TestData() { StrValue = "A" },
-            new TestData() { StrValue = "B" },
-            new TestData() { StrValue = "C" }
-         };
-
-         DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
-         {
-            DataGridEditStateService target;
-            WeakReference dataGridReference = new WeakReference(dataGrid);
-            dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
-            PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> proxyHelper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
-            proxyHelper.Invoke("AttachTo", dataGrid);
-            var adapterHelper = new PrivateAccessHelper<DataGridEditStateService, DataGridAsEditingAdapter_Accessor>(new DataGridEditStateService(dataGrid, proxyHelper.Target));
-            target = adapterHelper.Target;
-            target.Dispose();
-
-            Precondition(dataGrid.BeginEdit(), "Failed beginning edit");
-            Assert.IsFalse(target.IsEditing);
-
-            adapterHelper.Accessor.IsEditing = true;
-
-            Precondition(dataGrid.CommitEdit(), "Failed to commit");
-            Assert.IsTrue(target.IsEditing);
-
-            Precondition(dataGrid.BeginEdit(), "Failed beginning edit");
-            Precondition(dataGrid.CancelEdit(), "Failed to cancel");
-            Assert.IsTrue(target.IsEditing);
-
-            Assert.IsNull(adapterHelper.Accessor.dataGrid);
-         }
-      }
-
-      void Precondition(bool condition, string message)
-      {
-         if (!condition)
-            Assert.Inconclusive(message);
       }
 
       /// <summary>
@@ -308,60 +201,77 @@ namespace Tests.TableControl
             new TestData() { StrValue = "C" }
          };
 
+         var target = new DataGridEditStateService();
+         var serviceList = new UIServiceCollection();
+         serviceList.Add(new ServiceFactoryMock(target));
+         serviceList.Add(new ParameterlessUIServiceFactory() { ServiceType = typeof(DataGridCurrentCellService) });
+         serviceList.Add(new ParameterlessUIServiceFactory() { ServiceType = typeof(DefaultCommandRegulationService) });
+
          DataGrid dataGrid;
-         using (TestWindow.Show(dataList, out dataGrid))
+         using (TestWindow.Show(dataList, serviceList, out dataGrid))
          {
-            PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
-            helper.Invoke("AttachTo", dataGrid);
-            DataGridEditStateService target;
+            // Begin edit and ensure the grid is indeed in edit mode.
+            dataGrid.CurrentCell = new DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
+            Precondition(target.BeginEdit(), "Begin edit should have succeeded.");
 
-            using (target = new DataGridEditStateService(dataGrid, helper.Target))
-            {
-               // Begin edit and ensure the grid is indeed in edit mode.
-               dataGrid.CurrentCell = new DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
-               Precondition(target.BeginEdit(), "Begin edit should have succeeded.");
+            Assert.AreEqual(dataList[0], target.CurrentEdit);
+            Precondition(target.CommitEdit(), "Failed committing");
+            Assert.IsNull(target.CurrentEdit);
 
-               Assert.AreEqual(dataList[0], target.CurrentEdit);
-               Precondition(target.CommitEdit(), "Failed committing");
-               Assert.IsNull(target.CurrentEdit);
-
-               dataGrid.CurrentCell = new DataGridCellInfo(dataList[2], dataGrid.Columns[0]);
-               Precondition(dataGrid.BeginEdit(), "Begin edit should have succeeded.");
-               Assert.AreEqual(dataList[2], target.CurrentEdit);
-               Precondition(target.CancelEdit(), "Failed canceling");
-               Assert.IsNull(target.CurrentEdit);
-            }
+            dataGrid.CurrentCell = new DataGridCellInfo(dataList[2], dataGrid.Columns[0]);
+            Precondition(dataGrid.BeginEdit(), "Begin edit should have succeeded.");
+            Assert.AreEqual(dataList[2], target.CurrentEdit);
+            Precondition(target.CancelEdit(), "Failed canceling");
+            Assert.IsNull(target.CurrentEdit);
          }
       }
-   }
 
-   class TestData : IEditableObject
-   {
-      public string StrValue { get; set; }
-      public int IntValue { get; set; }
-
-      #region IEditableObject Members
-
-      public void BeginEdit()
+      /// <summary>
+      /// Test whether the editing state service correctly detects the current data grid edit state.
+      ///</summary>
+      [TestMethod()]
+      public void DataGridEditingStateDetectionTest()
       {
+         ObservableCollection<TestData> dataList = new ObservableCollection<TestData>()
+         {
+            new TestData() { StrValue = "A" },
+            new TestData() { StrValue = "B" },
+            new TestData() { StrValue = "C" }
+         };
 
+         var target = new DataGridEditStateService();
+         var serviceList = new UIServiceCollection();
+         serviceList.Add(new ServiceFactoryMock(target));
+         serviceList.Add(new ParameterlessUIServiceFactory() { ServiceType = typeof(DataGridCurrentCellService) });
+         serviceList.Add(new ParameterlessUIServiceFactory() { ServiceType = typeof(DefaultCommandRegulationService) });
+
+         DataGrid dataGrid;
+         using (TestWindow.Show(dataList, serviceList, out dataGrid))
+         {
+            dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
+
+            // Verify IsEditing property is correct.
+            Assert.IsFalse(target.IsEditing);
+
+            // Begin editing on the data grid and verify that a _newly_ created adapter will show
+            // that the grid is editing.
+            if (!dataGrid.BeginEdit())
+               Assert.Inconclusive("Could not begin edit on data grid.");
+
+            Assert.IsTrue(target.IsEditing);
+
+            // Now commit the row to exit editing.
+            if (!dataGrid.CommitEdit(DataGridEditingUnit.Row, true))
+               Assert.Inconclusive("Could not commit edit on data grid.");
+
+            Assert.IsFalse(target.IsEditing);
+         }
       }
 
-      public void CancelEdit()
+      private void Precondition(bool condition, string message)
       {
-
-      }
-
-      public void EndEdit()
-      {
-
-      }
-
-      #endregion
-
-      public override string ToString()
-      {
-         return String.Format("{{TestData: {0}, {1}}}", StrValue, IntValue);
+         if (!condition)
+            Assert.Inconclusive(message);
       }
    }
 
@@ -370,13 +280,9 @@ namespace Tests.TableControl
    /// Designed as IDisposable to ensure detaching from the data grid when object is no longer
    /// necessary.
    /// </summary>
-   class DGEventsSink : IDisposable
+   internal class DGEventsSink : IDisposable
    {
-      DataGrid dataGrid;
-
-      public bool BeginningEditEventRaised { get; private set; }
-      public bool RowEditEndingEventRaised { get; private set; }
-      public bool CellEditEndingEventRaised { get; private set; }
+      private DataGrid dataGrid;
 
       public DGEventsSink(DataGrid dataGrid)
       {
@@ -387,6 +293,12 @@ namespace Tests.TableControl
          Reset();
       }
 
+      public bool BeginningEditEventRaised { get; private set; }
+
+      public bool CellEditEndingEventRaised { get; private set; }
+
+      public bool RowEditEndingEventRaised { get; private set; }
+
       public void Reset()
       {
          BeginningEditEventRaised = false;
@@ -394,19 +306,19 @@ namespace Tests.TableControl
          CellEditEndingEventRaised = false;
       }
 
-      void dataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+      private void dataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
       {
          BeginningEditEventRaised = true;
       }
 
-      void dataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
-      {
-         RowEditEndingEventRaised = true;
-      }
-
-      void dataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+      private void dataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
       {
          CellEditEndingEventRaised = true;
+      }
+
+      private void dataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+      {
+         RowEditEndingEventRaised = true;
       }
 
       #region IDisposable Members
@@ -419,8 +331,34 @@ namespace Tests.TableControl
          dataGrid = null;
       }
 
-      #endregion
+      #endregion IDisposable Members
    }
 
+   internal class TestData : IEditableObject
+   {
+      public int IntValue { get; set; }
 
+      public string StrValue { get; set; }
+
+      #region IEditableObject Members
+
+      public void BeginEdit()
+      {
+      }
+
+      public void CancelEdit()
+      {
+      }
+
+      public void EndEdit()
+      {
+      }
+
+      #endregion IEditableObject Members
+
+      public override string ToString()
+      {
+         return String.Format("{{TestData: {0}, {1}}}", StrValue, IntValue);
+      }
+   }
 }

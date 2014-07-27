@@ -38,10 +38,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void DetachFromElement(FrameworkElement element)
       {
-         foreach (var handler in registeredCommandHandlers)
+         var handlersReplica = new HashSet<CanExecuteRoutedEventHandler>(registeredCommandHandlers);
+         foreach (var handler in handlersReplica)
          {
             PreviewCanExecute -= handler;
          }
+         handlersReplica.Clear();
 
          element = null;
       }

@@ -13,7 +13,7 @@ namespace Tests.TableControl
    ///to contain all DataGridAsEditingAdapterTest Unit Tests
    ///</summary>
    [TestClass()]
-   public class DataGridAsEditingAdapterTest
+   public class DataGridEditingServiceTest
    {
       private TestContext testContextInstance;
 

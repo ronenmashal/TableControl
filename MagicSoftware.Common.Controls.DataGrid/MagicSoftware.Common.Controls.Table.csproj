@@ -85,7 +85,7 @@
     <Compile Include="Extensions\CurrentItemServiceBase.cs" />
     <Compile Include="Extensions\CustomRowCellEnumerationService.cs" />
     <Compile Include="Extensions\CustomRowCurrentItemService.cs" />
-    <Compile Include="Extensions\DataGridAsEditingAdapter.cs" />
+    <Compile Include="Extensions\DataGridEditStateService.cs" />
     <Compile Include="Extensions\DataGridCurrentCellService.cs" />
     <Compile Include="Extensions\DataGridEditingExtender.cs" />
     <Compile Include="Extensions\DataGridFocusManagementExtender.cs" />
@@ -95,9 +95,11 @@
     <Compile Include="Extensions\DataGridCurrentItemService.cs" />
     <Compile Include="Extensions\DataGridStandardRowCellEnumerationService.cs" />
     <Compile Include="Extensions\DataGridVerticalScrollService.cs" />
+    <Compile Include="Extensions\DefaultCommandRegulationService.cs" />
     <Compile Include="Extensions\DependencyPropertyChangeListener.cs" />
     <Compile Include="Extensions\EnhancedDGProxy.cs" />
     <Compile Include="Extensions\ICellEnumerationService.cs" />
+    <Compile Include="Extensions\ICommandRegulationService.cs" />
     <Compile Include="Extensions\IItemsControlTraits.cs" />
     <Compile Include="Extensions\ICurrentCellService.cs" />
     <Compile Include="Extensions\IdGenerator.cs" />

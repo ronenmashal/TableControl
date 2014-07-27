@@ -101,7 +101,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          if (editModeWorker != null)
          {
-            editModeWorker.TargetElementProxy = (EnhancedDGProxy)TargetElementProxy;
+            editModeWorker.TargetElement = TargetElement;
             editModeWorker.Setup();
          }
       }
@@ -152,19 +152,22 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
       protected ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-      public EnhancedDGProxy TargetElementProxy { get; set; }
+      public FrameworkElement TargetElement { get; set; }
       protected ICurrentItemService CurrentItemProvider { get; private set; }
+      protected ICommandRegulationService CommandRegulator { get; private set; }
 
       public virtual void Setup()
       {
-         CurrentItemProvider = TargetElementProxy.GetAdapter<ICurrentItemService>();
-         TargetElementProxy.PreviewCanExecute += PreviewCanExecuteCommand;
+         CurrentItemProvider = UIServiceProvider.GetService<ICurrentItemService>(TargetElement);
+         CommandRegulator = UIServiceProvider.GetService<ICommandRegulationService>(TargetElement);
+
+         CommandRegulator.PreviewCanExecute += PreviewCanExecuteCommand;
          CurrentItemProvider.PreviewCurrentChanging += DataGridEditingExtender_PreviewCurrentChanging;
       }
 
       public virtual void Cleanup()
       {
-         TargetElementProxy.PreviewCanExecute -= PreviewCanExecuteCommand;
+         CommandRegulator.PreviewCanExecute -= PreviewCanExecuteCommand;
          CurrentItemProvider.PreviewCurrentChanging -= DataGridEditingExtender_PreviewCurrentChanging;
       }
 
@@ -236,63 +239,59 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       internal override void ProcessKey(KeyEventArgs e)
       {
          log.DebugFormat("Processing key {0} on {1}", e.Key, this);
-         using (var editProxy = TargetElementProxy.GetAdapter<IElementEditStateProxy>())
+         var editProxy = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
+         switch (e.Key)
          {
-            switch (e.Key)
-            {
-               case Key.Enter:
-                  if (editProxy.IsEditing)
-                     editProxy.CommitEdit();
-                  else
-                     editProxy.BeginEdit();
-                  e.Handled = true;
-                  break;
+            case Key.Enter:
+               if (editProxy.IsEditing)
+                  editProxy.CommitEdit();
+               else
+                  editProxy.BeginEdit();
+               e.Handled = true;
+               break;
 
-               case Key.F2:
-                  if (!editProxy.IsEditing)
-                     editProxy.BeginEdit();
-                  e.Handled = true;
-                  break;
+            case Key.F2:
+               if (!editProxy.IsEditing)
+                  editProxy.BeginEdit();
+               e.Handled = true;
+               break;
 
-               case Key.Escape:
-                  if (editProxy.IsEditing)
-                     editProxy.CancelEdit();
-                  e.Handled = true;
-                  break;
+            case Key.Escape:
+               if (editProxy.IsEditing)
+                  editProxy.CancelEdit();
+               e.Handled = true;
+               break;
 
-               default:
-                  break;
-            }
+            default:
+               break;
          }
 
       }
 
       protected override bool CanLeaveCurrentLine()
       {
-         using (var editProxy = TargetElementProxy.GetAdapter<IElementEditStateProxy>())
-         {
+         var editProxy = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
             if (editProxy.IsEditing)
             {
                return editProxy.CommitEdit();
             }
             return true;
-         }
       }
    }
 
    class AlwaysEditStateMachine : DataGridEditStateMachine
    {
       DispatcherTimer beginEditTimer;
-      IElementEditStateProxy editProxy;
+      IElementEditStateService editProxy;
 
       public override void Setup()
       {
          base.Setup();
-         editProxy = TargetElementProxy.GetAdapter<IElementEditStateProxy>();
+         editProxy = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
 
          CurrentItemProvider.CurrentChanged += TargetElementProxy_CurrentChanged;
 
-         beginEditTimer = new DispatcherTimer(DispatcherPriority.ContextIdle, this.TargetElementProxy.GetDispatcher());
+         beginEditTimer = new DispatcherTimer(DispatcherPriority.ContextIdle, this.TargetElement.Dispatcher);
          beginEditTimer.Interval = TimeSpan.FromMilliseconds(10);
          beginEditTimer.Tick += beginEditTimer_Tick;
          beginEditTimer.Start();
@@ -300,7 +299,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public override void Cleanup()
       {
-         editProxy.Dispose();
          beginEditTimer.Stop();
          beginEditTimer.Tick -= beginEditTimer_Tick;
          CurrentItemProvider.CurrentChanged -= TargetElementProxy_CurrentChanged;

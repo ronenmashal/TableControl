@@ -93,10 +93,10 @@ namespace Tests.TableControl
 
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
             helper.Invoke("AttachTo", dataGrid);
-            DataGridAsEditingAdapter target;
+            DataGridEditStateService target;
 
             // Instantiate a new editing adapter and verify its IsEditing property is correct.
-            using (target = new DataGridAsEditingAdapter(dataGrid, helper.Target))
+            using (target = new DataGridEditStateService(dataGrid, helper.Target))
             {
                Assert.IsFalse(target.IsEditing);
             }
@@ -105,7 +105,7 @@ namespace Tests.TableControl
             // that the grid is editing.
             if (!dataGrid.BeginEdit())
                Assert.Inconclusive("Could not begin edit on data grid.");
-            using (target = new DataGridAsEditingAdapter(dataGrid, helper.Target))
+            using (target = new DataGridEditStateService(dataGrid, helper.Target))
             {
                Assert.IsTrue(target.IsEditing);
             }
@@ -114,7 +114,7 @@ namespace Tests.TableControl
             if (!dataGrid.CommitEdit(DataGridEditingUnit.Row, true))
                Assert.Inconclusive("Could not commit edit on data grid.");
 
-            using (target = new DataGridAsEditingAdapter(dataGrid, helper.Target))
+            using (target = new DataGridEditStateService(dataGrid, helper.Target))
             {
                Assert.IsFalse(target.IsEditing);
             }
@@ -140,9 +140,9 @@ namespace Tests.TableControl
          {
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
             helper.Invoke("AttachTo", dataGrid);
-            DataGridAsEditingAdapter target;
+            DataGridEditStateService target;
 
-            using (target = new DataGridAsEditingAdapter(dataGrid, helper.Target))
+            using (target = new DataGridEditStateService(dataGrid, helper.Target))
             {
                using (var eventsSink = new DGEventsSink(dataGrid))
                {
@@ -181,9 +181,9 @@ namespace Tests.TableControl
          {
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
             helper.Invoke("AttachTo", dataGrid);
-            DataGridAsEditingAdapter target;
+            DataGridEditStateService target;
 
-            using (target = new DataGridAsEditingAdapter(dataGrid, helper.Target))
+            using (target = new DataGridEditStateService(dataGrid, helper.Target))
             {
                // Begin edit and ensure the grid is indeed in edit mode.
                dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
@@ -223,9 +223,9 @@ namespace Tests.TableControl
          {
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
             helper.Invoke("AttachTo", dataGrid);
-            DataGridAsEditingAdapter target;
+            DataGridEditStateService target;
 
-            using (target = new DataGridAsEditingAdapter(dataGrid, helper.Target))
+            using (target = new DataGridEditStateService(dataGrid, helper.Target))
             {
                // Begin edit and ensure the grid is indeed in edit mode.
                dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
@@ -263,12 +263,12 @@ namespace Tests.TableControl
          DataGrid dataGrid;
          using (TestWindow.Show(dataList, out dataGrid))
          {
-            DataGridAsEditingAdapter target;
+            DataGridEditStateService target;
             WeakReference dataGridReference = new WeakReference(dataGrid);
             dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> proxyHelper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
             proxyHelper.Invoke("AttachTo", dataGrid);
-            var adapterHelper = new PrivateAccessHelper<DataGridAsEditingAdapter, DataGridAsEditingAdapter_Accessor>(new DataGridAsEditingAdapter(dataGrid, proxyHelper.Target));
+            var adapterHelper = new PrivateAccessHelper<DataGridEditStateService, DataGridAsEditingAdapter_Accessor>(new DataGridEditStateService(dataGrid, proxyHelper.Target));
             target = adapterHelper.Target;
             target.Dispose();
 
@@ -313,9 +313,9 @@ namespace Tests.TableControl
          {
             PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor> helper = new PrivateAccessHelper<EnhancedDGProxy, EnhancedDGProxy_Accessor>(new EnhancedDGProxy());
             helper.Invoke("AttachTo", dataGrid);
-            DataGridAsEditingAdapter target;
+            DataGridEditStateService target;
 
-            using (target = new DataGridAsEditingAdapter(dataGrid, helper.Target))
+            using (target = new DataGridEditStateService(dataGrid, helper.Target))
             {
                // Begin edit and ensure the grid is indeed in edit mode.
                dataGrid.CurrentCell = new DataGridCellInfo(dataList[0], dataGrid.Columns[0]);

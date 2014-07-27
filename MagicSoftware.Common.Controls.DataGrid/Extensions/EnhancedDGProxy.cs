@@ -163,8 +163,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             return currentItemProvider;
          }
 
-         if (adapterType == typeof(IElementEditStateProxy))
-            return new DataGridAsEditingAdapter(DataGridElement, this);
+         if (adapterType == typeof(IElementEditStateService))
+            return null;
 
          return base.GetAdapter(adapterType);
       }

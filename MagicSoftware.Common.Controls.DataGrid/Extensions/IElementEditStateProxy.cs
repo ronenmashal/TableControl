@@ -6,10 +6,12 @@ using MagicSoftware.Common.Controls.Proxies;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   interface IElementEditStateProxy : IEditingItemsControlProxy, IDisposable
+   interface IElementEditStateService
    {
       bool BeginEdit();
       bool CommitEdit();
       bool CancelEdit();
+
+      bool IsEditing { get; }
    }
 }

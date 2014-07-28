@@ -103,7 +103,7 @@
     <Compile Include="Extensions\IItemsControlTraits.cs" />
     <Compile Include="Extensions\ICurrentCellService.cs" />
     <Compile Include="Extensions\IdGenerator.cs" />
-    <Compile Include="Extensions\IElementEditStateProxy.cs" />
+    <Compile Include="Extensions\IElementEditStateService.cs" />
     <Compile Include="Extensions\InputService.cs" />
     <Compile Include="Extensions\IScrollService.cs" />
     <Compile Include="Extensions\IUIServiceFactory.cs" />

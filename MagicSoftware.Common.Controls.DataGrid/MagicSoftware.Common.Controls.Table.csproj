@@ -97,6 +97,10 @@
     <Compile Include="Extensions\DataGridVerticalScrollService.cs" />
     <Compile Include="Extensions\DefaultCommandRegulationService.cs" />
     <Compile Include="Extensions\DependencyPropertyChangeListener.cs" />
+    <Compile Include="Extensions\Editing\ReadOnlyEditStateMachine.cs" />
+    <Compile Include="Extensions\Editing\SingleLineEditStateMachine.cs" />
+    <Compile Include="Extensions\Editing\AlwaysEditStateMachine.cs" />
+    <Compile Include="Extensions\Editing\DataGridEditStateMachine.cs" />
     <Compile Include="Extensions\EnhancedDGProxy.cs" />
     <Compile Include="Extensions\ICellEnumerationService.cs" />
     <Compile Include="Extensions\ICommandRegulationService.cs" />

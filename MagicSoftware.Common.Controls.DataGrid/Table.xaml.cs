@@ -69,7 +69,11 @@ namespace MagicSoftware.Common.Controls.Table
 
       private static void OnEditModeChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)
       {
-         DataGridEditingExtender.SetEditMode(obj, (ItemsControlEditMode)args.NewValue);
+         var table = obj as Table;
+         if (table != null)
+         {
+            DataGridEditingExtender.SetEditMode(table.rootItemsControl, (ItemsControlEditMode)args.NewValue);
+         }
       }
 
       private static void OnRowStyleSelectorChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)

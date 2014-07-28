@@ -61,7 +61,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          commandRegulator = UIServiceProvider.GetService<ICommandRegulationService>(dataGrid);
          var currentItemService = UIServiceProvider.GetService<ICurrentCellService>(dataGrid);
-         var cell = currentItemService.CurrentCellElement as DataGridCell;
+         var cell = currentItemService.CurrentCellContainer as DataGridCell;
          if (cell != null)
          {
             IsEditing = cell.IsEditing;

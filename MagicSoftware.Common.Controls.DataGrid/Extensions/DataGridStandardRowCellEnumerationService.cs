@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using MagicSoftware.Common.Utils;
+using System.Windows.Media;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -68,7 +69,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return ((DataGridCell)cellElement).Column.DisplayIndex;
       }
 
-      protected override FrameworkElement GetCellContaining(UIElement element)
+      protected override FrameworkElement GetCellContaining(Visual element)
       {
          return UIUtils.GetAncestor<DataGridCell>(element);
       }

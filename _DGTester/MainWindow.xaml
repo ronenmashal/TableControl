@@ -40,6 +40,7 @@
                     <Setter.Value>
                         <tbl:UIServiceCollection>
                             <tbl:CustomRowCellEnumerationServiceFactory RowTypeIdentifier="custom1"/>
+                            <tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:VirtualCellContainerEditStateService}"/>
                         </tbl:UIServiceCollection>
                     </Setter.Value>
                 </Setter>

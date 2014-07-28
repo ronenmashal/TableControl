@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using log4net;
+using System.Windows.Media;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -80,7 +81,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public abstract int GetCellIndex(FrameworkElement cellElement);
 
-      protected abstract FrameworkElement GetCellContaining(UIElement element);
+      protected abstract FrameworkElement GetCellContaining(Visual element);
 
       protected abstract IList<FrameworkElement> GetCells();
    }

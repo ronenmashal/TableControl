@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="CellTypes\CheckBoxVirtualTableCell.cs" />
     <Compile Include="CellTypes\ComboBoxVirtualTableCell.cs" />
+    <Compile Include="CellTypes\VirtualCellContainerEditStateService.cs" />
     <Compile Include="EnhancedDataGrid.cs" />
     <Compile Include="Extensions\CancelableEventArgs.cs" />
     <Compile Include="Extensions\CellEnumerationServiceBase.cs" />

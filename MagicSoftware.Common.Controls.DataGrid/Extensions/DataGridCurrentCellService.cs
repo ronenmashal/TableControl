@@ -18,13 +18,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    [ImplementedService(typeof(ICurrentItemService))]
    internal class DataGridCurrentCellService : ICurrentCellService, ICurrentItemService, IUIService
    {
+      protected readonly AutoResetFlag isRegainingFocus = new AutoResetFlag();
+
       /// <summary>
       /// Determines whether the current cell change is of an external origin, i.e. the
       /// cell position was changed by another component; or the change is caused by
       /// this class (self induced).
       /// </summary>
       protected readonly AutoResetFlag isSelfInducedCellChange = new AutoResetFlag();
-      protected readonly AutoResetFlag isRegainingFocus = new AutoResetFlag();
 
       private ColumnReorderingHandler columnReorderingHandler;
       private FrameworkElement currentCellElement;
@@ -117,7 +118,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          private set;
       }
 
-      public FrameworkElement CurrentCellElement
+      public FrameworkElement CurrentCellContainer
       {
          get
          {
@@ -129,6 +130,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
+      public FrameworkElement CurrentItemContainer
+      {
+         get { return dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentItem) as FrameworkElement; }
+      }
+
       public virtual bool IsAttached { get { return dataGrid != null; } }
 
       public bool IsCellVisible
@@ -137,11 +143,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             return false;
          }
-      }
-
-      private FrameworkElement CurrentItemContainer
-      {
-         get { return dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentItem) as FrameworkElement; }
       }
 
       private ICellEnumerationService CurrentRowCellEnumerationService { get; set; }
@@ -160,18 +161,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          //dataGrid.ColumnReordering += new EventHandler<DataGridColumnReorderingEventArgs>(dataGrid_ColumnReordering);
          //dataGrid.ColumnReordered += new EventHandler<DataGridColumnEventArgs>(dataGrid_ColumnReordered);
          //dataGrid.ColumnDisplayIndexChanged += new EventHandler<DataGridColumnEventArgs>(dataGrid_ColumnDisplayIndexChanged);
-      }
-
-      void dataGrid_IsKeyboardFocusWithinChanged(object sender, DependencyPropertyChangedEventArgs e)
-      {
-         bool isKeyboardFocusWithin = (bool)e.NewValue;
-         if (isKeyboardFocusWithin)
-         {
-            using (isRegainingFocus.Set())
-            {
-               MoveTo(CurrentCell);
-            }
-         }
       }
 
       public void DetachFromElement(FrameworkElement element)
@@ -323,7 +312,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void dataGrid_ColumnReordering(object sender, DataGridColumnReorderingEventArgs e)
       {
-         currentCellElement = CurrentCellElement;
+         currentCellElement = CurrentCellContainer;
       }
 
       private void DataGrid_CurrentCellChanged(object sender, EventArgs e)
@@ -338,6 +327,18 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          UpdateCurrentCell();
          if (!isSelfInducedCellChange.IsSet)
             RaiseCurrentCellChangedEvent();
+      }
+
+      private void dataGrid_IsKeyboardFocusWithinChanged(object sender, DependencyPropertyChangedEventArgs e)
+      {
+         bool isKeyboardFocusWithin = (bool)e.NewValue;
+         if (isKeyboardFocusWithin)
+         {
+            using (isRegainingFocus.Set())
+            {
+               MoveTo(CurrentCell);
+            }
+         }
       }
 
       private UIElement ForceContainerGeneration(object item)
@@ -450,7 +451,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          private void cellService_CurrentCellChanged(object sender, EventArgs e)
          {
-            dataGrid.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() => { cellElementBeforeReordering = cellService.CurrentCellElement; }));
+            dataGrid.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() => { cellElementBeforeReordering = cellService.CurrentCellContainer; }));
          }
 
          private void dataGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)

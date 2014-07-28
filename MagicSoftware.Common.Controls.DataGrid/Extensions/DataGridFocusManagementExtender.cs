@@ -27,7 +27,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       void currentCellService_CurrentCellChanged(object sender, EventArgs e)
       {
-         var currentCellElement = currentCellService.CurrentCellElement;
+         var currentCellElement = currentCellService.CurrentCellContainer;
          if (currentCellElement == null)
             return;
 

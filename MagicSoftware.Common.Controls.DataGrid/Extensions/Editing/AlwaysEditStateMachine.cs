@@ -1,17 +1,27 @@
 ﻿using System;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using log4net;
-using MagicSoftware.Common.Controls.Extensibility;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 {
    internal class AlwaysEditStateMachine : DataGridEditStateMachine
    {
       private DispatcherTimer beginEditTimer;
-      private IElementEditStateService editProxy;
+
+      private IElementEditStateService EditStateService
+      {
+         get
+         {
+            var itemsService = UIServiceProvider.GetService<ICurrentCellService>(this.TargetElement);
+            var editStateService = UIServiceProvider.GetService<IElementEditStateService>(itemsService.CurrentItemContainer, false);
+            if (editStateService == null)
+            {
+               // Current item does not have an edit state service - get the ItemsControl's edit state service.
+               editStateService = UIServiceProvider.GetService<IElementEditStateService>(this.TargetElement);
+            }
+            return editStateService;
+         }
+      }
 
       public override void Cleanup()
       {
@@ -24,8 +34,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       public override void Setup()
       {
          base.Setup();
-         editProxy = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
-
          CurrentItemProvider.CurrentChanged += TargetElementProxy_CurrentChanged;
 
          beginEditTimer = new DispatcherTimer(DispatcherPriority.ContextIdle, this.TargetElement.Dispatcher);
@@ -39,36 +47,36 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
          switch (e.Key)
          {
             case Key.Enter:
-               if (editProxy.IsEditing)
-                  editProxy.CommitEdit();
+               if (EditStateService.IsEditing)
+                  EditStateService.CommitEdit();
                else
-                  editProxy.BeginEdit();
+                  EditStateService.BeginEdit();
                e.Handled = true;
                break;
 
             case Key.F2:
-               if (!editProxy.IsEditing)
-                  editProxy.BeginEdit();
+               if (!EditStateService.IsEditing)
+                  EditStateService.BeginEdit();
                e.Handled = true;
                break;
 
             case Key.Escape:
-               if (editProxy.IsEditing)
-                  editProxy.CancelEdit();
+               if (EditStateService.IsEditing)
+                  EditStateService.CancelEdit();
                e.Handled = true;
                break;
 
             default:
                break;
          }
-         if (!editProxy.IsEditing)
+         if (!EditStateService.IsEditing)
             StartBeginEditTimer();
       }
 
       protected override bool CanLeaveCurrentLine()
       {
-         if (editProxy.IsEditing)
-            return editProxy.CommitEdit();
+         if (EditStateService.IsEditing)
+            return EditStateService.CommitEdit();
 
          return true;
       }
@@ -81,9 +89,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 
       private void beginEditTimer_Tick(object sender, EventArgs e)
       {
-         if (!editProxy.IsEditing)
+         // Try getting an edit state service for the current item.
+         if (!EditStateService.IsEditing)
          {
-            if (editProxy.BeginEdit())
+            if (EditStateService.BeginEdit())
                beginEditTimer.Stop();
          }
       }
@@ -98,5 +107,4 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
          StartBeginEditTimer();
       }
    }
-
 }

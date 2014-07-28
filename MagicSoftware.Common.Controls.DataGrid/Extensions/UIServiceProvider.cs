@@ -49,7 +49,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private static ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-      public static IUIService GetService(FrameworkElement element, Type serviceType)
+      public static IUIService GetService(FrameworkElement element, Type serviceType, bool failIfNotFound = true)
       {
          IUIService service = null;
          var serviceProvider = GetServiceProvider(element);
@@ -73,14 +73,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             }
             service = serviceProvider.GetService(serviceType);
          }
-         if (service == null)
+         if (failIfNotFound && (service == null))
             throw new Exception("A requested service of type " + serviceType + " was not found on " + element);
          return service;
       }
 
-      public static T GetService<T>(FrameworkElement element)
+      public static T GetService<T>(FrameworkElement element, bool failIfNotFound = true)
       {
-         return (T)GetService(element, typeof(T));
+         return (T)GetService(element, typeof(T), failIfNotFound);
       }
 
       public static void SetServiceList(DependencyObject obj, UIServiceCollection value)

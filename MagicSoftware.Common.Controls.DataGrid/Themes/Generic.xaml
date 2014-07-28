@@ -632,8 +632,16 @@
                             BorderBrush="Transparent"
                             BorderThickness="1">
                         <!--  <TextBlock Text="Basic"/>  -->
-                        <ContentPresenter VerticalAlignment="Center" ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
+                        <ContentPresenter x:Name="contentPresenter" VerticalAlignment="Center" ContentTemplate="{TemplateBinding Element}" />
                     </Border>
+                    
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEditing" Value="True">
+                            <Trigger.Setters>
+                                <Setter TargetName="contentPresenter" Property="ContentTemplate" Value="{Binding EditingElement, RelativeSource={RelativeSource AncestorType=cells:VirtualTableCell}}" />
+                            </Trigger.Setters>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

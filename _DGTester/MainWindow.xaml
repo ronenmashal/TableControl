@@ -187,7 +187,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <tbl:Table x:Name="DG"
-                       EditMode="SingleLine"
+                       EditMode="ReadOnly"
                        ItemsSource="{Binding Items}"
                        Loaded="DataGrid_Loaded"
                        RowStyleSelector="{StaticResource TemplateSelector}">

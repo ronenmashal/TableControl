@@ -14,6 +14,10 @@ namespace MagicSoftware.Common.Controls.Table
    /// </summary>
    public partial class Table : UserControl
    {
+      // Using a DependencyProperty as the backing store for EditMode.  This enables animation, styling, binding, etc...
+      public static readonly DependencyProperty EditModeProperty =
+          DependencyProperty.Register("EditMode", typeof(ItemsControlEditMode), typeof(Table), new UIPropertyMetadata(ItemsControlEditMode.ReadOnly, OnEditModeChanged));
+
       public static readonly DependencyProperty ItemsSourceProperty =
           DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(Table), new UIPropertyMetadata(null));
 
@@ -35,8 +39,8 @@ namespace MagicSoftware.Common.Controls.Table
 
       public ItemsControlEditMode EditMode
       {
-         get { return (ItemsControlEditMode)DataGridEditingExtender.GetEditMode(rootItemsControl); }
-         set { DataGridEditingExtender.SetEditMode(rootItemsControl, value); }
+         get { return (ItemsControlEditMode)GetValue(EditModeProperty); }
+         set { SetValue(EditModeProperty, value); }
       }
 
       public IEnumerable ItemsSource
@@ -61,6 +65,11 @@ namespace MagicSoftware.Common.Controls.Table
       {
          get { return (SelectionView)GetValue(SelectionViewProperty); }
          set { SetValue(SelectionViewProperty, value); }
+      }
+
+      private static void OnEditModeChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)
+      {
+         DataGridEditingExtender.SetEditMode(obj, (ItemsControlEditMode)args.NewValue);
       }
 
       private static void OnRowStyleSelectorChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)

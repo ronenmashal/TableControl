@@ -108,7 +108,6 @@
                   ItemsSource="{Binding ItemsSource,
                                         RelativeSource={RelativeSource FindAncestor,
                                                                        AncestorType=UserControl}}"
-                  lext:DataGridEditingExtender.EditMode="SingleLine"
                   lext:EnhancedDGProxy.SelectAllButtonTemplate="{StaticResource SelectAllButton}"
                   RowHeaderWidth="{lmrkup:TextRenderWidth 88888}"
                   SelectionMode="Extended"

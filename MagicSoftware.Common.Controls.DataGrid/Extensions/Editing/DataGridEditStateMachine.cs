@@ -54,26 +54,22 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
          UniversalCellInfo oldCell = (UniversalCellInfo)(e.OldValue ?? new UniversalCellInfo());
          UniversalCellInfo newCell = (UniversalCellInfo)(e.NewValue ?? new UniversalCellInfo());
 
-         if (oldCell.Item != newCell.Item)
-         {
-            log.DebugFormat("Processing line change event on {0}", this);
-
-            e.Canceled = !CanLeaveCurrentLine();
-            if (e.Canceled)
-            {
-               log.DebugFormat("-- Canceling event.");
-            }
-         }
+         if (!CanLeaveCurrentCell())
+            CancelNavigation(e);
          else
-         {
-            log.DebugFormat("Changing cell on current line by {0}", this);
-
-            e.Canceled = !CanLeaveCurrentCell();
-            if (e.Canceled)
+            if (oldCell.Item != newCell.Item)
             {
-               log.DebugFormat(" -- Canceling event.");
+               log.DebugFormat("Processing line change event on {0}", this);
+
+               if (!CanLeaveCurrentLine())
+                  CancelNavigation(e);
             }
-         }
+      }
+
+      void CancelNavigation(PreviewChangeEventArgs e)
+      {
+         e.Canceled = true;
+         log.DebugFormat("-- Navigation canceled.");
       }
    }
 }

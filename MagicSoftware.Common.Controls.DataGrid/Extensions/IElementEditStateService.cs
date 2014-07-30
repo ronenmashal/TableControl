@@ -1,17 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MagicSoftware.Common.Controls.Proxies;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   interface IElementEditStateService
+   internal interface IElementEditStateService
    {
-      bool BeginEdit();
-      bool CommitEdit();
-      bool CancelEdit();
+      bool IsEditingField { get; }
 
-      bool IsEditing { get; }
+      bool IsEditingItem { get; }
+
+      bool BeginFieldEdit();
+
+      bool BeginItemEdit();
+
+      bool CancelFieldEdit();
+
+      bool CancelItemEdit();
+
+      bool CommitFieldEdit();
+
+      bool CommitItemEdit();
    }
 }

@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Collections.Generic;
+using System.Windows.Threading;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -55,7 +56,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void ExecuteCommand(RoutedCommand command, object commandParameter)
       {
-         command.Execute(commandParameter, element);
+         element.Dispatcher.Invoke(DispatcherPriority.Input, new Action(() => { command.Execute(commandParameter, element); }));
       }
    }
 }

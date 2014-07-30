@@ -89,17 +89,17 @@ namespace Tests.TableControl
          {
             using (var eventsSink = new DGEventsSink(dataGrid))
             {
-               Assert.IsFalse(target.BeginEdit(), "Begin edit should have failed, because the data grid has no selected cell.");
+               Assert.IsFalse(target.BeginItemEdit(), "Begin edit should have failed, because the data grid has no selected cell.");
                Assert.IsFalse(eventsSink.BeginningEditEventRaised);
 
                // Select a cell eligible for editing.
                dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
-               Assert.IsTrue(target.BeginEdit(), "Begin edit should have succeeded.");
+               Assert.IsTrue(target.BeginItemEdit(), "Begin edit should have succeeded.");
                Assert.IsTrue(eventsSink.BeginningEditEventRaised);
-               Assert.IsTrue(target.IsEditing);
+               Assert.IsTrue(target.IsEditingField);
 
                eventsSink.Reset();
-               Assert.IsTrue(target.BeginEdit(), "Although no new editing began, begin edit should return true - meaning the grid is in edit mode.");
+               Assert.IsTrue(target.BeginItemEdit(), "Although no new editing began, begin edit should return true - meaning the grid is in edit mode.");
                Assert.IsFalse(eventsSink.BeginningEditEventRaised);
             }
          }
@@ -129,17 +129,17 @@ namespace Tests.TableControl
          {
             // Begin edit and ensure the grid is indeed in edit mode.
             dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
-            Assert.IsTrue(target.BeginEdit(), "Begin edit should have succeeded.");
-            Assert.IsTrue(target.IsEditing);
+            Assert.IsTrue(target.BeginItemEdit(), "Begin edit should have succeeded.");
+            Assert.IsTrue(target.IsEditingField);
 
             using (var eventsSink = new DGEventsSink(dataGrid))
             {
-               Assert.IsTrue(target.CancelEdit());
+               Assert.IsTrue(target.CancelItemEdit());
                Assert.IsTrue(eventsSink.RowEditEndingEventRaised);
                Assert.IsTrue(eventsSink.CellEditEndingEventRaised);
 
                eventsSink.Reset();
-               Assert.IsTrue(target.CancelEdit());
+               Assert.IsTrue(target.CancelItemEdit());
                Assert.IsFalse(eventsSink.RowEditEndingEventRaised);
                Assert.IsFalse(eventsSink.CellEditEndingEventRaised);
             }
@@ -170,17 +170,17 @@ namespace Tests.TableControl
          {
             // Begin edit and ensure the grid is indeed in edit mode.
             dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
-            Assert.IsTrue(target.BeginEdit(), "Begin edit should have succeeded.");
-            Assert.IsTrue(target.IsEditing);
+            Assert.IsTrue(target.BeginItemEdit(), "Begin edit should have succeeded.");
+            Assert.IsTrue(target.IsEditingField);
 
             using (var eventsSink = new DGEventsSink(dataGrid))
             {
-               Assert.IsTrue(target.CommitEdit());
+               Assert.IsTrue(target.CommitItemEdit());
                Assert.IsTrue(eventsSink.RowEditEndingEventRaised);
                Assert.IsTrue(eventsSink.CellEditEndingEventRaised);
 
                eventsSink.Reset();
-               Assert.IsTrue(target.CommitEdit());
+               Assert.IsTrue(target.CommitItemEdit());
                Assert.IsFalse(eventsSink.RowEditEndingEventRaised);
                Assert.IsFalse(eventsSink.CellEditEndingEventRaised);
             }
@@ -212,16 +212,16 @@ namespace Tests.TableControl
          {
             // Begin edit and ensure the grid is indeed in edit mode.
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
-            Precondition(target.BeginEdit(), "Begin edit should have succeeded.");
+            Precondition(target.BeginItemEdit(), "Begin edit should have succeeded.");
 
             Assert.AreEqual(dataList[0], target.CurrentEdit);
-            Precondition(target.CommitEdit(), "Failed committing");
+            Precondition(target.CommitItemEdit(), "Failed committing");
             Assert.IsNull(target.CurrentEdit);
 
             dataGrid.CurrentCell = new DataGridCellInfo(dataList[2], dataGrid.Columns[0]);
             Precondition(dataGrid.BeginEdit(), "Begin edit should have succeeded.");
             Assert.AreEqual(dataList[2], target.CurrentEdit);
-            Precondition(target.CancelEdit(), "Failed canceling");
+            Precondition(target.CancelItemEdit(), "Failed canceling");
             Assert.IsNull(target.CurrentEdit);
          }
       }
@@ -251,20 +251,20 @@ namespace Tests.TableControl
             dataGrid.CurrentCell = new System.Windows.Controls.DataGridCellInfo(dataList[0], dataGrid.Columns[0]);
 
             // Verify IsEditing property is correct.
-            Assert.IsFalse(target.IsEditing);
+            Assert.IsFalse(target.IsEditingField);
 
             // Begin editing on the data grid and verify that a _newly_ created adapter will show
             // that the grid is editing.
             if (!dataGrid.BeginEdit())
                Assert.Inconclusive("Could not begin edit on data grid.");
 
-            Assert.IsTrue(target.IsEditing);
+            Assert.IsTrue(target.IsEditingField);
 
             // Now commit the row to exit editing.
             if (!dataGrid.CommitEdit(DataGridEditingUnit.Row, true))
                Assert.Inconclusive("Could not commit edit on data grid.");
 
-            Assert.IsFalse(target.IsEditing);
+            Assert.IsFalse(target.IsEditingField);
          }
       }
 

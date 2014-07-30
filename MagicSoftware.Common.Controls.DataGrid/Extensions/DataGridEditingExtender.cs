@@ -17,7 +17,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       Persistent
    }
 
-   public class DataGridEditingExtender : ElementExtenderBase<DataGrid>
+   public class DataGridEditingExtender : ElementExtenderBase<ItemsControl>
    {
       #region Edit Mode property
 

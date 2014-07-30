@@ -23,22 +23,22 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
          switch (e.Key)
          {
             case Key.Enter:
-               if (editProxy.IsEditing)
-                  editProxy.CommitEdit();
+               if (editProxy.IsEditingField)
+                  editProxy.CommitItemEdit();
                else
-                  editProxy.BeginEdit();
+                  editProxy.BeginItemEdit();
                e.Handled = true;
                break;
 
             case Key.F2:
-               if (!editProxy.IsEditing)
-                  editProxy.BeginEdit();
+               if (!editProxy.IsEditingField)
+                  editProxy.BeginItemEdit();
                e.Handled = true;
                break;
 
             case Key.Escape:
-               if (editProxy.IsEditing)
-                  editProxy.CancelEdit();
+               if (editProxy.IsEditingField)
+                  editProxy.CancelItemEdit();
                e.Handled = true;
                break;
 
@@ -50,9 +50,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       protected override bool CanLeaveCurrentLine()
       {
          var editProxy = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
-         if (editProxy.IsEditing)
+         if (editProxy.IsEditingField)
          {
-            return editProxy.CommitEdit();
+            return editProxy.CommitItemEdit();
          }
          return true;
       }

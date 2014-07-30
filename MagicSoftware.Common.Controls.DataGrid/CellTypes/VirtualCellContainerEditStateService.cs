@@ -15,9 +15,15 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          get { return CellContainer != null; }
       }
 
-      public bool IsEditing
+      public bool IsEditingField
       {
          get { return editingCell != null; }
+      }
+
+      public bool IsEditingItem
+      {
+         get;
+         private set;
       }
 
       private FrameworkElement CellContainer { get; set; }
@@ -38,24 +44,31 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          CellContainerOwner = UIUtils.GetAncestor<ItemsControl>(element);
       }
 
-      public bool BeginEdit()
+      public bool BeginFieldEdit()
       {
-         if (!IsEditing)
+         var currentCellService = UIServiceProvider.GetService<ICurrentCellService>(CellContainerOwner);
+         editingCell = currentCellService.CurrentCellContainer as VirtualTableCell;
+         if (editingCell != null)
          {
-            var currentCellService = UIServiceProvider.GetService<ICurrentCellService>(CellContainerOwner);
-            editingCell = currentCellService.CurrentCellContainer as VirtualTableCell;
-            if (editingCell != null)
-            {
-               if (editingCell.BeginEdit())
-                  return true;
-            }
+            if (editingCell.BeginEdit())
+               return true;
          }
          return false;
       }
 
-      public bool CancelEdit()
+      public bool BeginItemEdit()
       {
-         if (IsEditing)
+         if (!IsEditingItem)
+         {
+            IsEditingItem = true;
+            return BeginFieldEdit();
+         }
+         return false;
+      }
+
+      public bool CancelFieldEdit()
+      {
+         if (IsEditingField)
          {
             if (editingCell.CancelEdit())
             {
@@ -66,9 +79,20 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          return false;
       }
 
-      public bool CommitEdit()
+      public bool CancelItemEdit()
       {
-         if (IsEditing)
+         if (IsEditingField)
+         {
+            if (!CancelFieldEdit())
+               return false;
+         }
+         IsEditingItem = false;
+         return true;
+      }
+
+      public bool CommitFieldEdit()
+      {
+         if (IsEditingField)
          {
             if (editingCell.CommitEdit())
             {
@@ -77,6 +101,17 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
             }
          }
          return false;
+      }
+
+      public bool CommitItemEdit()
+      {
+         if (IsEditingField)
+         {
+            if (!CommitFieldEdit())
+               return false;
+         }
+         IsEditingItem = false;
+         return true;
       }
 
       public void DetachFromElement(System.Windows.FrameworkElement element)

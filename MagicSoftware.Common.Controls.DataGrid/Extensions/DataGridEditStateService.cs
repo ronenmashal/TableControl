@@ -1,15 +1,14 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
-using MagicSoftware.Common.Controls.Table.Extensions;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    [ImplementedService(typeof(IElementEditStateService))]
    internal class DataGridEditStateService : IElementEditStateService, IUIService
    {
-      private DataGrid dataGrid;
       private ICommandRegulationService commandRegulator;
+      private DataGrid dataGrid;
 
       public bool IsAttached
       {
@@ -22,6 +21,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          dataGrid.BeginningEdit += dataGrid_BeginningEdit;
          dataGrid.CellEditEnding += dataGrid_CellEditEnding;
          dataGrid.RowEditEnding += dataGrid_RowEditEnding;
+         dataGrid.PreparingCellForEdit += dataGrid_PreparingCellForEdit;
 
          UIServiceProvider.AddServiceProviderFullyAttachedHandler(dataGrid, ServiceProvider_FullyAttached);
       }
@@ -44,35 +44,57 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private void dataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
       {
          CurrentEdit = e.Row.Item;
-         IsEditing = true;
       }
 
       private void dataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
       {
       }
 
+      private void dataGrid_PreparingCellForEdit(object sender, DataGridPreparingCellForEditEventArgs e)
+      {
+      }
+
       private void dataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
       {
          CurrentEdit = null;
-         IsEditing = false;
       }
 
       private void ServiceProvider_FullyAttached(object obj, EventArgs args)
       {
          commandRegulator = UIServiceProvider.GetService<ICommandRegulationService>(dataGrid);
-         var currentItemService = UIServiceProvider.GetService<ICurrentCellService>(dataGrid);
-         var cell = currentItemService.CurrentCellContainer as DataGridCell;
-         if (cell != null)
-         {
-            IsEditing = cell.IsEditing;
-         }
       }
 
       #region IEditingItemsControlProxy Members
 
       public object CurrentEdit { get; private set; }
 
-      public bool IsEditing { get; private set; }
+      public bool IsEditingField
+      {
+         get
+         {
+            var currentItemService = UIServiceProvider.GetService<ICurrentCellService>(dataGrid);
+            var cell = currentItemService.CurrentCellContainer as DataGridCell;
+            if (cell != null)
+            {
+               return cell.IsEditing;
+            }
+
+            return false;
+         }
+      }
+
+      public bool IsEditingItem
+      {
+         get
+         {
+            var currentItemService = UIServiceProvider.GetService<ICurrentCellService>(dataGrid);
+            var row = (DataGridRow)currentItemService.CurrentItemContainer;
+            if (row == null)
+               return false;
+
+            return row.IsEditing;
+         }
+      }
 
       public void NotifyBeginEdit()
       {
@@ -93,22 +115,40 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       #region IElementEditStateProxy Members
 
-      public bool BeginEdit()
+      public bool BeginFieldEdit()
+      {
+         commandRegulator.ExecuteCommand(DataGrid.BeginEditCommand, DataGridEditingUnit.Cell);
+         return IsEditingField;
+      }
+
+      public bool BeginItemEdit()
       {
          commandRegulator.ExecuteCommand(DataGrid.BeginEditCommand, null);
-         return IsEditing;
+         return IsEditingField;
       }
 
-      public bool CancelEdit()
+      public bool CancelFieldEdit()
+      {
+         commandRegulator.ExecuteCommand(DataGrid.CancelEditCommand, DataGridEditingUnit.Cell);
+         return !IsEditingField;
+      }
+
+      public bool CancelItemEdit()
       {
          commandRegulator.ExecuteCommand(DataGrid.CancelEditCommand, DataGridEditingUnit.Row);
-         return !IsEditing;
+         return !IsEditingField;
       }
 
-      public bool CommitEdit()
+      public bool CommitFieldEdit()
+      {
+         commandRegulator.ExecuteCommand(DataGrid.CommitEditCommand, DataGridEditingUnit.Cell);
+         return !IsEditingField;
+      }
+
+      public bool CommitItemEdit()
       {
          commandRegulator.ExecuteCommand(DataGrid.CommitEditCommand, DataGridEditingUnit.Row);
-         return !IsEditing;
+         return !IsEditingField;
       }
 
       #endregion IElementEditStateProxy Members

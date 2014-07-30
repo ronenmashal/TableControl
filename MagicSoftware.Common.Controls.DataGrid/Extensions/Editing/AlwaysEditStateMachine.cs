@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 using System.Windows.Threading;
+using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 {
@@ -37,54 +38,27 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
          CurrentCellService.CurrentCellChanged += TargetElementProxy_CurrentChanged;
 
          beginEditTimer = new DispatcherTimer(DispatcherPriority.ContextIdle, this.TargetElement.Dispatcher);
-         beginEditTimer.Interval = TimeSpan.FromMilliseconds(10);
+         beginEditTimer.Interval = TimeSpan.FromMilliseconds(20);
          beginEditTimer.Tick += beginEditTimer_Tick;
          beginEditTimer.Start();
       }
 
       internal override void ProcessKey(KeyEventArgs e)
       {
-         switch (e.Key)
-         {
-            case Key.Enter:
-               if (EditStateService.IsEditing)
-                  EditStateService.CommitEdit();
-               else
-                  EditStateService.BeginEdit();
-               e.Handled = true;
-               break;
-
-            case Key.F2:
-               if (!EditStateService.IsEditing)
-                  EditStateService.BeginEdit();
-               e.Handled = true;
-               break;
-
-            case Key.Escape:
-               if (EditStateService.IsEditing)
-                  EditStateService.CancelEdit();
-               e.Handled = true;
-               break;
-
-            default:
-               break;
-         }
-         if (!EditStateService.IsEditing)
-            StartBeginEditTimer();
       }
 
       protected override bool CanLeaveCurrentLine()
       {
-         if (EditStateService.IsEditing)
-            return EditStateService.CommitEdit();
+         if (EditStateService.IsEditingField)
+            return EditStateService.CommitItemEdit();
 
          return true;
       }
 
       protected override bool CanLeaveCurrentCell()
       {
-         if (EditStateService.IsEditing)
-            return EditStateService.CommitEdit();
+         if (EditStateService.IsEditingField)
+            return EditStateService.CommitItemEdit();
 
          return true;
       }
@@ -98,21 +72,37 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       private void beginEditTimer_Tick(object sender, EventArgs e)
       {
          // Try getting an edit state service for the current item.
-         if (!EditStateService.IsEditing)
+         if (!EditStateService.IsEditingField)
          {
-            if (EditStateService.BeginEdit())
+            if (EditStateService.BeginItemEdit())
                beginEditTimer.Stop();
          }
       }
 
       private void StartBeginEditTimer()
       {
-         beginEditTimer.Start();
+         if (!EditStateService.IsEditingItem)
+            beginEditTimer.Start();
+         else
+            EditStateService.BeginFieldEdit();
       }
+
+      readonly AutoResetFlag waitingForKeyUp = new AutoResetFlag();
 
       private void TargetElementProxy_CurrentChanged(object sender, EventArgs e)
       {
-         StartBeginEditTimer();
+         if (!waitingForKeyUp.IsSet)
+         {
+            IDisposable flagReset = waitingForKeyUp.Set();
+            KeyEventHandler handler = null;
+            handler = (s, a) =>
+            {
+               TargetElement.PreviewKeyUp -= handler;
+               StartBeginEditTimer();
+               flagReset.Dispose();
+            };
+            TargetElement.PreviewKeyUp += handler;
+         }
       }
    }
 }

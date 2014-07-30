@@ -16,21 +16,21 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 
       protected ICommandRegulationService CommandRegulator { get; private set; }
 
-      protected ICurrentItemService CurrentItemProvider { get; private set; }
+      protected ICurrentCellService CurrentCellService { get; private set; }
 
       public virtual void Cleanup()
       {
          CommandRegulator.PreviewCanExecute -= PreviewCanExecuteCommand;
-         CurrentItemProvider.PreviewCurrentChanging -= DataGridEditingExtender_PreviewCurrentChanging;
+         CurrentCellService.PreviewCurrentCellChanging -= DataGridEditingExtender_PreviewCurrentChanging;
       }
 
       public virtual void Setup()
       {
-         CurrentItemProvider = UIServiceProvider.GetService<ICurrentItemService>(TargetElement);
+         CurrentCellService = UIServiceProvider.GetService<ICurrentCellService>(TargetElement);
          CommandRegulator = UIServiceProvider.GetService<ICommandRegulationService>(TargetElement);
 
          CommandRegulator.PreviewCanExecute += PreviewCanExecuteCommand;
-         CurrentItemProvider.PreviewCurrentChanging += DataGridEditingExtender_PreviewCurrentChanging;
+         CurrentCellService.PreviewCurrentCellChanging += DataGridEditingExtender_PreviewCurrentChanging;
       }
 
       public override string ToString()
@@ -42,18 +42,37 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 
       protected abstract bool CanLeaveCurrentLine();
 
+      protected virtual bool CanLeaveCurrentCell()
+      {
+         return true;
+      }
+
       protected abstract void PreviewCanExecuteCommand(object commandTarget, CanExecuteRoutedEventArgs args);
 
-      private void DataGridEditingExtender_PreviewCurrentChanging(object sender, CancelableEventArgs e)
+      private void DataGridEditingExtender_PreviewCurrentChanging(object sender, PreviewChangeEventArgs e)
       {
-         var args = e as PreviewChangeEventArgs;
-         var changeType = args.OldValue == null ? args.NewValue.GetType() : args.OldValue.GetType();
+         UniversalCellInfo oldCell = (UniversalCellInfo)(e.OldValue ?? new UniversalCellInfo());
+         UniversalCellInfo newCell = (UniversalCellInfo)(e.NewValue ?? new UniversalCellInfo());
 
-         log.DebugFormat("Processing current changing of {0} event on {1}", changeType, this);
-         e.Canceled = !CanLeaveCurrentLine();
-         if (e.Canceled)
+         if (oldCell.Item != newCell.Item)
          {
-            log.DebugFormat("-- Canceling event.");
+            log.DebugFormat("Processing line change event on {0}", this);
+
+            e.Canceled = !CanLeaveCurrentLine();
+            if (e.Canceled)
+            {
+               log.DebugFormat("-- Canceling event.");
+            }
+         }
+         else
+         {
+            log.DebugFormat("Changing cell on current line by {0}", this);
+
+            e.Canceled = !CanLeaveCurrentCell();
+            if (e.Canceled)
+            {
+               log.DebugFormat(" -- Canceling event.");
+            }
          }
       }
    }

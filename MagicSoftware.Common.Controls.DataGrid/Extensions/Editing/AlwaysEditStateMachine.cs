@@ -27,14 +27,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       {
          beginEditTimer.Stop();
          beginEditTimer.Tick -= beginEditTimer_Tick;
-         CurrentItemProvider.CurrentChanged -= TargetElementProxy_CurrentChanged;
+         CurrentCellService.CurrentCellChanged -= TargetElementProxy_CurrentChanged;
          base.Cleanup();
       }
 
       public override void Setup()
       {
          base.Setup();
-         CurrentItemProvider.CurrentChanged += TargetElementProxy_CurrentChanged;
+         CurrentCellService.CurrentCellChanged += TargetElementProxy_CurrentChanged;
 
          beginEditTimer = new DispatcherTimer(DispatcherPriority.ContextIdle, this.TargetElement.Dispatcher);
          beginEditTimer.Interval = TimeSpan.FromMilliseconds(10);
@@ -74,6 +74,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       }
 
       protected override bool CanLeaveCurrentLine()
+      {
+         if (EditStateService.IsEditing)
+            return EditStateService.CommitEdit();
+
+         return true;
+      }
+
+      protected override bool CanLeaveCurrentCell()
       {
          if (EditStateService.IsEditing)
             return EditStateService.CommitEdit();

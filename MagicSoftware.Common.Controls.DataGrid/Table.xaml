@@ -23,6 +23,7 @@
             <Style x:Key="SelectAllButton" TargetType="Button">
                 <Setter Property="Background" Value="Red" />
             </Style>
+            
             <Style x:Key="TableRowStyle"
                    BasedOn="{StaticResource {x:Type DataGridRow}}"
                    TargetType="{x:Type DataGridRow}">
@@ -127,9 +128,8 @@
                     -->
 
                     <lext:DataGridNavigationExtender />
-                    <!--<lext:DataGridFocusManagementExtender />-->
-                    
-                     <lext:DataGridEditingExtender />  
+                    <lext:DataGridFocusManagementExtender />
+                    <lext:DataGridEditingExtender />  
                 </ext:ExtendersCollection>
             </ext:ElementExtensions.Extenders>
             <pxy:FrameworkElementProxy.Proxy>

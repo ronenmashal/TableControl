@@ -141,8 +141,8 @@
                                 <Binding Path="CurrentItem" RelativeSource="{RelativeSource FindAncestor, AncestorType=DataGrid}" />
                             </MultiBinding>
                         </DataTrigger.Binding>
-                        <Setter Property="BorderBrush" Value="Red" />
-                        <Setter Property="BorderThickness" Value="1.5" />
+                        <!--<Setter Property="BorderBrush" Value="Red" />-->
+                        <!--<Setter Property="BorderThickness" Value="1.5" />-->
                     </DataTrigger>
                 </Style.Triggers>
             </Style>

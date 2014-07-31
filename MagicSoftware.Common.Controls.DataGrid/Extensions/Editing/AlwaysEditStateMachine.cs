@@ -47,10 +47,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       {
       }
 
+      IDisposable focusDeferHandler = null;
+
       protected override bool CanLeaveCurrentLine()
       {
          if (EditStateService.IsEditingField)
+         {
             return EditStateService.CommitItemEdit();
+         }
 
          return true;
       }
@@ -58,7 +62,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       protected override bool CanLeaveCurrentCell()
       {
          if (EditStateService.IsEditingField)
-            return EditStateService.CommitItemEdit();
+         {
+            var fms = UIServiceProvider.GetService<IFocusManagementService>(TargetElement);
+            focusDeferHandler = fms.DeferFocusChanges();
+            return EditStateService.CommitFieldEdit();
+         }
 
          return true;
       }
@@ -75,16 +83,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
          if (!EditStateService.IsEditingField)
          {
             if (EditStateService.BeginItemEdit())
+            {
                beginEditTimer.Stop();
+               //var focusManager = UIServiceProvider.GetService<IFocusManagementService>(TargetElement);
+               //focusManager.UpdateFocus();
+            }
          }
       }
 
       private void StartBeginEditTimer()
       {
-         if (!EditStateService.IsEditingItem)
-            beginEditTimer.Start();
-         else
-            EditStateService.BeginFieldEdit();
+         beginEditTimer.Start();
       }
 
       readonly AutoResetFlag waitingForKeyUp = new AutoResetFlag();
@@ -93,15 +102,26 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       {
          if (!waitingForKeyUp.IsSet)
          {
-            IDisposable flagReset = waitingForKeyUp.Set();
-            KeyEventHandler handler = null;
-            handler = (s, a) =>
+            if (!EditStateService.IsEditingItem)
             {
-               TargetElement.PreviewKeyUp -= handler;
-               StartBeginEditTimer();
-               flagReset.Dispose();
-            };
-            TargetElement.PreviewKeyUp += handler;
+               IDisposable flagReset = waitingForKeyUp.Set();
+               KeyEventHandler handler = null;
+               handler = (s, a) =>
+               {
+                  TargetElement.PreviewKeyUp -= handler;
+                  StartBeginEditTimer();
+                  flagReset.Dispose();
+               };
+               TargetElement.PreviewKeyUp += handler;
+            }
+            else
+            {
+               EditStateService.BeginFieldEdit();
+               //var focusManager = UIServiceProvider.GetService<IFocusManagementService>(TargetElement);
+               //focusManager.UpdateFocus();
+            }
+            if (focusDeferHandler != null)
+               focusDeferHandler.Dispose();
          }
       }
    }

@@ -89,7 +89,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       protected override IList<FrameworkElement> GetCells()
       {
-         return new List<FrameworkElement>(Row.GetDescendants<VirtualTableCell>());
+         var vte = VisualTreeHelpers.GetVisualTreeEnumerator(Row, (v) => { return v is VirtualTableCell; }, System.Windows.Input.FocusNavigationDirection.Next);
+         var cells = new List<FrameworkElement>();
+         while (vte.MoveNext())
+         {
+            cells.Add(vte.Current as VirtualTableCell);
+         }
+         return cells;
       }
 
       protected void UpdateCellsCollection()

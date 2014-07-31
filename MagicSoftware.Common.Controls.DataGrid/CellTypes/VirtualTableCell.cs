@@ -89,34 +89,40 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          return !IsEditing;
       }
 
-      public void UpdateFocus()
-      {
-         if (IsEditing)
-         {
-            Dispatcher.Invoke(DispatcherPriority.Input, new Action(() =>
-            {
-               var contentElement = UIUtils.GetFirstParkableControl(contentPresenter);
-               if (contentElement != null)
-                  contentElement.Focus();
-            }));
-         }
-      }
-
       protected virtual void SetBindings(FrameworkElement primaryBindingTarget)
       {
       }
 
       private static void OnIsEditingChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)
       {
-         //VirtualTableCell cell = sender as VirtualTableCell;
-         //if (cell != null)
-         //{
-         //   cell.UpdateFocus();
-         //}
+         var cell = sender as VirtualTableCell;
+         if (cell != null)
+         {
+            cell.InvalidateVisual();
+            cell.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() => { cell.UpdateBindings(); }));
+         }
+      }
+
+      protected override void OnContentTemplateChanged(DataTemplate oldContentTemplate, DataTemplate newContentTemplate)
+      {
+         base.OnContentTemplateChanged(oldContentTemplate, newContentTemplate);
       }
 
       private void contentPresenter_Loaded(object sender, RoutedEventArgs e)
       {
+         UpdateBindings();
+      }
+
+      private void UpdateBindings()
+      {
+         var template = IsEditing ? EditingElement : Element;
+
+         contentPresenter.ContentTemplate = template;
+         if (contentPresenter.ApplyTemplate())
+         {
+
+         }
+
          // Set Data Context on the template's root element.
          var topMostElement = UIUtils.GetVisualChild<FrameworkElement>(contentPresenter);
          if (topMostElement != null)

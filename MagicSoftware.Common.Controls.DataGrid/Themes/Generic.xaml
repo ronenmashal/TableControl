@@ -635,17 +635,9 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 SnapsToDevicePixels="True">
                             <!--  <TextBlock Text="Basic"/>  -->
-                            <ContentPresenter x:Name="contentPresenter" VerticalAlignment="Center" ContentTemplate="{TemplateBinding Element}" />
+                            <ContentPresenter x:Name="contentPresenter" VerticalAlignment="Center" />
                         </Border>
                     </Border>
-
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsEditing" Value="True">
-                            <Trigger.Setters>
-                                <Setter TargetName="contentPresenter" Property="ContentTemplate" Value="{Binding EditingElement, RelativeSource={RelativeSource AncestorType=cells:VirtualTableCell}}" />
-                            </Trigger.Setters>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -667,14 +659,14 @@
             </Setter.Value>
         </Setter>
         
-        <Style.Triggers>
+                <!--  Hide the default focus visual style  -->
+                <!--<Setter Property="FocusVisualStyle" Value="{x:Null}" />-->
+        <!--<Style.Triggers>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
                     <Condition Property="IsKeyboardFocusWithin" Value="True" />
                     <Condition Property="IsEditing" Value="False" />
                 </MultiTrigger.Conditions>
-                <!--  Hide the default focus visual style  -->
-                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type cells:VirtualTableCell}">
@@ -710,7 +702,7 @@
                     </Setter.Value>
                 </Setter>
             </MultiTrigger>
-        </Style.Triggers>
+        </Style.Triggers>-->
     </Style>
 
 

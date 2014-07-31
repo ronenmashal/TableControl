@@ -61,17 +61,20 @@
                                             BorderThickness="0,0,0,1"
                                             Focusable="False">
                                         <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                            <tbl:VirtualTextTableCell Binding="{Binding StringValue}" />
-                                            <tbl:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" />
+                                            <tbl:VirtualTextTableCell Binding="{Binding StringValue}" MinWidth="50"/>
+                                            <tbl:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" MinWidth="50"/>
                                             <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
                                                                           Binding="{Binding Animal}"
                                                                           IsEditable="True"
-                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" />
+                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" 
+                                                                          MinWidth="100"/>
                                             <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
                                                                           Binding="{Binding Animal}"
                                                                           IsEditable="False"
-                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" />
-                                            <tbl:CheckBoxVirtualTableCell Margin="5,0,0,0" Binding="{Binding BoolValue}" />
+                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" 
+                                                                          MinWidth="100"/>
+                                            <tbl:CheckBoxVirtualTableCell Margin="5,0,0,0" Binding="{Binding BoolValue}" 
+                                                                          MinWidth="30"/>
 
                                             <!--
                                                 <dg:VirtualTableCell ContentBinding="{Binding StringValue}">

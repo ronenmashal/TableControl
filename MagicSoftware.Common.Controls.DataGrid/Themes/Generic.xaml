@@ -718,8 +718,7 @@
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
-                    <!--  <TextBlock Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
-                    <TextBlock cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" Text="Smashing" />
+                    <TextBlock cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -727,8 +726,7 @@
         <Setter Property="EditingElement">
             <Setter.Value>
                 <DataTemplate>
-                    <!--  <TextBox Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
-                    <TextBox cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" Text="Hello" />
+                    <TextBox cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -738,8 +736,7 @@
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
-                    <!--  <TextBlock Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
-                    <TextBlock cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" Text="Smashing" />
+                    <TextBlock cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -773,7 +770,6 @@
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
-                    <!--  <TextBlock Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
                     <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}" IsHitTestVisible="False" />
                 </DataTemplate>
             </Setter.Value>
@@ -782,7 +778,6 @@
         <Setter Property="EditingElement">
             <Setter.Value>
                 <DataTemplate>
-                    <!--  <TextBox Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
                     <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}" />
                 </DataTemplate>
             </Setter.Value>

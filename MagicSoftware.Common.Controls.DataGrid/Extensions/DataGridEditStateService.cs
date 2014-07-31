@@ -1,14 +1,20 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    [ImplementedService(typeof(IElementEditStateService))]
    internal class DataGridEditStateService : IElementEditStateService, IUIService
    {
+      private readonly AutoResetFlag suppressEditStateEvent = new AutoResetFlag();
+
       private ICommandRegulationService commandRegulator;
+
       private DataGrid dataGrid;
+
+      public event EventHandler EditStateChanged;
 
       public bool IsAttached
       {
@@ -59,6 +65,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          CurrentEdit = null;
       }
 
+      private void OnEditStateChanged()
+      {
+         if (EditStateChanged != null && !suppressEditStateEvent.IsSet)
+            EditStateChanged(this, new EventArgs());
+      }
+
       private void ServiceProvider_FullyAttached(object obj, EventArgs args)
       {
          commandRegulator = UIServiceProvider.GetService<ICommandRegulationService>(dataGrid);
@@ -96,59 +108,67 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
-      public void NotifyBeginEdit()
-      {
-         throw new NotImplementedException();
-      }
-
-      public void NotifyCancelEdit()
-      {
-         throw new NotImplementedException();
-      }
-
-      public void NotifyCommitEdit()
-      {
-         throw new NotImplementedException();
-      }
-
       #endregion IEditingItemsControlProxy Members
 
       #region IElementEditStateProxy Members
 
       public bool BeginFieldEdit()
       {
-         commandRegulator.ExecuteCommand(DataGrid.BeginEditCommand, DataGridEditingUnit.Cell);
+         if (!IsEditingField)
+            commandRegulator.ExecuteCommand(DataGrid.BeginEditCommand, DataGridEditingUnit.Cell);
+
+         if (IsEditingField)
+            OnEditStateChanged();
+
          return IsEditingField;
       }
 
       public bool BeginItemEdit()
       {
-         commandRegulator.ExecuteCommand(DataGrid.BeginEditCommand, null);
-         return IsEditingField;
+         if (!IsEditingItem)
+         {
+            using (suppressEditStateEvent.Set())
+               BeginFieldEdit();
+            if (IsEditingItem)
+               OnEditStateChanged();
+         }
+         return IsEditingItem;
       }
 
       public bool CancelFieldEdit()
       {
-         commandRegulator.ExecuteCommand(DataGrid.CancelEditCommand, DataGridEditingUnit.Cell);
+         if (IsEditingField)
+            commandRegulator.ExecuteCommand(DataGrid.CancelEditCommand, DataGridEditingUnit.Cell);
+         if (!IsEditingField)
+            OnEditStateChanged();
          return !IsEditingField;
       }
 
       public bool CancelItemEdit()
       {
-         commandRegulator.ExecuteCommand(DataGrid.CancelEditCommand, DataGridEditingUnit.Row);
-         return !IsEditingField;
+         if (IsEditingItem)
+            commandRegulator.ExecuteCommand(DataGrid.CancelEditCommand, DataGridEditingUnit.Row);
+         if (!IsEditingItem)
+            OnEditStateChanged();
+         return !IsEditingItem;
       }
 
       public bool CommitFieldEdit()
       {
-         commandRegulator.ExecuteCommand(DataGrid.CommitEditCommand, DataGridEditingUnit.Cell);
+         if (IsEditingField)
+            commandRegulator.ExecuteCommand(DataGrid.CommitEditCommand, DataGridEditingUnit.Cell);
+         if (!IsEditingField)
+            OnEditStateChanged();
          return !IsEditingField;
       }
 
       public bool CommitItemEdit()
       {
-         commandRegulator.ExecuteCommand(DataGrid.CommitEditCommand, DataGridEditingUnit.Row);
-         return !IsEditingField;
+         if (IsEditingItem)
+            commandRegulator.ExecuteCommand(DataGrid.CommitEditCommand, DataGridEditingUnit.Row);
+         if (!IsEditingItem)
+            OnEditStateChanged();
+         return !IsEditingItem;
       }
 
       #endregion IElementEditStateProxy Members

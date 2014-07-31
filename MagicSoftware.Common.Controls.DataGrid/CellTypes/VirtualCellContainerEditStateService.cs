@@ -2,13 +2,17 @@
 using System.Windows;
 using System.Windows.Controls;
 using MagicSoftware.Common.Controls.Table.Extensions;
+using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.CellTypes
 {
    [ImplementedService(typeof(IElementEditStateService))]
    public class VirtualCellContainerEditStateService : IElementEditStateService, IUIService
    {
+      private readonly AutoResetFlag suppressEditStateEvent = new AutoResetFlag();
       private VirtualTableCell editingCell = null;
+
+      public event EventHandler EditStateChanged;
 
       public bool IsAttached
       {
@@ -51,7 +55,10 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          if (editingCell != null)
          {
             if (editingCell.BeginEdit())
+            {
+               OnEditStateChanged();
                return true;
+            }
          }
          return false;
       }
@@ -60,8 +67,15 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
       {
          if (!IsEditingItem)
          {
-            IsEditingItem = true;
-            return BeginFieldEdit();
+            using (suppressEditStateEvent.Set())
+               BeginFieldEdit();
+
+            if (IsEditingField)
+            {
+               IsEditingItem = true;
+               OnEditStateChanged();
+               return true;
+            }
          }
          return false;
       }
@@ -73,6 +87,7 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
             if (editingCell.CancelEdit())
             {
                editingCell = null;
+               OnEditStateChanged();
                return true;
             }
          }
@@ -83,10 +98,13 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
       {
          if (IsEditingField)
          {
-            if (!CancelFieldEdit())
+            using (suppressEditStateEvent.Set())
+               CancelFieldEdit();
+            if (IsEditingField)
                return false;
          }
          IsEditingItem = false;
+         OnEditStateChanged();
          return true;
       }
 
@@ -97,6 +115,7 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
             if (editingCell.CommitEdit())
             {
                editingCell = null;
+               OnEditStateChanged();
                return true;
             }
          }
@@ -107,10 +126,13 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
       {
          if (IsEditingField)
          {
-            if (!CommitFieldEdit())
+            using (suppressEditStateEvent.Set())
+               CommitFieldEdit();
+            if (IsEditingField)
                return false;
          }
          IsEditingItem = false;
+         OnEditStateChanged();
          return true;
       }
 
@@ -124,6 +146,12 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
       {
          if (IsAttached)
             DetachFromElement(CellContainer);
+      }
+
+      private void OnEditStateChanged()
+      {
+         if (EditStateChanged != null && !suppressEditStateEvent.IsSet)
+            EditStateChanged(this, new EventArgs());
       }
    }
 }

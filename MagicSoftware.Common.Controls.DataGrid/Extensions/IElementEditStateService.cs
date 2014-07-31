@@ -4,6 +4,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    internal interface IElementEditStateService
    {
+      event EventHandler EditStateChanged;
+
       bool IsEditingField { get; }
 
       bool IsEditingItem { get; }

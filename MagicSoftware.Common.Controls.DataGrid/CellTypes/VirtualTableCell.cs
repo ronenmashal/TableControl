@@ -3,32 +3,31 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using MagicSoftware.Common.Utils;
+using System.Windows.Threading;
 
 namespace MagicSoftware.Common.Controls.Table.CellTypes
 {
    public abstract class VirtualTableCell : ContentControl
    {
-      // Using a DependencyProperty as the backing store for BindingTarget.  This enables animation, styling, binding, etc...
       public static readonly DependencyProperty BindingTargetPropertyProperty =
           DependencyProperty.RegisterAttached("BindingTargetProperty", typeof(DependencyProperty), typeof(VirtualTableCell), new UIPropertyMetadata(null));
 
-      // Using a DependencyProperty as the backing store for EditingElement.  This enables animation, styling, binding, etc...
       public static readonly DependencyProperty EditingElementProperty =
           DependencyProperty.Register("EditingElement", typeof(DataTemplate), typeof(VirtualTableCell), new UIPropertyMetadata(null));
 
-      // Using a DependencyProperty as the backing store for Element.  This enables animation, styling, binding, etc...
       public static readonly DependencyProperty ElementProperty =
           DependencyProperty.Register("Element", typeof(DataTemplate), typeof(VirtualTableCell), new UIPropertyMetadata(null));
 
-      private static DependencyPropertyKey IsEditingPropertyKey = DependencyProperty.RegisterReadOnly("IsEditing", typeof(bool), typeof(VirtualTableCell), new UIPropertyMetadata(false, OnIsEditingChanged));
-      public static readonly DependencyProperty IsEditingProperty = IsEditingPropertyKey.DependencyProperty;
+      public static readonly DependencyProperty IsEditingProperty;
 
-
+      private static DependencyPropertyKey IsEditingPropertyKey;
       private ContentPresenter contentPresenter;
 
       static VirtualTableCell()
       {
          DefaultStyleKeyProperty.OverrideMetadata(typeof(VirtualTableCell), new FrameworkPropertyMetadata(typeof(VirtualTableCell)));
+         IsEditingPropertyKey = DependencyProperty.RegisterReadOnly("IsEditing", typeof(bool), typeof(VirtualTableCell), new UIPropertyMetadata(false, OnIsEditingChanged));
+         IsEditingProperty = IsEditingPropertyKey.DependencyProperty;
       }
 
       public VirtualTableCell()
@@ -75,7 +74,6 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
       internal bool BeginEdit()
       {
          IsEditing = true;
-         bool result = contentPresenter.ApplyTemplate();
          return IsEditing;
       }
 
@@ -91,19 +89,29 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          return !IsEditing;
       }
 
+      public void UpdateFocus()
+      {
+         if (IsEditing)
+         {
+            Dispatcher.Invoke(DispatcherPriority.Input, new Action(() =>
+            {
+               var contentElement = UIUtils.GetFirstParkableControl(contentPresenter);
+               if (contentElement != null)
+                  contentElement.Focus();
+            }));
+         }
+      }
+
       protected virtual void SetBindings(FrameworkElement primaryBindingTarget)
       {
       }
 
       private static void OnIsEditingChanged(DependencyObject sender, DependencyPropertyChangedEventArgs changeArgs)
       {
-         //var tableCell = sender as VirtualTableCell;
-         //if (tableCell != null)
+         //VirtualTableCell cell = sender as VirtualTableCell;
+         //if (cell != null)
          //{
-         //   if ((bool)changeArgs.NewValue == true)
-         //      tableCell.CurrentTemplate = tableCell.EditingElement;
-         //   else
-         //      tableCell.CurrentTemplate = tableCell.Element;
+         //   cell.UpdateFocus();
          //}
       }
 

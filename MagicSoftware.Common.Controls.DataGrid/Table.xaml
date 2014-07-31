@@ -145,7 +145,7 @@
                 <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:SelectionExtender}" />
                 <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DefaultCommandRegulationService}" />
                 <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridEditStateService}" />
-                <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridFocusManagementExtender}" />
+                <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:FocusManagementService}" />
             </lext:UIServiceProvider.ServiceList>
         </DataGrid>
     </Grid>

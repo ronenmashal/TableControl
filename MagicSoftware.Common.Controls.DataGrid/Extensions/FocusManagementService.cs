@@ -7,14 +7,8 @@ using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   public interface IFocusManagementService
-   {
-      void UpdateFocus();
-      IDisposable DeferFocusChanges();
-   }
-
    [ImplementedService(typeof(IFocusManagementService))]
-   internal class DataGridFocusManagementExtender : IFocusManagementService, IUIService
+   internal class FocusManagementService : IFocusManagementService, IUIService
    {
       private ICurrentCellService currentCellService;
       private int focusDeferCount = 0;

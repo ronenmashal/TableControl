@@ -762,7 +762,7 @@
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
-                    <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}" IsHitTestVisible="False" />
+                    <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0"/>
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -770,7 +770,7 @@
         <Setter Property="EditingElement">
             <Setter.Value>
                 <DataTemplate>
-                    <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}" />
+                    <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0"/>
                 </DataTemplate>
             </Setter.Value>
         </Setter>

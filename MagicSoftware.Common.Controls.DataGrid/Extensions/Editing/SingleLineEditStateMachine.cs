@@ -1,58 +1,42 @@
 ﻿using System;
-using System.Windows;
-using System.Windows.Controls;
+using System.Collections.Generic;
 using System.Windows.Input;
-using System.Windows.Threading;
-using log4net;
-using MagicSoftware.Common.Controls.Extensibility;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 {
    internal class SingleLineEditStateMachine : DataGridEditStateMachine
    {
-      public SingleLineEditStateMachine()
-      {
-      }
+      private List<InputGesture> registeredGestures;
 
       public ICurrentItemService CurrentItemTracker { get; set; }
 
+      public override void Cleanup()
+      {
+         base.Cleanup();
+         InputService inputService = UIServiceProvider.GetService<InputService>(TargetElement);
+         foreach (var gesture in registeredGestures)
+            inputService.UnregisterGestureAction(gesture);
+      }
+
+      public override void Setup()
+      {
+         base.Setup();
+         registeredGestures = new List<InputGesture>();
+         RegisterKeyGesture(Key.F2, ToggleEdit);
+         RegisterKeyGesture(Key.Enter, ToggleEdit);
+         RegisterKeyGesture(Key.Escape, CancelEdit);
+      }
+
       internal override void ProcessKey(KeyEventArgs e)
       {
-         log.DebugFormat("Processing key {0} on {1}", e.Key, this);
-         var editProxy = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
-         switch (e.Key)
-         {
-            case Key.Enter:
-               if (editProxy.IsEditingField)
-                  editProxy.CommitItemEdit();
-               else
-                  editProxy.BeginItemEdit();
-               e.Handled = true;
-               break;
-
-            case Key.F2:
-               if (!editProxy.IsEditingField)
-                  editProxy.BeginItemEdit();
-               e.Handled = true;
-               break;
-
-            case Key.Escape:
-               if (editProxy.IsEditingField)
-                  editProxy.CancelItemEdit();
-               e.Handled = true;
-               break;
-
-            default:
-               break;
-         }
       }
 
       protected override bool CanLeaveCurrentLine()
       {
-         var editProxy = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
-         if (editProxy.IsEditingField)
+         var editStateService = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
+         if (editStateService.IsEditingField)
          {
-            return editProxy.CommitItemEdit();
+            return editStateService.CommitItemEdit();
          }
          return true;
       }
@@ -61,6 +45,32 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       {
          args.CanExecute = true;
          args.Handled = true;
+      }
+
+      private void CancelEdit(KeyEventArgs e)
+      {
+         var editStateService = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
+         if (editStateService.IsEditingField)
+            editStateService.CancelItemEdit();
+         e.Handled = true;
+      }
+
+      private void RegisterKeyGesture(Key key, Action<KeyEventArgs> action)
+      {
+         InputService inputService = UIServiceProvider.GetService<InputService>(TargetElement);
+         var gesture = new KeyGesture(key);
+         registeredGestures.Add(gesture);
+         inputService.RegisterKeyGestureAction(gesture, action);
+      }
+
+      private void ToggleEdit(KeyEventArgs e)
+      {
+         var editStateService = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
+         if (editStateService.IsEditingField)
+            editStateService.CommitItemEdit();
+         else
+            editStateService.BeginItemEdit();
+         e.Handled = true;
       }
    }
 }

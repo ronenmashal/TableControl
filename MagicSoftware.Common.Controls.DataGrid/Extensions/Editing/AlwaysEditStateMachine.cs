@@ -85,8 +85,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
             if (EditStateService.BeginItemEdit())
             {
                beginEditTimer.Stop();
-               //var focusManager = UIServiceProvider.GetService<IFocusManagementService>(TargetElement);
-               //focusManager.UpdateFocus();
             }
          }
       }
@@ -117,8 +115,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
             else
             {
                EditStateService.BeginFieldEdit();
-               //var focusManager = UIServiceProvider.GetService<IFocusManagementService>(TargetElement);
-               //focusManager.UpdateFocus();
             }
             if (focusDeferHandler != null)
                focusDeferHandler.Dispose();

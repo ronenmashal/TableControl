@@ -26,6 +26,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          TargetElement = element;
          currentCellService = UIServiceProvider.GetService<ICurrentCellService>(TargetElement);
          currentCellService.CurrentCellChanged += new EventHandler(currentCellService_CurrentCellChanged);
+
+         TargetElement.PreviewLostKeyboardFocus += TargetElement_PreviewLostKeyboardFocus;
       }
 
       public IDisposable DeferFocusChanges()
@@ -41,8 +43,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void DetachFromElement(FrameworkElement element)
       {
-         TargetElement = null;
          currentCellService.CurrentCellChanged -= new EventHandler(currentCellService_CurrentCellChanged);
+         TargetElement.PreviewLostKeyboardFocus -= TargetElement_PreviewLostKeyboardFocus;
+         TargetElement.PreviewGotKeyboardFocus -= TargetElement_PreviewGotKeyboardFocus;
+         TargetElement = null;
          currentCellService = null;
       }
 
@@ -85,5 +89,31 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          UpdateFocus();
       }
+
+      private void TargetElement_PreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+      {
+         if (TargetElement.IsAncestorOf(e.NewFocus as FrameworkElement))
+            return;
+
+         var statePersistentServices = UIServiceProvider.GetAllServices<IStatePersistency>(TargetElement);
+         foreach (var service in statePersistentServices)
+         {
+            service.SaveCurrentState();
+         }
+
+         TargetElement.PreviewGotKeyboardFocus += TargetElement_PreviewGotKeyboardFocus;
+      }
+
+      void TargetElement_PreviewGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+      {
+         TargetElement.PreviewGotKeyboardFocus -= TargetElement_PreviewGotKeyboardFocus;
+
+         var statePersistentServices = UIServiceProvider.GetAllServices<IStatePersistency>(TargetElement);
+         foreach (var service in statePersistentServices)
+         {
+            service.RestoreState();
+         }
+      }
+
    }
 }

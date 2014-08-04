@@ -16,7 +16,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    /// </summary>
    [ImplementedService(typeof(ICurrentCellService))]
    [ImplementedService(typeof(ICurrentItemService))]
-   internal class DataGridCurrentCellService : ICurrentCellService, ICurrentItemService, IUIService
+   internal class DataGridCurrentCellService : ICurrentCellService, ICurrentItemService, IUIService, IStatePersistency
    {
       protected readonly AutoResetFlag isRegainingFocus = new AutoResetFlag();
 
@@ -132,7 +132,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public FrameworkElement CurrentItemContainer
       {
-         get { return dataGrid.ItemContainerGenerator.ContainerFromItem(dataGrid.CurrentItem) as FrameworkElement; }
+         get { return dataGrid.ItemContainerGenerator.ContainerFromItem(CurrentCell.Item) as FrameworkElement; }
       }
 
       public virtual bool IsAttached { get { return dataGrid != null; } }
@@ -157,7 +157,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          UpdateCurrentCell();
          columnReorderingHandler = new ColumnReorderingHandler(dataGrid, this);
 
-         dataGrid.IsKeyboardFocusWithinChanged += new DependencyPropertyChangedEventHandler(dataGrid_IsKeyboardFocusWithinChanged);
+         //dataGrid.IsKeyboardFocusWithinChanged += new DependencyPropertyChangedEventHandler(dataGrid_IsKeyboardFocusWithinChanged);
          //dataGrid.ColumnReordering += new EventHandler<DataGridColumnReorderingEventArgs>(dataGrid_ColumnReordering);
          //dataGrid.ColumnReordered += new EventHandler<DataGridColumnEventArgs>(dataGrid_ColumnReordered);
          //dataGrid.ColumnDisplayIndexChanged += new EventHandler<DataGridColumnEventArgs>(dataGrid_ColumnDisplayIndexChanged);
@@ -277,6 +277,20 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return MoveTo(new UniversalCellInfo(dataGrid.Items[newIndex], CurrentCell.CellIndex));
       }
 
+      public void RestoreState()
+      {
+         using (isRegainingFocus.Set())
+         {
+            MoveTo(CurrentCell);
+         }
+         dataGrid.CurrentCellChanged += DataGrid_CurrentCellChanged;
+      }
+
+      public void SaveCurrentState()
+      {
+         dataGrid.CurrentCellChanged -= DataGrid_CurrentCellChanged;
+      }
+
       private bool CanMoveTo(UniversalCellInfo targetCell)
       {
          if (IndexOf(targetCell.Item) < 0)
@@ -327,18 +341,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          UpdateCurrentCell();
          if (!isSelfInducedCellChange.IsSet)
             RaiseCurrentCellChangedEvent();
-      }
-
-      private void dataGrid_IsKeyboardFocusWithinChanged(object sender, DependencyPropertyChangedEventArgs e)
-      {
-         bool isKeyboardFocusWithin = (bool)e.NewValue;
-         if (isKeyboardFocusWithin)
-         {
-            using (isRegainingFocus.Set())
-            {
-               MoveTo(CurrentCell);
-            }
-         }
       }
 
       private UIElement ForceContainerGeneration(object item)

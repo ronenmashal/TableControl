@@ -112,6 +112,7 @@
     <Compile Include="Extensions\IElementEditStateService.cs" />
     <Compile Include="Extensions\InputService.cs" />
     <Compile Include="Extensions\IScrollService.cs" />
+    <Compile Include="Extensions\IStatePersistency.cs" />
     <Compile Include="Extensions\IUIServiceFactory.cs" />
     <Compile Include="Extensions\NavigationCommandsMap.cs" />
     <Compile Include="Extensions\ParameterlessUIServiceFactory.cs" />

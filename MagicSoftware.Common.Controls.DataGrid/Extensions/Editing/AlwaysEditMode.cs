@@ -7,7 +7,7 @@ using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 {
-   internal class AlwaysEditStateMachine : DataGridEditStateMachine
+   internal class AlwaysEditMode : DataGridEditModeBase
    {
       private EditModeState currentState;
 
@@ -141,9 +141,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       {
          private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-         protected AlwaysEditStateMachine EditMode { get; private set; }
+         protected AlwaysEditMode EditMode { get; private set; }
 
-         public void Enter(AlwaysEditStateMachine editMode)
+         public void Enter(AlwaysEditMode editMode)
          {
             log.DebugFormat("Entering edit mode state {0}", this.GetType().Name);
             this.EditMode = editMode;

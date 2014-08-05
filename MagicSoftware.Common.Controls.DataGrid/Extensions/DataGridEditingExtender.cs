@@ -63,7 +63,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       #endregion Editing Extender property
 
-      private DataGridEditStateMachine editModeWorker = null;
+      private DataGridEditModeBase editModeWorker = null;
 
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -97,18 +97,18 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          editModeWorker.ProcessKey((KeyEventArgs)e);
       }
 
-      private DataGridEditStateMachine CreateEditStateMachine(ItemsControlEditMode editMode)
+      private DataGridEditModeBase CreateEditStateMachine(ItemsControlEditMode editMode)
       {
          switch (editMode)
          {
             case ItemsControlEditMode.ReadOnly:
-               return new ReadOnlyEditStateMachine();
+               return new ReadOnlyEditMode();
 
             case ItemsControlEditMode.SingleLine:
-               return new SingleLineEditStateMachine();
+               return new SingleLineEditMode();
 
             case ItemsControlEditMode.AlwaysInEdit:
-               return new AlwaysEditStateMachine();
+               return new AlwaysEditMode();
 
             case ItemsControlEditMode.Persistent:
                break;
@@ -116,7 +116,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             default:
                break;
          }
-         return new ReadOnlyEditStateMachine();
+         return new ReadOnlyEditMode();
       }
 
       private void PreviewCanExecuteCommand(object commandTarget, CanExecuteRoutedEventArgs args)

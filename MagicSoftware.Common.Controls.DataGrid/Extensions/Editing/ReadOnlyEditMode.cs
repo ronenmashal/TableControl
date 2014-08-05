@@ -8,7 +8,7 @@ using MagicSoftware.Common.Controls.Extensibility;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 {
-   internal class ReadOnlyEditStateMachine : DataGridEditStateMachine
+   internal class ReadOnlyEditMode : DataGridEditModeBase
    {
       internal override void ProcessKey(KeyEventArgs e)
       {

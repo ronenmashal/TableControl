@@ -8,7 +8,7 @@ using MagicSoftware.Common.Controls.Extensibility;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 {
-   internal abstract class DataGridEditStateMachine
+   internal abstract class DataGridEditModeBase
    {
       protected ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 

@@ -4,7 +4,7 @@ using System.Windows.Input;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 {
-   internal class SingleLineEditStateMachine : DataGridEditStateMachine
+   internal class SingleLineEditMode : DataGridEditModeBase
    {
       private List<InputGesture> registeredGestures;
 

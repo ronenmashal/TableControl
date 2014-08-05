@@ -74,7 +74,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInitializer.cs" />
     <Compile Include="DataGridAsCurrentItemProviderTest.cs" />
-    <Compile Include="DataGridAsEditingAdapterTest.cs" />
+    <Compile Include="DataGridEditingServiceTest.cs" />
     <Compile Include="DataGridCurrentCellServiceTest.cs" />
     <Compile Include="Data\Company.cs" />
     <Compile Include="Data\PropertyStorage.cs" />

@@ -14,7 +14,6 @@ using System.Collections;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   [ImplementedServiceAttribute(typeof(ICurrentItemService))]
    [DebuggerDisplay("DGCurrentItemService: #{id}")]
    class DataGridCurrentItemService : CurrentItemServiceBase, ICurrentItemService, IUIService
    {

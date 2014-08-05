@@ -5,6 +5,46 @@ using System.Windows.Input;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
+   public abstract class InputGesturesFactory
+   {
+      private ModifierKeys[] modifierCombinations;
+
+      public InputGesturesFactory(ModifierKeys[] modifierCombinations)
+      {
+         if (modifierCombinations == null || modifierCombinations.Length == 0)
+            this.modifierCombinations = new ModifierKeys[] { ModifierKeys.None };
+         else
+            this.modifierCombinations = modifierCombinations;
+      }
+
+      public static ModifierKeys[] AllCombinationsOf(params ModifierKeys[] modifiers)
+      {
+         ModifierKeys[] combinations = new ModifierKeys[modifiers.Length * modifiers.Length];
+         combinations[0] = ModifierKeys.None;
+         int c = 1;
+         for (int i = 0; i < modifiers.Length; i++)
+         {
+            combinations[c++] = modifiers[i];
+            for (int j = i + 1; j < modifiers.Length; j++)
+            {
+               combinations[c++] = modifiers[i] | modifiers[j];
+            }
+         }
+         return combinations;
+      }
+
+      public InputGesture[] GetGestures()
+      {
+         InputGesture[] gestures = new InputGesture[modifierCombinations.Length];
+         int i = 0;
+         foreach (var modifier in modifierCombinations)
+            gestures[i++] = CreateGesture(modifier);
+         return gestures;
+      }
+
+      protected abstract InputGesture CreateGesture(ModifierKeys modifiers);
+   }
+
    public class InputService : IUIService
    {
       private FrameworkElement element;
@@ -62,6 +102,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          RegisterGestureAction(gesture, (e) => { action((MouseEventArgs)e); });
       }
 
+      public void UnregisterGestureAction(InputGesture gesture)
+      {
+         registeredGestures.Remove(gesture);
+      }
+
       private void element_PreviewKeyDown(object sender, KeyEventArgs e)
       {
          foreach (var mapping in registeredGestures)
@@ -79,46 +124,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                mapping.Value(e);
          }
       }
-   }
-
-   public abstract class InputGesturesFactory
-   {
-      private ModifierKeys[] modifierCombinations;
-
-      public InputGesturesFactory(ModifierKeys[] modifierCombinations)
-      {
-         if (modifierCombinations == null || modifierCombinations.Length == 0)
-            this.modifierCombinations = new ModifierKeys[] { ModifierKeys.None };
-         else
-            this.modifierCombinations = modifierCombinations;
-      }
-
-      public static ModifierKeys[] AllCombinationsOf(params ModifierKeys[] modifiers)
-      {
-         ModifierKeys[] combinations = new ModifierKeys[modifiers.Length * modifiers.Length];
-         combinations[0] = ModifierKeys.None;
-         int c = 1;
-         for (int i = 0; i < modifiers.Length; i++)
-         {
-            combinations[c++] = modifiers[i];
-            for (int j = i + 1; j < modifiers.Length; j++)
-            {
-               combinations[c++] = modifiers[i] | modifiers[j];
-            }
-         }
-         return combinations;
-      }
-
-      public InputGesture[] GetGestures()
-      {
-         InputGesture[] gestures = new InputGesture[modifierCombinations.Length];
-         int i = 0;
-         foreach (var modifier in modifierCombinations)
-            gestures[i++] = CreateGesture(modifier);
-         return gestures;
-      }
-
-      protected abstract InputGesture CreateGesture(ModifierKeys modifiers);
    }
 
    public class KeyGesturesFactory : InputGesturesFactory

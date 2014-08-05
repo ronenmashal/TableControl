@@ -40,6 +40,7 @@
                     <Setter.Value>
                         <tbl:UIServiceCollection>
                             <tbl:CustomRowCellEnumerationServiceFactory RowTypeIdentifier="custom1"/>
+                            <tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:VirtualCellContainerEditStateService}"/>
                         </tbl:UIServiceCollection>
                     </Setter.Value>
                 </Setter>
@@ -60,17 +61,20 @@
                                             BorderThickness="0,0,0,1"
                                             Focusable="False">
                                         <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                            <tbl:VirtualTextTableCell Binding="{Binding StringValue}" />
-                                            <tbl:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" />
+                                            <tbl:VirtualTextTableCell Binding="{Binding StringValue}" MinWidth="50"/>
+                                            <tbl:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" MinWidth="50"/>
                                             <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
                                                                           Binding="{Binding Animal}"
                                                                           IsEditable="True"
-                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" />
+                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" 
+                                                                          MinWidth="100"/>
                                             <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
                                                                           Binding="{Binding Animal}"
                                                                           IsEditable="False"
-                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" />
-                                            <tbl:CheckBoxVirtualTableCell Margin="5,0,0,0" Binding="{Binding BoolValue}" />
+                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" 
+                                                                          MinWidth="100"/>
+                                            <tbl:CheckBoxVirtualTableCell Margin="5,0,0,0" Binding="{Binding BoolValue}" 
+                                                                          MinWidth="30"/>
 
                                             <!--
                                                 <dg:VirtualTableCell ContentBinding="{Binding StringValue}">
@@ -140,8 +144,8 @@
                                 <Binding Path="CurrentItem" RelativeSource="{RelativeSource FindAncestor, AncestorType=DataGrid}" />
                             </MultiBinding>
                         </DataTrigger.Binding>
-                        <Setter Property="BorderBrush" Value="Red" />
-                        <Setter Property="BorderThickness" Value="1.5" />
+                        <!--<Setter Property="BorderBrush" Value="Red" />-->
+                        <!--<Setter Property="BorderThickness" Value="1.5" />-->
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
@@ -163,6 +167,14 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+
+            <ObjectDataProvider x:Key="EditModes"
+                                MethodName="GetNames"
+                                ObjectType="{x:Type sys:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:TypeExtension TypeName="tbl:ItemsControlEditMode" />
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
         </ResourceDictionary>
     </Window.Resources>
     <DockPanel>
@@ -176,6 +188,9 @@
             <HeaderedContentControl Header="Selected Item:">
                 <TextBlock Text="{Binding SelectedItem, ElementName=DG}" />
             </HeaderedContentControl>
+            <HeaderedContentControl Header="Edit mode:">
+                <ComboBox x:Name="SelectedEditMode" ItemsSource="{Binding Source={StaticResource EditModes}}" HorizontalAlignment="Left" SelectedValue="{x:Static tbl:ItemsControlEditMode.ReadOnly}"/>
+            </HeaderedContentControl>
             <StackPanel Orientation="Horizontal">
                 <Button Name="ChangeColumnVisibility" Click="ChangeColumnVisibility_Click">Column Visibility</Button>
                 <Button Name="GetSelection" Click="GetSelection_Click">Show Selection</Button>
@@ -187,7 +202,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <tbl:Table x:Name="DG"
-                       EditMode="SingleLine"
+                       EditMode="{Binding SelectedValue, ElementName=SelectedEditMode}"
                        ItemsSource="{Binding Items}"
                        Loaded="DataGrid_Loaded"
                        RowStyleSelector="{StaticResource TemplateSelector}">

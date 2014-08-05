@@ -302,8 +302,8 @@
                         <Binding Path="CurrentItem" RelativeSource="{RelativeSource FindAncestor, AncestorType=DataGrid}" />
                     </MultiBinding>
                 </DataTrigger.Binding>
-                <Setter Property="BorderBrush" Value="Red" />
-                <Setter Property="BorderThickness" Value="1" />
+                <!--<Setter Property="BorderBrush" Value="Red" />-->
+                <!--<Setter Property="BorderThickness" Value="1" />-->
             </DataTrigger>
         </Style.Triggers>
     </Style>
@@ -624,19 +624,24 @@
     <cells:VirtualTableCellTemplateSelector x:Key="VirtualTableCellTemplateSelector" />
 
     <Style TargetType="{x:Type cells:VirtualTableCell}">
+        <Setter Property="Focusable" Value="True" />
         <Setter Property="ContentTemplateSelector" Value="{StaticResource VirtualTableCellTemplateSelector}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type cells:VirtualTableCell}">
-                    <Border Background="Aqua"
-                            BorderBrush="Transparent"
-                            BorderThickness="1">
-                        <!--  <TextBlock Text="Basic"/>  -->
-                        <ContentPresenter VerticalAlignment="Center" ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
+                    <Border Background="{TemplateBinding Background}" Focusable="True">
+                        <Border Margin="2,0"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                SnapsToDevicePixels="True">
+                            <!--  <TextBlock Text="Basic"/>  -->
+                            <ContentPresenter x:Name="contentPresenter" VerticalAlignment="Center" />
+                        </Border>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+
         <Setter Property="FocusVisualStyle">
             <Setter.Value>
                 <Style>
@@ -653,6 +658,51 @@
                 </Style>
             </Setter.Value>
         </Setter>
+        
+                <!--  Hide the default focus visual style  -->
+                <!--<Setter Property="FocusVisualStyle" Value="{x:Null}" />-->
+        <!--<Style.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocusWithin" Value="True" />
+                    <Condition Property="IsEditing" Value="False" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type cells:VirtualTableCell}">
+                            <Border Background="{TemplateBinding Background}">
+                                <Border Margin="2,0" BorderThickness="1">
+                                    <Border.BorderBrush>
+                                        <VisualBrush>
+                                            <VisualBrush.Visual>
+                                                <Rectangle Width="{Binding ActualWidth,
+                                                                           RelativeSource={RelativeSource FindAncestor,
+                                                                                                          AncestorType=Border}}"
+                                                           Height="{Binding ActualHeight,
+                                                                            RelativeSource={RelativeSource FindAncestor,
+                                                                                                           AncestorType=Border}}"
+                                                           Stroke="{DynamicResource ResourceKey={x:Static DataGrid.FocusBorderBrushKey}}"
+                                                           StrokeDashArray="2.0 6.0"
+                                                           StrokeThickness="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}},
+                                                                                     Path=BorderThickness.Left}" />
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Border.BorderBrush>
+                                    <ContentPresenter x:Name="contentPresenter" VerticalAlignment="Center" ContentTemplate="{TemplateBinding Element}" />
+                                </Border>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsEditing" Value="True">
+                                    <Trigger.Setters>
+                                        <Setter TargetName="contentPresenter" Property="ContentTemplate" Value="{Binding EditingElement, RelativeSource={RelativeSource AncestorType=cells:VirtualTableCell}}" />
+                                    </Trigger.Setters>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </MultiTrigger>
+        </Style.Triggers>-->
     </Style>
 
 
@@ -660,8 +710,7 @@
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
-                    <!--  <TextBlock Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
-                    <TextBlock cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" Text="Smashing" />
+                    <TextBlock cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -669,8 +718,7 @@
         <Setter Property="EditingElement">
             <Setter.Value>
                 <DataTemplate>
-                    <!--  <TextBox Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
-                    <TextBox cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" Text="Hello" />
+                    <TextBox cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -680,8 +728,7 @@
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
-                    <!--  <TextBlock Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
-                    <TextBlock cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" Text="Smashing" />
+                    <TextBlock cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBlock.TextProperty}" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -715,8 +762,7 @@
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
-                    <!--  <TextBlock Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
-                    <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}" IsHitTestVisible="False" />
+                    <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0"/>
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -724,8 +770,7 @@
         <Setter Property="EditingElement">
             <Setter.Value>
                 <DataTemplate>
-                    <!--  <TextBox Text="{Binding Binding, RelativeSource={RelativeSource TemplatedParent}}" />  -->
-                    <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}" />
+                    <CheckBox cells:VirtualTableCell.BindingTargetProperty="{x:Static CheckBox.IsCheckedProperty}"  HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0"/>
                 </DataTemplate>
             </Setter.Value>
         </Setter>

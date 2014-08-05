@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using MagicSoftware.Common.Controls.Table.CellTypes;
 using MagicSoftware.Common.Utils;
+using System.Windows.Media;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -65,7 +66,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public override UniversalCellInfo GetCellContaining(DependencyObject dependencyObject)
       {
-         var cell = GetCellContaining((UIElement)dependencyObject);
+         var cell = GetCellContaining((Visual)dependencyObject);
          if (cells.Count == 0)
             UpdateCellsCollection();
          return new UniversalCellInfo(this.Row.Item, cells.IndexOf(cell));
@@ -81,14 +82,20 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return cells.IndexOf(cellElement);
       }
 
-      protected override FrameworkElement GetCellContaining(UIElement element)
+      protected override FrameworkElement GetCellContaining(Visual element)
       {
-         return UIUtils.GetAncestor<VirtualTableCell>(element);
+         return UIUtils.GetAncestor<VirtualTableCell>((Visual)element);
       }
 
       protected override IList<FrameworkElement> GetCells()
       {
-         return new List<FrameworkElement>(Row.GetDescendants<VirtualTableCell>());
+         var vte = VisualTreeHelpers.GetVisualTreeEnumerator(Row, (v) => { return v is VirtualTableCell; }, System.Windows.Input.FocusNavigationDirection.Next);
+         var cells = new List<FrameworkElement>();
+         while (vte.MoveNext())
+         {
+            cells.Add(vte.Current as VirtualTableCell);
+         }
+         return cells;
       }
 
       protected void UpdateCellsCollection()

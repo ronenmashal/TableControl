@@ -56,7 +56,25 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void ExecuteCommand(RoutedCommand command, object commandParameter)
       {
-         element.Dispatcher.Invoke(DispatcherPriority.Input, new Action(() => { command.Execute(commandParameter, element); }));
+         element.Dispatcher.Invoke(DispatcherPriority.Input, new Action(() => 
+         {
+            int retries = 3;
+            while(true)
+            {
+               try
+               {
+                  command.Execute(commandParameter, element);
+                  return;
+               }
+               catch (Exception)
+               {
+                  retries--;
+                  if (retries == 0)
+                     throw;
+                  System.Threading.Thread.Sleep(1);
+               }
+            }
+         }));
       }
    }
 }

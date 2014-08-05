@@ -4,7 +4,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    public interface IFocusManagementService
    {
-      IDisposable DeferFocusChanges();
+      IDisposable DeferFocusUpdate();
 
       void UpdateFocus();
    }

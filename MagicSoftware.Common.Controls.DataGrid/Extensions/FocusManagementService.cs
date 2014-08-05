@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using log4net;
 using MagicSoftware.Common.Utils;
+using LogLevel = log4net.Core.Level;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -30,7 +31,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          TargetElement.PreviewLostKeyboardFocus += TargetElement_PreviewLostKeyboardFocus;
       }
 
-      public IDisposable DeferFocusChanges()
+      public IDisposable DeferFocusUpdate()
       {
          focusDeferCount++;
          return new DisposalActionCaller(new Action(() =>
@@ -63,6 +64,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          TargetElement.Dispatcher.Invoke(DispatcherPriority.Input, new Action(() =>
          {
+            log.DebugFormat("Updating focus on {0}", TargetElement);
+
             IElementEditStateService editStateService = null;
             if (currentCellService.CurrentItemContainer != null)
                editStateService = UIServiceProvider.GetService<IElementEditStateService>(currentCellService.CurrentItemContainer, false);

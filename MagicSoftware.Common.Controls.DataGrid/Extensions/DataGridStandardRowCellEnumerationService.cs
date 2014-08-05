@@ -42,7 +42,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public override UniversalCellInfo GetCellContaining(DependencyObject dependencyObject)
       {
-         var containingCell = UIUtils.GetAncestor<DataGridCell>((UIElement)dependencyObject);
+         var containingCell = UIUtils.GetAncestor<DataGridCell>((Visual)dependencyObject);
          int cellIndex = -1;
          if (containingCell != null)
          {

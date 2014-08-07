@@ -132,7 +132,18 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public FrameworkElement CurrentItemContainer
       {
-         get { return dataGrid.ItemContainerGenerator.ContainerFromItem(CurrentCell.Item) as FrameworkElement; }
+         get 
+         { 
+            if (CurrentCell.Item == null)
+               return null;
+
+            var container = dataGrid.ItemContainerGenerator.ContainerFromItem(CurrentCell.Item);
+            if (container == null)
+            {
+               container = ForceContainerGeneration(CurrentCell.Item);
+            }
+            return (FrameworkElement)container;
+         }
       }
 
       public virtual bool IsAttached { get { return dataGrid != null; } }

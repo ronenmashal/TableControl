@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Diagnostics;
+using log4net;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -18,6 +18,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
           DependencyProperty.RegisterAttached("IsCustomRow", typeof(bool), typeof(VirtualizedItemTemplatePersistencyService), new UIPropertyMetadata(false));
 
       private DataGrid dataGrid;
+      private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+      public virtual bool IsAttached { get { return dataGrid != null; } }
 
       public static bool GetIsCustomRow(DependencyObject obj)
       {
@@ -41,8 +44,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          dataGrid = null;
       }
 
-      public virtual bool IsAttached { get { return dataGrid != null; } }
-
       public void Dispose()
       {
          if (dataGrid != null)
@@ -51,7 +52,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void DataGrid_LoadingRow(object sender, DataGridRowEventArgs eventArgs)
       {
-         Trace.WriteLine("Loading row.");
+         log.DebugFormat("Loading row for item {0}", eventArgs.Row.Item);
          DataGridRow row = eventArgs.Row;
          if (dataGrid.RowStyleSelector != null)
          {
@@ -61,11 +62,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                var rowStyleKey = FrameworkElementAccessor.GetDefaultStyleKeyProperty(row);
                rowStyle = row.FindResource(rowStyleKey) as Style;
             }
+            log.DebugFormat("Applying row style: {0}", rowStyle);
             row.Style = rowStyle;
          }
       }
 
-      class FrameworkElementAccessor : FrameworkElement
+      private class FrameworkElementAccessor : FrameworkElement
       {
          public static object GetDefaultStyleKeyProperty(DependencyObject element)
          {

@@ -54,16 +54,20 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
          UniversalCellInfo oldCell = (UniversalCellInfo)(e.OldValue ?? new UniversalCellInfo());
          UniversalCellInfo newCell = (UniversalCellInfo)(e.NewValue ?? new UniversalCellInfo());
 
-         if (!CanLeaveCurrentCell())
-            CancelNavigation(e);
-         else
-            if (oldCell.Item != newCell.Item)
-            {
-               log.DebugFormat("Processing line change event on {0}", this);
+         var focusManager = UIServiceProvider.GetService<IFocusManagementService>(TargetElement);
+         using (focusManager.DeferFocusUpdate())
+         {
+            if (!CanLeaveCurrentCell())
+               CancelNavigation(e);
+            else
+               if (oldCell.Item != newCell.Item)
+               {
+                  log.DebugFormat("Processing line change event on {0}", this);
 
-               if (!CanLeaveCurrentLine())
-                  CancelNavigation(e);
-            }
+                  if (!CanLeaveCurrentLine())
+                     CancelNavigation(e);
+               }
+         }
       }
 
       void CancelNavigation(PreviewChangeEventArgs e)

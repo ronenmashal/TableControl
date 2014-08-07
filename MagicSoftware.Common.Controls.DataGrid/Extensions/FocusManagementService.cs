@@ -14,6 +14,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private ICurrentCellService currentCellService;
       private int focusDeferCount = 0;
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+      private bool hasPendingFocus;
 
       public bool IsAttached
       {
@@ -34,10 +35,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public IDisposable DeferFocusUpdate()
       {
          focusDeferCount++;
+         log.Debug("Deferring focus updates. Defer count: " + focusDeferCount);
          return new DisposalActionCaller(new Action(() =>
          {
             focusDeferCount--;
-            if (focusDeferCount == 0)
+            log.Debug("Disposing focus defer. Defer count: " + focusDeferCount);
+            if (focusDeferCount == 0 && hasPendingFocus)
                UpdateFocus();
          }));
       }
@@ -60,7 +63,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public void UpdateFocus()
       {
          if (focusDeferCount > 0)
+         {
+            hasPendingFocus = true;
             return;
+         }
+
+         hasPendingFocus = false;
 
          TargetElement.Dispatcher.Invoke(DispatcherPriority.Input, new Action(() =>
          {

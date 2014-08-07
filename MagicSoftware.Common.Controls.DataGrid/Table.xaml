@@ -106,6 +106,7 @@
                   CanUserAddRows="False"
                   CurrentItem="{Binding CurrentItem}"
                   EnableRowVirtualization="True"
+                  EnableColumnVirtualization="False"
                   ItemsSource="{Binding ItemsSource,
                                         RelativeSource={RelativeSource FindAncestor,
                                                                        AncestorType=UserControl}}"

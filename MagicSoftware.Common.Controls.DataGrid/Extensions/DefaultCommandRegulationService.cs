@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
-using System.Collections.Generic;
 using System.Windows.Threading;
+using log4net;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -10,20 +11,21 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    internal class DefaultCommandRegulationService : ICommandRegulationService, IUIService
    {
       private FrameworkElement element;
+      private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-      HashSet<CanExecuteRoutedEventHandler> registeredCommandHandlers = new HashSet<CanExecuteRoutedEventHandler>();
+      private HashSet<CanExecuteRoutedEventHandler> registeredCommandHandlers = new HashSet<CanExecuteRoutedEventHandler>();
 
       public event CanExecuteRoutedEventHandler PreviewCanExecute
       {
-         add 
-         { 
+         add
+         {
             CommandManager.AddPreviewCanExecuteHandler(element, value);
             registeredCommandHandlers.Add(value);
          }
-         remove 
+         remove
          {
             registeredCommandHandlers.Remove(value);
-            CommandManager.RemovePreviewCanExecuteHandler(element, value); 
+            CommandManager.RemovePreviewCanExecuteHandler(element, value);
          }
       }
 
@@ -56,21 +58,24 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void ExecuteCommand(RoutedCommand command, object commandParameter)
       {
-         element.Dispatcher.Invoke(DispatcherPriority.Input, new Action(() => 
+         element.Dispatcher.Invoke(DispatcherPriority.Input, new Action(() =>
          {
             int retries = 3;
-            while(true)
+            while (true)
             {
                try
                {
                   command.Execute(commandParameter, element);
                   return;
                }
-               catch (Exception)
+               catch (Exception ex)
                {
                   retries--;
                   if (retries == 0)
+                  {
+                     log.ErrorFormat("Failed sending command {0}: {1}\n{2}", command.Name, ex.Message, ex.StackTrace);
                      throw;
+                  }
                   System.Threading.Thread.Sleep(1);
                }
             }

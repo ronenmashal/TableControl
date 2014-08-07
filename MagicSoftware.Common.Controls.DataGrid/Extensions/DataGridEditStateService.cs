@@ -128,7 +128,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (!IsEditingItem)
          {
             using (suppressEditStateEvent.Set())
-               BeginFieldEdit();
+            {
+               commandRegulator.ExecuteCommand(DataGrid.BeginEditCommand, DataGridEditingUnit.Row);
+               if (IsEditingItem)
+                  BeginFieldEdit();
+            }
             if (IsEditingItem)
                OnEditStateChanged();
          }

@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using log4net;
-using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 {
    internal class AlwaysEditMode : DataGridEditModeBase
    {
       private EditModeState currentState;
+
+      private Stack<IDisposable> deferedFocus = new Stack<IDisposable>();
 
       private IElementEditStateService EditStateService
       {
@@ -49,23 +51,31 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 
       internal bool BeginEditingCurrentItem()
       {
-         if (!EditStateService.IsEditingItem)
+         try
          {
-            if (!EditStateService.BeginItemEdit())
+            if (!EditStateService.IsEditingItem)
             {
-               log.Warn("Failed beginning edit on current item");
-               return false;
+               log.DebugFormat("Keyboard focus is on {0}", Keyboard.FocusedElement);
+               if (!EditStateService.BeginItemEdit())
+               {
+                  log.Warn("Failed beginning edit on current item");
+                  return false;
+               }
             }
+            if (!EditStateService.IsEditingField)
+            {
+               if (!EditStateService.BeginFieldEdit())
+               {
+                  log.Warn("Failed beginning edit on current field");
+                  return false;
+               }
+            }
+            return true;
          }
-         if (!EditStateService.IsEditingField)
+         finally
          {
-            if (!EditStateService.BeginFieldEdit())
-            {
-               log.Warn("Failed beginning edit on current field");
-               return false;
-            }
+            DisposeDeferedFocus();
          }
-         return true;
       }
 
       internal override void ProcessKey(KeyEventArgs e)
@@ -76,7 +86,16 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       {
          if (EditStateService.IsEditingField)
          {
-            return EditStateService.CommitFieldEdit();
+            var fms = UIServiceProvider.GetService<IFocusManagementService>(TargetElement);
+            deferedFocus.Push(fms.DeferFocusUpdate());
+            log.Debug("Leaving current cell: Commit");
+            if (EditStateService.CommitFieldEdit())
+               return true;
+            else
+            {
+               DisposeDeferedFocus();
+               return false;
+            }
          }
 
          return true;
@@ -86,6 +105,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       {
          if (EditStateService.IsEditingField)
          {
+            log.Debug("Leaving current item: Commit");
             return EditStateService.CommitItemEdit();
          }
 
@@ -98,32 +118,43 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
          args.Handled = true;
       }
 
+      private void DisposeDeferedFocus()
+      {
+         if (deferedFocus.Count > 0)
+            deferedFocus.Pop().Dispose();
+      }
+
       private void MoveToNextState()
       {
          TargetElement.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
+         {
+            var fms = UIServiceProvider.GetService<IFocusManagementService>(TargetElement);
+            using (fms.DeferFocusUpdate())
             {
                log.Debug("Moving to next edit state");
-               var fms = UIServiceProvider.GetService<IFocusManagementService>(TargetElement);
-               using (fms.DeferFocusUpdate())
-               {
-                  EditModeState nextState = currentState.GetNextState();
-                  currentState.Leave();
-                  currentState = nextState;
-                  currentState.Enter(this);
-               }
-            }));
+               EditModeState nextState = currentState.GetNextState();
+               currentState.Leave();
+               currentState = nextState;
+               currentState.Enter(this);
+            }
+         }));
       }
 
       #region Edit mode states
 
       internal class BeginEditState : EditModeState
       {
+         private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
          public override EditModeState GetNextState()
          {
-            if ((EditMode.EditStateService != null) && (EditMode.EditStateService.IsEditingField))
+            if ((EditMode.EditStateService != null) && (EditMode.EditStateService.IsEditingItem && EditMode.EditStateService.IsEditingField))
+            {
+               log.DebugFormat("Edit service state: editing item = {0}, editing field = {1}", EditMode.EditStateService.IsEditingItem, EditMode.EditStateService.IsEditingField);
                return new IdleState();
+            }
 
-            return this;
+            return new BeginEditFailureRecoveryState();
          }
 
          protected override void Cleanup()
@@ -167,11 +198,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
       internal class IdleState : EditModeState
       {
          private ICurrentCellService currentCellService;
+         private bool isChangingItem = false;
          private bool isKeyDown = false;
 
          public override EditModeState GetNextState()
          {
-            if (isKeyDown)
+            if (isKeyDown && isChangingItem)
                return new WaitForKeyUpState();
             else
                return new BeginEditState();
@@ -193,11 +225,20 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 
             currentCellService = UIServiceProvider.GetService<ICurrentCellService>(EditMode.TargetElement);
             currentCellService.CurrentCellChanged += currentCellService_CurrentCellChanged;
+            currentCellService.PreviewCurrentCellChanging += currentCellService_PreviewCurrentCellChanging;
          }
 
          private void currentCellService_CurrentCellChanged(object sender, EventArgs e)
          {
             EditMode.MoveToNextState();
+         }
+
+         private void currentCellService_PreviewCurrentCellChanging(object sender, PreviewChangeEventArgs e)
+         {
+            if (e.NewValue == null || e.OldValue == null)
+               isChangingItem = true;
+
+            isChangingItem = ((UniversalCellInfo)e.NewValue).Item != ((UniversalCellInfo)e.OldValue).Item;
          }
 
          private void TargetElement_PreviewKeyDown(object sender, RoutedEventArgs e)
@@ -208,6 +249,33 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
          private void TargetElement_PreviewKeyUp(object sender, RoutedEventArgs e)
          {
             isKeyDown = false;
+         }
+      }
+
+      private class BeginEditFailureRecoveryState : EditModeState
+      {
+         public override EditModeState GetNextState()
+         {
+            return new BeginEditState();
+         }
+
+         protected override void Cleanup()
+         {
+         }
+
+         protected override void Setup()
+         {
+            if ((EditMode.EditStateService != null) && (!EditMode.EditStateService.IsEditingItem && EditMode.EditStateService.IsEditingField))
+            {
+               EditMode.EditStateService.CancelFieldEdit();
+               EditMode.EditStateService.CancelItemEdit();
+
+               if (EditMode.EditStateService.IsEditingItem || EditMode.EditStateService.IsEditingField)
+               {
+                  throw new Exception("Edit state failure");
+               }
+               EditMode.MoveToNextState();
+            }
          }
       }
 

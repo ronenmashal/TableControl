@@ -15,5 +15,14 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          DefaultStyleKeyProperty.OverrideMetadata(typeof(VirtualTextTableCell), new FrameworkPropertyMetadata(typeof(VirtualTextTableCell)));
       }
 
+      protected override void OnGotKeyboardFocus(System.Windows.Input.KeyboardFocusChangedEventArgs e)
+      {
+         base.OnGotKeyboardFocus(e);
+         if (IsEditing)
+         {
+            ((TextBox)CurrentRootElement).SelectAll();
+         }
+      }
+
    }
 }

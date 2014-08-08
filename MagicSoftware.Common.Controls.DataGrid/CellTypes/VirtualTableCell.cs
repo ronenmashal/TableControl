@@ -2,8 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using MagicSoftware.Common.Utils;
 using System.Windows.Threading;
+using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.CellTypes
 {
@@ -54,6 +54,8 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          private set { SetValue(IsEditingPropertyKey, value); }
       }
 
+      protected FrameworkElement CurrentRootElement { get; private set; }
+
       public static DependencyProperty GetBindingTargetProperty(DependencyObject obj)
       {
          return (DependencyProperty)obj.GetValue(BindingTargetPropertyProperty);
@@ -89,6 +91,11 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          return !IsEditing;
       }
 
+      protected override void OnContentTemplateChanged(DataTemplate oldContentTemplate, DataTemplate newContentTemplate)
+      {
+         base.OnContentTemplateChanged(oldContentTemplate, newContentTemplate);
+      }
+
       protected virtual void SetBindings(FrameworkElement primaryBindingTarget)
       {
       }
@@ -103,11 +110,6 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          }
       }
 
-      protected override void OnContentTemplateChanged(DataTemplate oldContentTemplate, DataTemplate newContentTemplate)
-      {
-         base.OnContentTemplateChanged(oldContentTemplate, newContentTemplate);
-      }
-
       private void contentPresenter_Loaded(object sender, RoutedEventArgs e)
       {
          UpdateBindings();
@@ -116,13 +118,26 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
       private void UpdateBindings()
       {
          var template = IsEditing ? EditingElement : Element;
-
          contentPresenter.ContentTemplate = template;
-         if (contentPresenter.ApplyTemplate())
+         contentPresenter.ApplyTemplate();
+         UpdateRootElement();
+
+         if (CurrentRootElement != null)
          {
+            var bindingTargetProperty = GetBindingTargetProperty(CurrentRootElement);
+            var appliedBinding = BindingUtils.CloneBinding(Binding);
+            if (appliedBinding is Binding)
+            {
+               ((Binding)appliedBinding).Mode = IsEditing ? BindingMode.TwoWay : BindingMode.OneWay;
+            }
+            BindingOperations.SetBinding(CurrentRootElement, bindingTargetProperty, appliedBinding);
 
+            SetBindings(CurrentRootElement);
          }
+      }
 
+      private void UpdateRootElement()
+      {
          // Set Data Context on the template's root element.
          var topMostElement = UIUtils.GetVisualChild<FrameworkElement>(contentPresenter);
          if (topMostElement != null)
@@ -131,19 +146,7 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          }
 
          // Get the primary binding target, to which the binding will be transferred.
-         var bindingTarget = UIUtils.GetVisualChild<FrameworkElement>(contentPresenter, (fe) => { return GetBindingTargetProperty(fe) != null; }, SearchOrder.FirstToLast);
-         if (bindingTarget != null)
-         {
-            var bindingTargetProperty = GetBindingTargetProperty(bindingTarget);
-            var appliedBinding = BindingUtils.CloneBinding(Binding);
-            if (appliedBinding is Binding)
-            {
-               ((Binding)appliedBinding).Mode = IsEditing ? BindingMode.TwoWay : BindingMode.OneWay;
-            }
-            BindingOperations.SetBinding(bindingTarget, bindingTargetProperty, appliedBinding);
-
-            SetBindings(bindingTarget);
-         }
+         CurrentRootElement = UIUtils.GetVisualChild<FrameworkElement>(contentPresenter, (fe) => { return GetBindingTargetProperty(fe) != null; }, SearchOrder.FirstToLast);
       }
    }
 

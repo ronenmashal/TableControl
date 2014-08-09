@@ -11,7 +11,8 @@
     <RootNamespace>MagicStudio</RootNamespace>
     <AssemblyName>MagicStudio</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -36,6 +37,33 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Addon for VC\Apache\log4net\bin\net-cp\4.0\release\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="MagicSoftware.Common">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Studio\MagicSoftware.Common\bin\debug\MagicSoftware.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="MagicSoftware.Common.Controls">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MagicSoftware.Common.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="MagicSoftware.Common.Controls.DataGrid">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MagicSoftware.Common.Controls.DataGrid.dll</HintPath>
+    </Reference>
+    <Reference Include="MagicSoftware.Studio">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MagicSoftware.Studio.dll</HintPath>
+    </Reference>
+    <Reference Include="MgControls">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MgControls.dll</HintPath>
+    </Reference>
+    <Reference Include="MgDotNet">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MgDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="MgNative">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MgNative.dll</HintPath>
+    </Reference>
+    <Reference Include="MgUtils">
+      <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MgUtils.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -55,6 +83,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="StudioDllImports.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -86,6 +115,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

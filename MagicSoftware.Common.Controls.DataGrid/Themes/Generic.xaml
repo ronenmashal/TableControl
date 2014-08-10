@@ -708,10 +708,6 @@
 
 
     <Style BasedOn="{StaticResource {x:Type cells:VirtualTableCell}}" TargetType="{x:Type cells:VirtualTextTableCell}">
-        <Style.Resources>
-            <ext:TextBoxInputFilter x:Key="TextBoxInputFilter"/>
-        </Style.Resources>
-        
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
@@ -723,18 +719,13 @@
         <Setter Property="EditingElement">
             <Setter.Value>
                 <DataTemplate>
-                    <TextBox cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" 
-                             ext:InputService.InputFilter="{StaticResource TextBoxInputFilter}"/>
+                    <TextBox cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
     <Style BasedOn="{StaticResource {x:Type cells:VirtualTableCell}}" TargetType="{x:Type cells:ComboBoxVirtualTableCell}">
-        <Style.Resources>
-            <ext:ComboboxInputFilter x:Key="ComboBoxInputFilter"/>
-        </Style.Resources>
-        
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
@@ -746,8 +737,7 @@
         <Setter Property="EditingElement">
             <Setter.Value>
                 <DataTemplate>
-                    <ComboBox cells:VirtualTableCell.BindingTargetProperty="{x:Static ComboBox.SelectedItemProperty}" IsEditable="False" 
-                              ext:InputService.InputFilter="{StaticResource ComboBoxInputFilter}" />
+                    <ComboBox cells:VirtualTableCell.BindingTargetProperty="{x:Static ComboBox.SelectedItemProperty}" IsEditable="False" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>

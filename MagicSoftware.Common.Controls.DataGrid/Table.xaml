@@ -11,74 +11,67 @@
              d:DesignHeight="300"
              d:DesignWidth="300"
              mc:Ignorable="d">
-    <Grid>
-        <!--
-            mg:BehaviorExtensions.FocusManager="{StaticResource DGFocusManager}"
-            mg:BehaviorExtensions.KeyboardHandler="{StaticResource DGKeyboardHandler}"
-            mg:BehaviorExtensions.MouseHandler="{StaticResource DGMouseHandler}"
-            mg:BehaviorExtensions.ValidationExtender="{StaticResource DGValidationExtender}"
-        -->
 
-        <Grid.Resources>
-            <Style x:Key="SelectAllButton" TargetType="Button">
-                <Setter Property="Background" Value="Red" />
-            </Style>
-            
-            <Style x:Key="TableRowStyle"
+    <UserControl.Resources>
+        <Style x:Key="SelectAllButton" TargetType="Button">
+            <Setter Property="Background" Value="Red" />
+        </Style>
+
+        <Style x:Key="TableRowStyle"
                    BasedOn="{StaticResource {x:Type DataGridRow}}"
                    TargetType="{x:Type DataGridRow}">
-                <Setter Property="lext:UIServiceProvider.ServiceList">
-                    <Setter.Value>
-                        <lext:UIServiceCollection>
-                            <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridStandardRowCellEnumerationService}"/>
-                        </lext:UIServiceCollection>
-                    </Setter.Value>
-                </Setter>
-            </Style>
+            <Setter Property="lext:UIServiceProvider.ServiceList">
+                <Setter.Value>
+                    <lext:UIServiceCollection>
+                        <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridStandardRowCellEnumerationService}"/>
+                    </lext:UIServiceCollection>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <Style TargetType="{x:Type DataGridCell}">
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="BorderBrush" Value="Transparent" />
-                <Setter Property="BorderThickness" Value="1" />
+        <Style TargetType="{x:Type DataGridCell}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" />
 
-                <!--  Hide the default focus visual style  -->
-                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <!--  Hide the default focus visual style  -->
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
 
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type DataGridCell}">
-                            <Border Background="{TemplateBinding Background}">
-                                <Border Margin="2,0"
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridCell}">
+                        <Border Background="{TemplateBinding Background}">
+                            <Border Margin="2,0"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 SnapsToDevicePixels="True">
-                                    <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                </Border>
+                                <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                             </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
 
-                <Style.Triggers>
-                    <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
-                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
-                        <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
-                    </Trigger>
-                    <MultiTrigger>
-                        <MultiTrigger.Conditions>
-                            <Condition Property="IsKeyboardFocusWithin" Value="True" />
-                            <Condition Property="IsEditing" Value="False" />
-                        </MultiTrigger.Conditions>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="DataGridCell">
-                                    <Border Background="{TemplateBinding Background}">
-                                        <Border Margin="2,0" BorderThickness="{TemplateBinding BorderThickness}">
-                                            <Border.BorderBrush>
-                                                <VisualBrush>
-                                                    <VisualBrush.Visual>
-                                                        <Rectangle Width="{Binding ActualWidth,
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsKeyboardFocusWithin" Value="True" />
+                        <Condition Property="IsEditing" Value="False" />
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridCell">
+                                <Border Background="{TemplateBinding Background}">
+                                    <Border Margin="2,0" BorderThickness="{TemplateBinding BorderThickness}">
+                                        <Border.BorderBrush>
+                                            <VisualBrush>
+                                                <VisualBrush.Visual>
+                                                    <Rectangle Width="{Binding ActualWidth,
                                                                            RelativeSource={RelativeSource FindAncestor,
                                                                                                           AncestorType=Border}}"
                                                            Height="{Binding ActualHeight,
@@ -88,19 +81,35 @@
                                                            StrokeDashArray="2.0 6.0"
                                                            StrokeThickness="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}},
                                                                                      Path=BorderThickness.Left}" />
-                                                    </VisualBrush.Visual>
-                                                </VisualBrush>
-                                            </Border.BorderBrush>
-                                            <ContentPresenter />
-                                        </Border>
+                                                </VisualBrush.Visual>
+                                            </VisualBrush>
+                                        </Border.BorderBrush>
+                                        <ContentPresenter />
                                     </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </MultiTrigger>
-                </Style.Triggers>
-            </Style>
-        </Grid.Resources>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="ComboBoxOnList" TargetType="ComboBox">
+            <Setter Property="lext:InputService.InputFilter">
+                <Setter.Value>
+                    <lext:ComboboxInputFilter/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <!--
+            mg:BehaviorExtensions.FocusManager="{StaticResource DGFocusManager}"
+            mg:BehaviorExtensions.KeyboardHandler="{StaticResource DGKeyboardHandler}"
+            mg:BehaviorExtensions.MouseHandler="{StaticResource DGMouseHandler}"
+            mg:BehaviorExtensions.ValidationExtender="{StaticResource DGValidationExtender}"
+        -->
 
         <DataGrid x:Name="rootItemsControl"
                   CanUserAddRows="False"

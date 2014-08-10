@@ -708,10 +708,6 @@
 
 
     <Style BasedOn="{StaticResource {x:Type cells:VirtualTableCell}}" TargetType="{x:Type cells:VirtualTextTableCell}">
-        <Style.Resources>
-            <ext:TextBoxInputFilter x:Key="TextBoxInputFilter"/>
-        </Style.Resources>
-        
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
@@ -723,8 +719,7 @@
         <Setter Property="EditingElement">
             <Setter.Value>
                 <DataTemplate>
-                    <TextBox cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" 
-                             ext:InputService.InputFilter="{StaticResource TextBoxInputFilter}"/>
+                    <TextBox cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using log4net;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -47,6 +50,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
    public class InputService : IUIService
    {
+      private static ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
       #region Input Filter attached property
 
       public static readonly DependencyProperty InputFilterProperty =
@@ -54,7 +59,35 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public static IInputFilter GetInputFilter(DependencyObject obj)
       {
+         log.DebugFormat("Getting input filter on {0}", obj);
          return (IInputFilter)obj.GetValue(InputFilterProperty);
+      }
+
+      public static IInputFilter GetInputFilterOnPath(DependencyObject innermostElement, DependencyObject outermostElement)
+      {
+         log.DebugFormat("Searching for input filter on elements between {0} and {1}", innermostElement, outermostElement);
+
+         JointInputFilter jointFilters = new JointInputFilter();
+
+         var currentElement = innermostElement;
+         var itemsControl = ItemsControl.ItemsControlFromItemContainer(currentElement);
+         if (itemsControl != null)
+         {
+            currentElement = itemsControl;
+         }
+         IInputFilter filter;
+         while (currentElement != outermostElement)
+         {
+            filter = GetInputFilter(currentElement);
+            if (filter != null)
+               jointFilters.Add(currentElement, filter);
+            currentElement = VisualTreeHelper.GetParent(currentElement);
+         }
+         filter = GetInputFilter(currentElement);
+         if (filter != null)
+            jointFilters.Add(currentElement, filter);
+
+         return jointFilters;
       }
 
       public static void SetInputFilter(DependencyObject obj, IInputFilter value)
@@ -126,7 +159,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void element_PreviewKeyDown(object sender, KeyEventArgs e)
       {
-         var inputFilter = GetInputFilter(e.OriginalSource as FrameworkElement);
+         var inputFilter = GetInputFilterOnPath(e.OriginalSource as FrameworkElement, sender as FrameworkElement);
          if (inputFilter != null)
          {
             if (inputFilter.ElementWillProcessInput(e))
@@ -142,7 +175,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void element_PreviewMouseDown(object sender, MouseEventArgs e)
       {
-         var inputFilter = GetInputFilter(e.OriginalSource as FrameworkElement);
+         var inputFilter = GetInputFilterOnPath(e.OriginalSource as FrameworkElement, sender as FrameworkElement);
          if (inputFilter != null)
          {
             if (inputFilter.ElementWillProcessInput(e))
@@ -153,6 +186,57 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          {
             if (mapping.Key.Matches(sender, e))
                mapping.Value(e);
+         }
+      }
+
+      private class JointInputFilter : IInputFilter
+      {
+         private List<KeyValuePair<DependencyObject, IInputFilter>> jointFilters = new List<KeyValuePair<DependencyObject, IInputFilter>>();
+
+         public void Add(DependencyObject obj, IInputFilter filter)
+         {
+            jointFilters.Add(new KeyValuePair<DependencyObject, IInputFilter>(obj, filter));
+         }
+
+         public bool ElementWillProcessInput(InputEventArgs args)
+         {
+            foreach (var filter in jointFilters)
+            {
+               var newArgs = CloneEventArgs(args, filter.Key);
+               if (filter.Value.ElementWillProcessInput(newArgs))
+                  return true;
+            }
+            return false;
+         }
+
+         private InputEventArgs CloneEventArgs(InputEventArgs args, DependencyObject newSource)
+         {
+            InputEventArgs clone = args;
+            if (args is KeyEventArgs)
+            {
+               clone = CloneKeyEventArgs((KeyEventArgs)args, newSource);
+            }
+            return clone;
+         }
+
+         private KeyEventArgs CloneKeyEventArgs(KeyEventArgs args, DependencyObject newSource)
+         {
+            var clone = new KeyEventArgs((KeyboardDevice)args.Device, args.InputSource, args.Timestamp, args.Key)
+            {
+               RoutedEvent = args.RoutedEvent,
+               Source = newSource
+            };
+            return clone;
+         }
+
+         private MouseEventArgs CloneMouseEventArgs(MouseEventArgs args, DependencyObject newSource)
+         {
+            var clone = new MouseEventArgs((MouseDevice)args.Device, args.Timestamp)
+            {
+               RoutedEvent = args.RoutedEvent,
+               Source = newSource
+            };
+            return clone;
          }
       }
    }

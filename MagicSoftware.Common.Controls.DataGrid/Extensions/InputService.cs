@@ -70,22 +70,28 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          JointInputFilter jointFilters = new JointInputFilter();
 
          var currentElement = innermostElement;
-         var itemsControl = ItemsControl.ItemsControlFromItemContainer(currentElement);
-         if (itemsControl != null)
-         {
-            currentElement = itemsControl;
-         }
          IInputFilter filter;
-         while (currentElement != outermostElement)
+         while (currentElement != null && currentElement != outermostElement)
          {
             filter = GetInputFilter(currentElement);
             if (filter != null)
                jointFilters.Add(currentElement, filter);
-            currentElement = VisualTreeHelper.GetParent(currentElement);
+
+            // Try to get the items control owning currentElement. If currentElement is an item container -
+            // the result will be the owning items control. Otherwise, it will be null.
+            var itemsControl = ItemsControl.ItemsControlFromItemContainer(currentElement);
+            if (itemsControl != null)
+               currentElement = itemsControl;
+            else
+               currentElement = VisualTreeHelper.GetParent(currentElement);
          }
-         filter = GetInputFilter(currentElement);
-         if (filter != null)
-            jointFilters.Add(currentElement, filter);
+
+         if (currentElement != null)
+         {
+            filter = GetInputFilter(currentElement);
+            if (filter != null)
+               jointFilters.Add(currentElement, filter);
+         }
 
          return jointFilters;
       }

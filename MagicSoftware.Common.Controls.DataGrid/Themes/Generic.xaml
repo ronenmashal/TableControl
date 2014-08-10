@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:cells="clr-namespace:MagicSoftware.Common.Controls.Table.CellTypes"
                     xmlns:local="clr-namespace:MagicSoftware.Common.Controls.Table"
+                    xmlns:ext="clr-namespace:MagicSoftware.Common.Controls.Table.Extensions"
                     xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero">
 
     <!--  Brushes for the grid  -->
@@ -707,6 +708,10 @@
 
 
     <Style BasedOn="{StaticResource {x:Type cells:VirtualTableCell}}" TargetType="{x:Type cells:VirtualTextTableCell}">
+        <Style.Resources>
+            <ext:TextBoxInputFilter x:Key="TextBoxInputFilter"/>
+        </Style.Resources>
+        
         <Setter Property="Element">
             <Setter.Value>
                 <DataTemplate>
@@ -718,7 +723,8 @@
         <Setter Property="EditingElement">
             <Setter.Value>
                 <DataTemplate>
-                    <TextBox cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" />
+                    <TextBox cells:VirtualTableCell.BindingTargetProperty="{x:Static TextBox.TextProperty}" 
+                             ext:InputService.InputFilter="{StaticResource TextBoxInputFilter}"/>
                 </DataTemplate>
             </Setter.Value>
         </Setter>

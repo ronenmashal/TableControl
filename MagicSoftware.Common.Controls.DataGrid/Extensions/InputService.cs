@@ -47,6 +47,23 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
    public class InputService : IUIService
    {
+      #region Input Filter attached property
+
+      public static readonly DependencyProperty InputFilterProperty =
+          DependencyProperty.RegisterAttached("InputFilter", typeof(IInputFilter), typeof(InputService), new UIPropertyMetadata(null));
+
+      public static IInputFilter GetInputFilter(DependencyObject obj)
+      {
+         return (IInputFilter)obj.GetValue(InputFilterProperty);
+      }
+
+      public static void SetInputFilter(DependencyObject obj, IInputFilter value)
+      {
+         obj.SetValue(InputFilterProperty, value);
+      }
+
+      #endregion Input Filter attached property
+
       private FrameworkElement element;
       private Dictionary<InputGesture, Action<InputEventArgs>> registeredGestures = new Dictionary<InputGesture, Action<InputEventArgs>>();
 
@@ -109,6 +126,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void element_PreviewKeyDown(object sender, KeyEventArgs e)
       {
+         var inputFilter = GetInputFilter(e.OriginalSource as FrameworkElement);
+         if (inputFilter != null)
+         {
+            if (inputFilter.ElementWillProcessInput(e))
+               return;
+         }
+
          foreach (var mapping in registeredGestures)
          {
             if (mapping.Key.Matches(sender, e))
@@ -118,6 +142,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       private void element_PreviewMouseDown(object sender, MouseEventArgs e)
       {
+         var inputFilter = GetInputFilter(e.OriginalSource as FrameworkElement);
+         if (inputFilter != null)
+         {
+            if (inputFilter.ElementWillProcessInput(e))
+               return;
+         }
+
          foreach (var mapping in registeredGestures)
          {
             if (mapping.Key.Matches(sender, e))

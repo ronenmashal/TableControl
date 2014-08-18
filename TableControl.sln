@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIServiceTests", "UIService
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicStudio", "MagicStudio\MagicStudio.csproj", "{CAADEC1F-9335-4A25-B504-9A146625AA33}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z_KeyRepeatTest", "z_KeyRepeatTest\z_KeyRepeatTest.csproj", "{8B1E75E4-F997-40D2-9F72-B101646D9F94}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = TableControl.vsmdi
@@ -129,6 +131,16 @@ Global
 		{CAADEC1F-9335-4A25-B504-9A146625AA33}.Release|Mixed Platforms.Build.0 = Release|x86
 		{CAADEC1F-9335-4A25-B504-9A146625AA33}.Release|x86.ActiveCfg = Release|x86
 		{CAADEC1F-9335-4A25-B504-9A146625AA33}.Release|x86.Build.0 = Release|x86
+		{8B1E75E4-F997-40D2-9F72-B101646D9F94}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{8B1E75E4-F997-40D2-9F72-B101646D9F94}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{8B1E75E4-F997-40D2-9F72-B101646D9F94}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{8B1E75E4-F997-40D2-9F72-B101646D9F94}.Debug|x86.ActiveCfg = Debug|x86
+		{8B1E75E4-F997-40D2-9F72-B101646D9F94}.Debug|x86.Build.0 = Debug|x86
+		{8B1E75E4-F997-40D2-9F72-B101646D9F94}.Release|Any CPU.ActiveCfg = Release|x86
+		{8B1E75E4-F997-40D2-9F72-B101646D9F94}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{8B1E75E4-F997-40D2-9F72-B101646D9F94}.Release|Mixed Platforms.Build.0 = Release|x86
+		{8B1E75E4-F997-40D2-9F72-B101646D9F94}.Release|x86.ActiveCfg = Release|x86
+		{8B1E75E4-F997-40D2-9F72-B101646D9F94}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

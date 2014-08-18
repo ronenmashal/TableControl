@@ -25,7 +25,7 @@
             <l:MyValidationAdornerFactory x:Key="MyAdornerFactory" />
             <mg:DataGridValidationExtender x:Key="DGValidationExtender" AdornerFactory="{StaticResource MyAdornerFactory}" />
             <ObjectDataProvider x:Key="Animals"
-                                MethodName="GetNames"
+                                MethodName="GetValues"
                                 ObjectType="{x:Type sys:Enum}">
                 <ObjectDataProvider.MethodParameters>
                     <x:TypeExtension TypeName="data:Animal" />
@@ -169,7 +169,7 @@
             </Style>
 
             <ObjectDataProvider x:Key="EditModes"
-                                MethodName="GetNames"
+                                MethodName="GetValues"
                                 ObjectType="{x:Type sys:Enum}">
                 <ObjectDataProvider.MethodParameters>
                     <x:TypeExtension TypeName="tbl:ItemsControlEditMode" />
@@ -189,7 +189,7 @@
                 <TextBlock Text="{Binding SelectedItem, ElementName=DG}" />
             </HeaderedContentControl>
             <HeaderedContentControl Header="Edit mode:">
-                <ComboBox x:Name="SelectedEditMode" ItemsSource="{Binding Source={StaticResource EditModes}}" HorizontalAlignment="Left" SelectedValue="{x:Static tbl:ItemsControlEditMode.ReadOnly}"/>
+                <ComboBox x:Name="SelectedEditMode" ItemsSource="{Binding Source={StaticResource EditModes}}" HorizontalAlignment="Left" SelectedItem="{x:Static tbl:ItemsControlEditMode.AlwaysInEdit}"/>
             </HeaderedContentControl>
             <StackPanel Orientation="Horizontal">
                 <Button Name="ChangeColumnVisibility" Click="ChangeColumnVisibility_Click">Column Visibility</Button>
@@ -205,7 +205,8 @@
                        EditMode="{Binding SelectedValue, ElementName=SelectedEditMode}"
                        ItemsSource="{Binding Items}"
                        Loaded="DataGrid_Loaded"
-                       RowStyleSelector="{StaticResource TemplateSelector}">
+                       RowStyleSelector="{StaticResource TemplateSelector}"
+                       TabIndex="0">
                 <!--<tbl:Table.Navigation>
                     <NavigationTable>
                         <NavigationKeyGesture Key="Up" Modifiers="" Action="MoveToPreviousItem"/>

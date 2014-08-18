@@ -243,7 +243,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 
          private void TargetElement_PreviewKeyDown(object sender, RoutedEventArgs e)
          {
-            isKeyDown = true;
+            isKeyDown = ((KeyEventArgs)e).IsRepeat;
          }
 
          private void TargetElement_PreviewKeyUp(object sender, RoutedEventArgs e)

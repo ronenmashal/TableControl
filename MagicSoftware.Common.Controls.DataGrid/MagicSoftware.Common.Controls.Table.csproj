@@ -81,6 +81,7 @@
     <Compile Include="Extensions\CancelableEventArgs.cs" />
     <Compile Include="Extensions\CellEnumerationServiceBase.cs" />
     <Compile Include="Extensions\CellPositioning\CellPositionPerLineType.cs" />
+    <Compile Include="Extensions\ComboboxInputFilter.cs" />
     <Compile Include="Extensions\ControlTraitsFactory.cs" />
     <Compile Include="Extensions\CreateServiceByType.cs" />
     <Compile Include="Extensions\CurrentItemServiceBase.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="Extensions\ICurrentCellService.cs" />
     <Compile Include="Extensions\IdGenerator.cs" />
     <Compile Include="Extensions\IElementEditStateService.cs" />
+    <Compile Include="Extensions\IInputFilter.cs" />
     <Compile Include="Extensions\InputService.cs" />
     <Compile Include="Extensions\IScrollService.cs" />
     <Compile Include="Extensions\IStatePersistency.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="Extensions\IUIService.cs" />
     <Compile Include="Extensions\PreviewChangeEventArgs.cs" />
     <Compile Include="Extensions\SharedServiceAttribute.cs" />
+    <Compile Include="Extensions\TextBoxInputFilter.cs" />
     <Compile Include="Extensions\VirtualizedItemTemplatePersistencyService.cs" />
     <Compile Include="Extensions\UIServiceCollection.cs" />
     <Compile Include="Extensions\UIServiceProvider.cs" />

@@ -32,6 +32,12 @@ namespace MagicSoftware.Common.Controls.Table
 
       private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+      static Table()
+      {
+         InputService.RegisterTypeInputFilter(typeof(ComboBox), new ComboboxInputFilter());
+         InputService.RegisterTypeInputFilter(typeof(TextBox), new TextBoxInputFilter());
+      }
+
       public Table()
       {
          InitializeComponent();

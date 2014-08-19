@@ -14,7 +14,8 @@ namespace MagicSoftware.Common.Controls.Table
    /// </summary>
    public partial class Table : UserControl
    {
-      // Using a DependencyProperty as the backing store for EditMode.  This enables animation, styling, binding, etc...
+      public static readonly DependencyProperty AutoGenerateColumnsProperty = DataGrid.AutoGenerateColumnsProperty.AddOwner(typeof(Table));
+
       public static readonly DependencyProperty EditModeProperty =
           DependencyProperty.Register("EditMode", typeof(ItemsControlEditMode), typeof(Table), new UIPropertyMetadata(ItemsControlEditMode.ReadOnly, OnEditModeChanged));
 
@@ -41,6 +42,20 @@ namespace MagicSoftware.Common.Controls.Table
       public Table()
       {
          InitializeComponent();
+      }
+
+      public bool AutoGenerateColumns
+      {
+         get { return (bool)GetValue(AutoGenerateColumnsProperty); }
+         set { SetValue(AutoGenerateColumnsProperty, value); }
+      }
+
+      public ObservableCollection<DataGridColumn> Columns
+      {
+         get
+         {
+            return rootItemsControl.Columns;
+         }
       }
 
       public ItemsControlEditMode EditMode

@@ -24,9 +24,12 @@ namespace MagicStudio
          InitializeComponent();
          InitializeStudioDll();
 
-         currentProject = new Project(ProjectManager.Instance);
+         var pm = ProjectManager.Instance;
+         currentProject = new Project(pm);
          currentProject.ProjectPath = @"d:\dev-magic\_Trunk\Sources\Projects\ggg\ggg.edp";
          currentProject.Load();
+
+         DataContext = currentProject;
       }
 
       protected void InitializeStudioDll()

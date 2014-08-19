@@ -1,36 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MagicSoftware.Common.ViewModel;
+using System.Runtime.InteropServices;
 using MagicSoftware.Common.Forms;
+using MagicSoftware.Exp.Common.ViewModel;
+using MagicSoftware.Studio.Bridge;
+using MagicSoftware.Studio.DataElement;
 using MagicSoftware.Studio.Project;
 using MagicSoftware.Studio.Repositories.Programs;
-using MagicSoftware.Studio.Forms;
-using MagicSoftware.Studio.Bridge;
-using System.Runtime.InteropServices;
-using MagicSoftware.Exp.Common.ViewModel;
 
 namespace MagicStudio
 {
    public class Project : MagicSoftware.Exp.Common.ViewModel.ObservableObject
    {
-      public static ObservableProperty ProjectPathProperty = new ObservableProperty(x => ((Project)x).ProjectPath, typeof(Project), "");
-      public static ObservableProperty IsLoadedProperty = new ObservableProperty(x => ((Project)x).IsLoaded, typeof(Project), false, ProjectPathProperty);
-      public static ObservableProperty CurrentPresenterProperty = new ObservableProperty(x=> ((Project)x).CurrentPresenter, typeof(Project), null);
+      public static ObservableProperty IsLoadedProperty;
+      public static ObservableProperty ProjectPathProperty;
+      public static ObservableProperty SubTaskProperty;
 
       private MagicSoftware.Studio.Project.ProjectManager projectManager;
 
-      public string ProjectPath
+      static Project()
       {
-         get
-         {
-            return (string)ProjectPathProperty.GetValue(this);
-         }
-         set
-         {
-            ProjectPathProperty.SetValue(this, value);
-         }
+         ProjectPathProperty = new ObservableProperty(x => ((Project)x).ProjectPath, typeof(Project), "");
+         IsLoadedProperty = new ObservableProperty(x => ((Project)x).IsLoaded, typeof(Project), false, ProjectPathProperty);
+         SubTaskProperty = new ObservableProperty(x => ((Project)x).SubTask, typeof(Project), 2);
+      }
+
+      public Project(MagicSoftware.Studio.Project.ProjectManager projectManager)
+      {
+         // TODO: Complete member initialization
+         this.projectManager = projectManager;
       }
 
       public bool IsLoaded
@@ -45,27 +42,39 @@ namespace MagicStudio
          }
       }
 
-      public PresenterBase CurrentPresenter
+      public MultipleElementManager Programs
       {
-         get { return (PresenterBase)CurrentPresenterProperty.GetValue(this); }
-         set { CurrentPresenterProperty.SetValue(this, value); }
+         get
+         {
+            if (IsLoaded)
+               return projectManager.MainComponent.ProgramsRepository;
+            else
+               return null;
+         }
       }
-      
 
-      public static ObservableProperty SubTaskProperty = new ObservableProperty(x => ((Project)x).SubTask, typeof(Project), 2);
-        public int SubTask { 
-          get { 
-            return (int)SubTaskProperty.GetValue(this); 
-          } 
-          set { 
-            SubTaskProperty.SetValue(this, value);
-          }
-        }
-
-      public Project(MagicSoftware.Studio.Project.ProjectManager projectManager)
+      public string ProjectPath
       {
-         // TODO: Complete member initialization
-         this.projectManager = projectManager;
+         get
+         {
+            return (string)ProjectPathProperty.GetValue(this);
+         }
+         set
+         {
+            ProjectPathProperty.SetValue(this, value);
+         }
+      }
+
+      public int SubTask
+      {
+         get
+         {
+            return (int)SubTaskProperty.GetValue(this);
+         }
+         set
+         {
+            SubTaskProperty.SetValue(this, value);
+         }
       }
 
       public bool Load()
@@ -92,6 +101,5 @@ namespace MagicStudio
          }
          return selectedTask;
       }
-
    }
 }

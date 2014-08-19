@@ -4,15 +4,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:tbl="http://schemas.magicsoftware.com/common/controls/table"
         xmlns:repo="clr-namespace:MagicSoftware.Studio.Repositories;assembly=MagicSoftware.Studio"
+        xmlns:l="clr-namespace:MagicStudio"
         Title="MainWindow" Height="350" Width="525"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" DataContext="{Binding}">
     <Grid d:DataContext="{d:DesignData Source=SampleData/ProgramsSample.xaml}">
         <Grid.Resources>
+            <l:RepositoryItemStyleSelector x:Key="RepositoryStyleSelector"/>
+            
             <Style x:Key="{x:Type repo:Folder}"
                    BasedOn="{StaticResource {x:Type DataGridRow}}"
                    TargetType="DataGridRow">
                 <Setter Property="MinHeight" Value="{Binding MinRowHeight, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" />
+                
                 <Setter Property="tbl:UIServiceProvider.ServiceList">
                     <Setter.Value>
                         <tbl:UIServiceCollection>
@@ -38,7 +42,7 @@
                                             BorderThickness="0,0,0,1"
                                             Focusable="False">
                                         <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                            <tbl:VirtualTextTableCell Binding="{Binding StringValue}" MinWidth="50"/>
+                                            <tbl:VirtualTextTableCell Binding="{Binding Name}" MinWidth="50"/>
                                         </StackPanel>
                                     </Border>
                                 </Border>
@@ -46,6 +50,7 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+                
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="Background" Value="#FFE5F1F1" />
@@ -55,19 +60,22 @@
                         <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
                     </Trigger>
 
-                    <DataTrigger Value="True">
+                    <!--<DataTrigger Value="True">
                         <DataTrigger.Binding>
                             <MultiBinding Converter="{StaticResource EqualityConverter}">
                                 <Binding Path="Item" RelativeSource="{x:Static RelativeSource.Self}" />
                                 <Binding Path="CurrentItem" RelativeSource="{RelativeSource FindAncestor, AncestorType=DataGrid}" />
                             </MultiBinding>
                         </DataTrigger.Binding>
-                    </DataTrigger>
+                    </DataTrigger>-->
                 </Style.Triggers>
             </Style>
         </Grid.Resources>
-        
-        <tbl:Table x:Name="RepositoryEditor" EditMode="ReadOnly" ItemsSource="{Binding Programs}">
+
+        <tbl:Table x:Name="RepositoryEditor" 
+                   EditMode="ReadOnly" 
+                   ItemsSource="{Binding Programs}" 
+                   RowStyleSelector="{StaticResource RepositoryStyleSelector}">
             <tbl:Table.Columns>
                 <DataGridTextColumn Binding="{Binding Name}" Header="Name"/>
                 <DataGridTextColumn Binding="{Binding PublicName}" Header="Public Name"/>

@@ -86,6 +86,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="RepositoryItemStyleSelector.cs" />
     <Compile Include="SampleData\SampleFolder.cs" />
     <Compile Include="SampleData\SampleProgramsRepository.cs" />
     <Compile Include="SampleData\SampleTaskHeader.cs" />

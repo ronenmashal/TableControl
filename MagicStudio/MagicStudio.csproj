@@ -49,6 +49,9 @@
     <Reference Include="MagicSoftware.Common.Controls.DataGrid">
       <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MagicSoftware.Common.Controls.DataGrid.dll</HintPath>
     </Reference>
+    <Reference Include="MagicSoftware.Common.ViewModel">
+      <HintPath>..\..\..\MagicSoftware.Common.ViewModel\bin\Debug\MagicSoftware.Common.ViewModel.dll</HintPath>
+    </Reference>
     <Reference Include="MagicSoftware.Studio">
       <HintPath>..\..\..\..\dev-Magic\_Trunk\Sources\Extensions\Application\MagicSoftware.Studio.dll</HintPath>
     </Reference>
@@ -100,6 +103,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

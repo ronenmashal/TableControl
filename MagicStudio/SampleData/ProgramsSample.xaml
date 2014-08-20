@@ -1,0 +1,8 @@
+﻿<l:SampleProgramsRepository xmlns:l="clr-namespace:MagicStudio.SampleData">
+    <l:SampleProgramsRepository.Programs>
+        <l:SampleTaskHeader Name="Main Program" PublicName="" IsExternal="false" Comment=""/>
+        <l:SampleTaskHeader Name="Program 1" PublicName="prog1" IsExternal="True" Comment="An external program"/>
+        <l:SampleFolder Name="Folder 1"/>
+        <l:SampleTaskHeader Name="Program 2" Comment="Program in folder 1"/>
+    </l:SampleProgramsRepository.Programs>
+</l:SampleProgramsRepository>

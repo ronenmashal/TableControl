@@ -347,7 +347,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             RaiseNonCancelablePreviewCurrentCellChangingEvent(CurrentCell);
             var newRowService = GetRowEnumerationServiceForItem(dataGrid.CurrentCell.Item);
             if (newRowService != null)
-               currentCellPosition.SetCurrentCellIndex(newRowService, dataGrid.CurrentCell.Column.DisplayIndex);
+            {
+               var columnIndex = 0;
+               if (dataGrid.CurrentCell.Column != null)
+                  columnIndex = dataGrid.CurrentCell.Column.DisplayIndex;
+
+               currentCellPosition.SetCurrentCellIndex(newRowService, columnIndex);
+            }
          }
          UpdateCurrentCell();
          if (!isSelfInducedCellChange.IsSet)

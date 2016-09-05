@@ -2,12 +2,15 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using MagicSoftware.Common.Utils;
+using log4net;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    [ImplementedService(typeof(IElementEditStateService))]
    internal class DataGridEditStateService : IElementEditStateService, IUIService
    {
+      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
       private readonly AutoResetFlag suppressEditStateEvent = new AutoResetFlag();
 
       private ICommandRegulationService commandRegulator;
@@ -34,6 +37,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void DetachFromElement(System.Windows.FrameworkElement element)
       {
+         if (dataGrid == null)
+         {
+            log.WarnFormat("Detaching extender {0} from {1} twice", this, element);
+            return;
+         }
+
          dataGrid.BeginningEdit -= dataGrid_BeginningEdit;
          dataGrid.CellEditEnding -= dataGrid_CellEditEnding;
          dataGrid.RowEditEnding -= dataGrid_RowEditEnding;

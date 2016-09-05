@@ -40,6 +40,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void DetachFromElement(FrameworkElement element)
       {
+         if (dataGrid == null)
+         {
+            log.WarnFormat("Detaching extender {0} from {1} twice", this, element);
+            return;
+         }
          dataGrid.LoadingRow -= DataGrid_LoadingRow;
          dataGrid = null;
       }

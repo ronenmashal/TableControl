@@ -50,6 +50,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void DetachFromElement(FrameworkElement element)
       {
+         if (TargetElement == null)
+         {
+            log.WarnFormat("Detaching extender {0} from {1} twice", this, element);
+            return;
+         }
+
          currentCellService.CurrentCellChanged -= new EventHandler(currentCellService_CurrentCellChanged);
          TargetElement.PreviewLostKeyboardFocus -= TargetElement_PreviewLostKeyboardFocus;
          TargetElement.PreviewGotKeyboardFocus -= TargetElement_PreviewGotKeyboardFocus;

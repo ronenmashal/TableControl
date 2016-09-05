@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using MagicSoftware.Common.Utils;
+using log4net;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -14,6 +15,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    /// </summary>
    public class SelectionExtender : IUIService
    {
+      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
       public static readonly DependencyProperty SelectionViewProperty =
           DependencyProperty.RegisterAttached("SelectionView", typeof(ObservableCollection<object>), typeof(SelectionExtender), new UIPropertyMetadata(new ObservableCollection<object>(), OnSelectionViewChanged));
 
@@ -46,20 +49,37 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void AttachToElement(FrameworkElement element)
       {
+         if (TargetElement != null)
+         {
+            if (ReferenceEquals(TargetElement.Element, element))
+            {
+               log.DebugFormat("Extender {0} is already attached to element {1}", this, element);
+               return;
+            }
+            throw new InvalidOperationException("Cannot re-attach an attached extender");
+         }
+            
+
          if (element is MultiSelector)
             TargetElement = new TrivialMultiSelectorAdapter((MultiSelector)element);
          else if (element is ListBox)
             TargetElement = new ListBoxMultiSelectorAdapter((ListBox)element);
          SetSelectionExtender(element, this);
          var selectionView = GetSelectionView(element);
-         this.AttachSelectionView(null, selectionView);
+         this.AttachSelectionModel(null, selectionView);
          TargetElement.SelectionChanged += TargetElement_SelectionChanged;
       }
 
       public void DetachFromElement(FrameworkElement element)
       {
+         if (TargetElement == null)
+         {
+            log.WarnFormat("Detaching extender {0} from {1} for the second time", this, element);
+            return;
+         }
          SetSelectionExtender(element, null);
          TargetElement.SelectionChanged -= TargetElement_SelectionChanged;
+         UnregisterSelectionModelEvents(GetSelectionView(TargetElement.Element));
          TargetElement = null;
       }
 
@@ -81,17 +101,22 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          var extender = GetSelectionExtender(obj);
          if (extender != null)
          {
-            extender.AttachSelectionView((ObservableCollection<object>)args.OldValue, (ObservableCollection<object>)args.NewValue);
+            extender.AttachSelectionModel((ObservableCollection<object>)args.OldValue, (ObservableCollection<object>)args.NewValue);
          }
       }
 
-      private void AttachSelectionView(ObservableCollection<object> oldView, ObservableCollection<object> newView)
+      private void AttachSelectionModel(ObservableCollection<object> oldModel, ObservableCollection<object> newModel)
       {
-         if (oldView != null)
-            oldView.CollectionChanged -= ItemsView_CollectionChanged;
+         UnregisterSelectionModelEvents(oldModel);
 
-         if (newView != null)
-            newView.CollectionChanged += ItemsView_CollectionChanged;
+         if (newModel != null)
+            newModel.CollectionChanged += ItemsView_CollectionChanged;
+      }
+
+      private void UnregisterSelectionModelEvents(ObservableCollection<object> selectionModel)
+      {
+         if (selectionModel != null)
+            selectionModel.CollectionChanged -= ItemsView_CollectionChanged;
       }
 
       private void ItemsView_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -152,6 +177,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
    internal class ListBoxMultiSelectorAdapter : MultiSelectorAdapter<ListBox>
    {
+      int selectionChangedHandlersCount = 0;
+
       public ListBoxMultiSelectorAdapter(ListBox element)
          : base(element)
       {
@@ -159,8 +186,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public override event SelectionChangedEventHandler SelectionChanged
       {
-         add { Element.SelectionChanged += value; }
-         remove { Element.SelectionChanged -= value; }
+         add { Element.SelectionChanged += value; selectionChangedHandlersCount++; }
+         remove { Element.SelectionChanged -= value; selectionChangedHandlersCount--; }
       }
 
       public override IList SelectedItems
@@ -188,6 +215,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
    internal class TrivialMultiSelectorAdapter : MultiSelectorAdapter<MultiSelector>
    {
+      int selectionChangedHandlersCount = 0;
+
       public TrivialMultiSelectorAdapter(MultiSelector element)
          : base(element)
       {
@@ -195,8 +224,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public override event SelectionChangedEventHandler SelectionChanged
       {
-         add { Element.SelectionChanged += value; }
-         remove { Element.SelectionChanged -= value; }
+         add { Element.SelectionChanged += value; selectionChangedHandlersCount++; }
+         remove { Element.SelectionChanged -= value; selectionChangedHandlersCount--; }
       }
 
       public override IList SelectedItems

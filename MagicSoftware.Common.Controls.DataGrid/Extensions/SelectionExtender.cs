@@ -68,10 +68,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          //   throw new InvalidOperationException("Cannot re-attach an attached extender");
          //}
 
-         if (element is MultiSelector)
-            TargetElementProxy = new DefaultMultiSelectionService((MultiSelector)element);
-         else if (element is ListBox)
-            TargetElementProxy = new ListBoxMultiSelectionService((ListBox)element);
+         TargetElementProxy = UIServiceProvider.GetService<IMultiSelectionService>(element);
          SetSelectionExtender(element, this);
          var selectionView = GetSelectionView(element);
          this.AttachSelectionModel(null, selectionView);
@@ -213,7 +210,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          public void ClearSelection()
          {
-            elementSelectionAdaptor.ClearSelection();
+            //elementSelectionAdaptor.ClearSelection();
          }
       }
    }

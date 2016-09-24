@@ -7,11 +7,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    {
       private int selectionChangedHandlersCount = 0;
 
-      public ListBoxMultiSelectionService(ListBox element)
-         : base(element)
-      {
-      }
-
       public override event SelectionChangedEventHandler SelectionChanged
       {
          add { Element.SelectionChanged += value; selectionChangedHandlersCount++; }

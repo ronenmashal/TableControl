@@ -15,14 +15,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       void SetSelectedItem(object item);
    }
 
-   public abstract class MultiSelectionService<T> : IMultiSelectionService
+   [ImplementedService(typeof(IMultiSelectionService))]
+   public abstract class MultiSelectionService<T> : IMultiSelectionService, IUIService
    where T : FrameworkElement
    {
-      public MultiSelectionService(FrameworkElement element)
-      {
-         this.Element = (T)element;
-      }
-
       public abstract event SelectionChangedEventHandler SelectionChanged;
 
       public T Element { get; private set; }
@@ -33,5 +29,25 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
 
       public abstract void SetSelectedItem(object item);
+
+      public void AttachToElement(FrameworkElement element)
+      {
+         Element = (T) element;
+      }
+
+      public void DetachFromElement(FrameworkElement element)
+      {
+         Element = null;
+      }
+
+      public bool IsAttached
+      {
+         get { return Element != null; }
+      }
+
+      public void Dispose()
+      {
+         DetachFromElement(Element);
+      }
    }
 }

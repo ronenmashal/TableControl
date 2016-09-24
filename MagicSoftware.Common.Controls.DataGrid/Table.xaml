@@ -142,6 +142,7 @@
 
                     <lext:DataGridNavigationExtender />
                     <lext:DataGridEditingExtender />  
+                    <lext:SelectionExtender />
                 </ext:ExtendersCollection>
             </ext:ElementExtensions.Extenders>
             <pxy:FrameworkElementProxy.Proxy>
@@ -154,8 +155,6 @@
                 <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:VirtualizedItemTemplatePersistencyService}" />
                 <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridVerticalScrollService}" />
                 <!-- This extender collides with the selection view -->
-                <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridSelectionService}" />
-                <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:SelectionExtender}" />
                 <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DefaultCommandRegulationService}" />
                 <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridEditStateService}" />
                 <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:FocusManagementService}" />

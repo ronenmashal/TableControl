@@ -251,11 +251,28 @@
                 </tbl:LineEditor.Resources>
             </tbl:LineEditor>-->
             <ListBox Grid.Column="1" ItemsSource="{Binding Items}" SelectionMode="Multiple" tbl:SelectionExtender.SelectionView="{Binding SelectedItems}">
+                <ext:ElementExtensions.Extenders>
+                    <ext:ExtendersCollection>
+                        <!--
+                        <ext:DataGridColumnLayoutExtender>
+                        <ext:DataGridColumnLayoutExtender.Distributor>
+                        <ext:ProportionalColumnDistribution />
+                        </ext:DataGridColumnLayoutExtender.Distributor>
+                        </ext:DataGridColumnLayoutExtender>
+                    -->
+
+                        <tbl:SelectionExtender />
+                    </ext:ExtendersCollection>
+                </ext:ElementExtensions.Extenders>
                 <tbl:UIServiceProvider.ServiceList>
                     <tbl:UIServiceCollection>
-                        <tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:SelectionExtender}" />
+                        <!--<tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:}" />-->
                     </tbl:UIServiceCollection>
                 </tbl:UIServiceProvider.ServiceList>
+                <pxy:FrameworkElementProxy.Proxy>
+                    <!-- This proxy definition is temporary, until the extenders will not be dependent on its existance. -->
+                    <pxy:FrameworkElementProxy />
+                </pxy:FrameworkElementProxy.Proxy>
             </ListBox>
         </Grid>
         <!--

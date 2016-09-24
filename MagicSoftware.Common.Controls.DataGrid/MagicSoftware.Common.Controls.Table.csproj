@@ -93,7 +93,6 @@
     <Compile Include="Extensions\FocusManagementService.cs" />
     <Compile Include="Extensions\DataGridNavigationExtender.cs" />
     <Compile Include="Extensions\DataGridRowCurrentItemService.cs" />
-    <Compile Include="Extensions\DataGridSelectionService.cs" />
     <Compile Include="Extensions\DataGridCurrentItemService.cs" />
     <Compile Include="Extensions\DataGridStandardRowCellEnumerationService.cs" />
     <Compile Include="Extensions\DataGridVerticalScrollService.cs" />

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
@@ -8,20 +7,10 @@ using System.Windows.Controls.Primitives;
 using log4net;
 using MagicSoftware.Common.Controls.Extensibility;
 using MagicSoftware.Common.Utils;
+using System.Collections.Generic;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
-   internal interface IMultiSelectorAdapter
-   {
-      event SelectionChangedEventHandler SelectionChanged;
-
-      FrameworkElement Element { get; }
-
-      IList SelectedItems { get; }
-
-      void SetSelectedItem(object item);
-   }
-
    /// <summary>
    /// Provides selection services such as connecting with an selected items view.
    /// </summary>
@@ -43,7 +32,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          get { return TargetElementProxy != null; }
       }
 
-      private IMultiSelectorAdapter TargetElementProxy { get; set; }
+      private IMultiSelectionService TargetElementProxy { get; set; }
 
       public static SelectionExtender GetSelectionExtender(DependencyObject obj)
       {
@@ -80,9 +69,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          //}
 
          if (element is MultiSelector)
-            TargetElementProxy = new TrivialMultiSelectorAdapter((MultiSelector)element);
+            TargetElementProxy = new DefaultMultiSelectionService((MultiSelector)element);
          else if (element is ListBox)
-            TargetElementProxy = new ListBoxMultiSelectorAdapter((ListBox)element);
+            TargetElementProxy = new ListBoxMultiSelectionService((ListBox)element);
          SetSelectionExtender(element, this);
          var selectionView = GetSelectionView(element);
          this.AttachSelectionModel(null, selectionView);
@@ -204,77 +193,28 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (selectionModel != null)
             selectionModel.CollectionChanged -= ItemsView_CollectionChanged;
       }
-   }
 
-   internal class ListBoxMultiSelectorAdapter : MultiSelectorAdapter<ListBox>
-   {
-      private int selectionChangedHandlersCount = 0;
-
-      public ListBoxMultiSelectorAdapter(ListBox element)
-         : base(element)
+      class SelectionModeManager
       {
-      }
+         class SelectionRange
+         {
+            public int fromItem;
+            public int toItem;
+         }
 
-      public override event SelectionChangedEventHandler SelectionChanged
-      {
-         add { Element.SelectionChanged += value; selectionChangedHandlersCount++; }
-         remove { Element.SelectionChanged -= value; selectionChangedHandlersCount--; }
-      }
+         List<SelectionRange> Ranges = new List<SelectionRange>();
 
-      public override IList SelectedItems
-      {
-         get { return Element.SelectedItems; }
-      }
+         IMultiSelectionService elementSelectionAdaptor;
 
-      public override void SetSelectedItem(object item)
-      {
-         Element.SelectedItem = item;
-      }
-   }
+         public SelectionModeManager(IMultiSelectionService elementSelectionAdaptor)
+         {
+            this.elementSelectionAdaptor = elementSelectionAdaptor;
+         }
 
-   internal abstract class MultiSelectorAdapter<T> : IMultiSelectorAdapter
-      where T : FrameworkElement
-   {
-      public MultiSelectorAdapter(FrameworkElement element)
-      {
-         this.Element = (T)element;
-      }
-
-      public abstract event SelectionChangedEventHandler SelectionChanged;
-
-      public T Element { get; private set; }
-
-      FrameworkElement IMultiSelectorAdapter.Element { get { return Element; } }
-
-      public abstract IList SelectedItems { get; }
-
-
-      public abstract void SetSelectedItem(object item);
-   }
-
-   internal class TrivialMultiSelectorAdapter : MultiSelectorAdapter<MultiSelector>
-   {
-      private int selectionChangedHandlersCount = 0;
-
-      public TrivialMultiSelectorAdapter(MultiSelector element)
-         : base(element)
-      {
-      }
-
-      public override event SelectionChangedEventHandler SelectionChanged
-      {
-         add { Element.SelectionChanged += value; selectionChangedHandlersCount++; }
-         remove { Element.SelectionChanged -= value; selectionChangedHandlersCount--; }
-      }
-
-      public override IList SelectedItems
-      {
-         get { return Element.SelectedItems; }
-      }
-
-      public override void SetSelectedItem(object item)
-      {
-         ((MultiSelector)Element).SelectedItem = item;
+         public void ClearSelection()
+         {
+            elementSelectionAdaptor.ClearSelection();
+         }
       }
    }
 }

@@ -1,0 +1,32 @@
+using System.Collections;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+
+namespace MagicSoftware.Common.Controls.Table.Extensions
+{
+   public class DefaultMultiSelectionService : MultiSelectionService<MultiSelector>
+   {
+      private int selectionChangedHandlersCount = 0;
+
+      public DefaultMultiSelectionService(MultiSelector element)
+         : base(element)
+      {
+      }
+
+      public override event SelectionChangedEventHandler SelectionChanged
+      {
+         add { Element.SelectionChanged += value; selectionChangedHandlersCount++; }
+         remove { Element.SelectionChanged -= value; selectionChangedHandlersCount--; }
+      }
+
+      public override IList SelectedItems
+      {
+         get { return Element.SelectedItems; }
+      }
+
+      public override void SetSelectedItem(object item)
+      {
+         ((MultiSelector)Element).SelectedItem = item;
+      }
+   }
+}

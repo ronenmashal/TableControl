@@ -90,6 +90,7 @@
     <Compile Include="Extensions\DataGridEditStateService.cs" />
     <Compile Include="Extensions\DataGridCurrentCellService.cs" />
     <Compile Include="Extensions\DataGridEditingExtender.cs" />
+    <Compile Include="Extensions\DefaultMultiSelectionService.cs" />
     <Compile Include="Extensions\FocusManagementService.cs" />
     <Compile Include="Extensions\DataGridNavigationExtender.cs" />
     <Compile Include="Extensions\DataGridRowCurrentItemService.cs" />
@@ -111,10 +112,12 @@
     <Compile Include="Extensions\IdGenerator.cs" />
     <Compile Include="Extensions\IElementEditStateService.cs" />
     <Compile Include="Extensions\IInputFilter.cs" />
+    <Compile Include="Extensions\IMultiSelectionService.cs" />
     <Compile Include="Extensions\InputService.cs" />
     <Compile Include="Extensions\IScrollService.cs" />
     <Compile Include="Extensions\IStatePersistency.cs" />
     <Compile Include="Extensions\IUIServiceFactory.cs" />
+    <Compile Include="Extensions\ListBoxMultiSelectionService.cs" />
     <Compile Include="Extensions\NavigationCommandsMap.cs" />
     <Compile Include="Extensions\ParameterlessUIServiceFactory.cs" />
     <Compile Include="Extensions\SelectionExtender.cs" />

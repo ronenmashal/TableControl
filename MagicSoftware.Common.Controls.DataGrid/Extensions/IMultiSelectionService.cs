@@ -12,7 +12,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       IList SelectedItems { get; }
 
-      void SetSelectedItem(object item);
+      void ClearSelection();
+
+      int SelectedIndex { get; set; }
+      object SelectedItem { get; set; }
    }
 
    [ImplementedService(typeof(IMultiSelectionService))]
@@ -28,7 +31,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public abstract IList SelectedItems { get; }
 
 
-      public abstract void SetSelectedItem(object item);
+      public abstract void ClearSelection();
+      public abstract int SelectedIndex { get; set; }
+      public abstract object SelectedItem { get; set; }
 
       public void AttachToElement(FrameworkElement element)
       {

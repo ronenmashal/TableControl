@@ -19,9 +19,21 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          get { return Element.SelectedItems; }
       }
 
-      public override void SetSelectedItem(object item)
+      public override void ClearSelection()
       {
-         ((MultiSelector)Element).SelectedItem = item;
+         Element.SelectedItems.Clear();
+      }
+
+      public override int SelectedIndex
+      {
+         get {return Element.SelectedIndex; }
+         set { Element.SelectedIndex = value; }
+      }
+
+      public override object SelectedItem
+      {
+         get { return Element.SelectedItem; }
+         set { Element.SelectedItem = value; }
       }
    }
 }

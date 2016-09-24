@@ -263,8 +263,9 @@
          -->
          <ListBox Grid.Column="1"
                   ItemsSource="{Binding Items}"
-                  SelectionMode="Multiple"
-                  tbl:SelectionExtender.SelectionView="{Binding SelectedItems}">
+                  SelectionMode="Multiple">
+            <!--tbl:SelectionExtender.SelectionView="{Binding SelectedItems}">-->
+                  
             <ext:ElementExtensions.Extenders>
                <ext:ExtendersCollection>
                   <!--
@@ -275,12 +276,12 @@
                      </ext:DataGridColumnLayoutExtender>
                   -->
 
-                  <tbl:SelectionExtender />
+                  <!--<tbl:SelectionExtender />-->
                </ext:ExtendersCollection>
             </ext:ElementExtensions.Extenders>
             <tbl:UIServiceProvider.ServiceList>
                <tbl:UIServiceCollection>
-                  <tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:ListBoxMultiSelectionService}" />
+                  <!--<tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:ListBoxMultiSelectionService}" />-->
                </tbl:UIServiceCollection>
             </tbl:UIServiceProvider.ServiceList>
             <pxy:FrameworkElementProxy.Proxy>

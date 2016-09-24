@@ -174,7 +174,12 @@
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\MagicSoftware.Common.Controls.Extensibility\MagicSoftware.Common.Controls.Extensibility.csproj">
+      <Project>{44B6574A-5DE1-41E9-BC71-78427A7A8C44}</Project>
+      <Name>MagicSoftware.Common.Controls.Extensibility</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>

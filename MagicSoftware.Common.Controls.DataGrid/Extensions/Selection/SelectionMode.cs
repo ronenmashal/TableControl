@@ -16,13 +16,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
 
       protected ICurrentItemService CurrentItemTracker { get; private set; }
 
-      protected MultiSelector Element { get; private set; }
+      protected IMultiSelectionService ElementSelectionService { get; private set; }
 
       public abstract void Enter();
 
-      public void Initialize(MultiSelector element, ICurrentItemService currentItemTracker)
+      public void Initialize(IMultiSelectionService element, ICurrentItemService currentItemTracker)
       {
-         Element = element;
+         ElementSelectionService = element;
          CurrentItemTracker = currentItemTracker;
       }
 

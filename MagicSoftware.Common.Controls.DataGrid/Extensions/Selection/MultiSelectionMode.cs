@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
+using System.Windows.Controls;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
 {
@@ -17,8 +18,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
       public override void Enter()
       {
          var anchor = CurrentItemTracker.CurrentItem;
-         if (Element.SelectedItem != null)
-            anchor = Element.SelectedItem;
+         if (ElementSelectionService.SelectedItem != null)
+            anchor = ElementSelectionService.SelectedItem;
          log.Debug("Entering multi-selection mode.");
          log.DebugFormat("Anchor is {0}", anchor);
          lastKnownCurrentItem = anchor;
@@ -31,29 +32,29 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
 
       public override void OnCurrentItemChanged()
       {
-         if (!Element.IsKeyboardFocusWithin)
+         if (!ElementSelectionService.Element.IsKeyboardFocusWithin)
             return;
 
          UpdateKeyboardStatus();
          if (!ctrlIsDown || shiftIsDown)
          {
-            int newDistanceFromSelectionAnchor = CurrentItemTracker.CurrentPosition - Element.SelectedIndex;
+            int newDistanceFromSelectionAnchor = CurrentItemTracker.CurrentPosition - ElementSelectionService.SelectedIndex;
             log.DebugFormat("New distance to anchor: {0}", newDistanceFromSelectionAnchor);
 
             if (Math.Sign(newDistanceFromSelectionAnchor) != Math.Sign(lastDistanceFromSelectionAnchor))
             {
-               RemovedRangeFromSelection(Element.SelectedIndex + lastDistanceFromSelectionAnchor, Element.SelectedIndex);
-               AddRangeToSelection(Element.SelectedIndex + newDistanceFromSelectionAnchor, Element.SelectedIndex);
+               RemovedRangeFromSelection(ElementSelectionService.SelectedIndex + lastDistanceFromSelectionAnchor, ElementSelectionService.SelectedIndex);
+               AddRangeToSelection(ElementSelectionService.SelectedIndex + newDistanceFromSelectionAnchor, ElementSelectionService.SelectedIndex);
             }
             else if (Math.Abs(newDistanceFromSelectionAnchor) < Math.Abs(lastDistanceFromSelectionAnchor))
             {
                log.DebugFormat("Removing item {0} from selection", lastKnownCurrentItem);
-               RemovedRangeFromSelection(Element.SelectedIndex + lastDistanceFromSelectionAnchor, Element.SelectedIndex + newDistanceFromSelectionAnchor);
+               RemovedRangeFromSelection(ElementSelectionService.SelectedIndex + lastDistanceFromSelectionAnchor, ElementSelectionService.SelectedIndex + newDistanceFromSelectionAnchor);
             }
             else
             {
                log.DebugFormat("Adding item {0} to selection", CurrentItemTracker.CurrentItem);
-               AddRangeToSelection(Element.SelectedIndex + newDistanceFromSelectionAnchor, Element.SelectedIndex + lastDistanceFromSelectionAnchor);
+               AddRangeToSelection(ElementSelectionService.SelectedIndex + newDistanceFromSelectionAnchor, ElementSelectionService.SelectedIndex + lastDistanceFromSelectionAnchor);
             }
             lastKnownCurrentItem = CurrentItemTracker.CurrentItem;
             lastDistanceFromSelectionAnchor = newDistanceFromSelectionAnchor;
@@ -98,10 +99,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
          int direction = Math.Sign(toItemIndex - fromItemIndex);
          for (int i = fromItemIndex; i != toItemIndex; i += direction)
          {
-            var item = Element.Items.GetItemAt(i);
-            if (Element.SelectedItems.Contains(item))
+            var item = ((ItemsControl)ElementSelectionService.Element).Items.GetItemAt(i);
+            if (ElementSelectionService.SelectedItems.Contains(item))
                break;
-            Element.SelectedItems.Add(item);
+            ElementSelectionService.SelectedItems.Add(item);
          }
       }
 
@@ -110,22 +111,22 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
          int direction = Math.Sign(toItemIndex - fromItemIndex);
          for (int i = fromItemIndex; i != toItemIndex; i += direction)
          {
-            var item = Element.Items.GetItemAt(fromItemIndex);
-            if (!Element.SelectedItems.Contains(item))
+            var item = ((ItemsControl)ElementSelectionService.Element).Items.GetItemAt(fromItemIndex);
+            if (!ElementSelectionService.SelectedItems.Contains(item))
                continue;
-            Element.SelectedItems.Remove(item);
+            ElementSelectionService.SelectedItems.Remove(item);
          }
       }
 
       private void ToggleItemSelection()
       {
-         if (Element.SelectedItems.Contains(CurrentItemTracker.CurrentItem))
+         if (ElementSelectionService.SelectedItems.Contains(CurrentItemTracker.CurrentItem))
          {
-            Element.SelectedItems.Remove(CurrentItemTracker.CurrentItem);
+            ElementSelectionService.SelectedItems.Remove(CurrentItemTracker.CurrentItem);
          }
          else
          {
-            Element.SelectedItems.Add(CurrentItemTracker.CurrentItem);
+            ElementSelectionService.SelectedItems.Add(CurrentItemTracker.CurrentItem);
          }
       }
 

@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using log4net;
 using MagicSoftware.Common.Controls.Extensibility;
 using MagicSoftware.Common.Utils;
-using System.Collections.Generic;
+using System.Windows.Input;
+using MagicSoftware.Common.Controls.Table.Extensions.Selection;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -16,10 +17,20 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
    /// </summary>
    public class SelectionExtender : ElementExtenderBase<ItemsControl>
    {
+      #region Public Fields
+
       public static readonly DependencyProperty SelectionViewProperty =
           DependencyProperty.RegisterAttached("SelectionView", typeof(ObservableCollection<object>), typeof(SelectionExtender), new UIPropertyMetadata(new ObservableCollection<object>(), OnSelectionViewChanged));
 
+      #endregion Public Fields
+
+      #region Internal Fields
+
       internal static string LoggerName = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Namespace + ".Selection";
+
+      #endregion Internal Fields
+
+      #region Private Fields
 
       private static readonly DependencyProperty SelectionExtenderProperty =
           DependencyProperty.RegisterAttached("SelectionExtender", typeof(SelectionExtender), typeof(SelectionExtender), new UIPropertyMetadata(null));
@@ -27,12 +38,26 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private readonly AutoResetFlag suppressChangeHandling = new AutoResetFlag();
       private ILog log = log4net.LogManager.GetLogger(LoggerName);
 
+      private SelectionModeManager selectionModeManager;
+
+      #endregion Private Fields
+
+      #region Public Properties
+
       public bool IsAttached
       {
          get { return TargetElementProxy != null; }
       }
 
+      #endregion Public Properties
+
+      #region Private Properties
+
       private IMultiSelectionService TargetElementProxy { get; set; }
+
+      #endregion Private Properties
+
+      #region Public Methods
 
       public static SelectionExtender GetSelectionExtender(DependencyObject obj)
       {
@@ -60,7 +85,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          //if (TargetElement != null)
          //{
-         //   if (ReferenceEquals(TargetElement.Element, element))
+         //   if (ReferenceEquals(TargetElement.ElementSelectionService, element))
          //   {
          //      log.DebugFormat("Extender {0} is already attached to element {1}", this, element);
          //      return;
@@ -74,17 +99,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          this.AttachSelectionModel(null, selectionView);
          TargetElementProxy.SelectionChanged += TargetElement_SelectionChanged;
 
-         var itemTracker = UIServiceProvider.GetService<ICurrentItemService>(TargetElementProxy.Element, false);
-         if (itemTracker != null)
+         var currentItemTracker = UIServiceProvider.GetService<ICurrentItemService>(element, false);
+         if (currentItemTracker != null)
          {
-            itemTracker.CurrentChanged += new EventHandler(itemTracker_CurrentChanged);
+            selectionModeManager = new SelectionModeManager(TargetElement);
          }
-      }
-
-      void itemTracker_CurrentChanged(object sender, EventArgs e)
-      {
-         var itemTracker = UIServiceProvider.GetService<ICurrentItemService>(TargetElementProxy.Element);
-         TargetElementProxy.SetSelectedItem(itemTracker.CurrentItem);
       }
 
       public void DetachFromElement(FrameworkElement element)
@@ -98,12 +117,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          TargetElementProxy.SelectionChanged -= TargetElement_SelectionChanged;
          UnregisterSelectionModelEvents(GetSelectionView(TargetElementProxy.Element));
          TargetElementProxy = null;
-
-         var itemTracker = UIServiceProvider.GetService<ICurrentItemService>(TargetElement, false);
-         if (itemTracker != null)
-         {
-            itemTracker.CurrentChanged -= itemTracker_CurrentChanged;
-         }
       }
 
       public void Dispose()
@@ -111,6 +124,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (IsAttached)
             DetachFromElement(TargetElementProxy.Element);
       }
+
+      #endregion Public Methods
+
+      #region Protected Methods
 
       protected override void Cleanup()
       {
@@ -121,6 +138,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          AttachToElement(TargetElement);
       }
+
+      #endregion Protected Methods
+
+      #region Private Methods
 
       private static void OnSelectionViewChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)
       {
@@ -191,27 +212,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             selectionModel.CollectionChanged -= ItemsView_CollectionChanged;
       }
 
-      class SelectionModeManager
-      {
-         class SelectionRange
-         {
-            public int fromItem;
-            public int toItem;
-         }
-
-         List<SelectionRange> Ranges = new List<SelectionRange>();
-
-         IMultiSelectionService elementSelectionAdaptor;
-
-         public SelectionModeManager(IMultiSelectionService elementSelectionAdaptor)
-         {
-            this.elementSelectionAdaptor = elementSelectionAdaptor;
-         }
-
-         public void ClearSelection()
-         {
-            //elementSelectionAdaptor.ClearSelection();
-         }
-      }
+      #endregion Private Methods
    }
 }

@@ -12,17 +12,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
 {
    internal abstract class SelectionMode
    {
-      protected ILog log = log4net.LogManager.GetLogger(DataGridSelectionService.LoggerName);
+      protected ILog log = log4net.LogManager.GetLogger(SelectionExtender.LoggerName);
 
       protected ICurrentItemService CurrentItemTracker { get; private set; }
 
-      protected MultiSelector Element { get; private set; }
+      protected IMultiSelectionService ElementSelectionService { get; private set; }
 
       public abstract void Enter();
 
-      public void Initialize(MultiSelector element, ICurrentItemService currentItemTracker)
+      public void Initialize(IMultiSelectionService element, ICurrentItemService currentItemTracker)
       {
-         Element = element;
+         ElementSelectionService = element;
          CurrentItemTracker = currentItemTracker;
       }
 

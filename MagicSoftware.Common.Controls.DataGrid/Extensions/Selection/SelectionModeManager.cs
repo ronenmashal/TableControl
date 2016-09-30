@@ -19,24 +19,25 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
       public static readonly IdleSelectionMode IdleSelectionMode = new IdleSelectionMode();
       public static readonly MultiSelectionMode MultiSelectionMode = new MultiSelectionMode();
       public static readonly SingleSelectionMode SingleSelectionMode = new SingleSelectionMode();
-      protected ILog log = log4net.LogManager.GetLogger(DataGridSelectionService.LoggerName);
+      protected ILog log = log4net.LogManager.GetLogger(SelectionExtender.LoggerName);
 
       private SelectionMode currentSelectionMode;
 
       private SelectionViewManager selectionViewManager = null;
 
-      public SelectionModeManager(MultiSelector element, ICurrentItemService currentItemTracker)
+      public SelectionModeManager(FrameworkElement element)
       {
-         Element = element;
-         CurrentItemTracker = currentItemTracker;
+         ElementSelectionService = UIServiceProvider.GetService<IMultiSelectionService>(element);
+         CurrentItemTracker = UIServiceProvider.GetService<ICurrentItemService>(element);
+
          CurrentItemTracker.CurrentChanged += CurrentItemTracker_CurrentChanged;
 
-         Element.AddHandler(FrameworkElement.PreviewKeyDownEvent, new RoutedEventHandler(TargetElement_PreviewKeyDown), true);
-         Element.AddHandler(FrameworkElement.PreviewKeyUpEvent, new RoutedEventHandler(TargetElement_PreviewKeyUp), true);
-         Element.AddHandler(FrameworkElement.PreviewMouseDownEvent, new RoutedEventHandler(TargetElement_PreviewMouseDown), true);
+         //ElementSelectionService.AddHandler(FrameworkElement.PreviewKeyDownEvent, new RoutedEventHandler(TargetElement_PreviewKeyDown), true);
+         //ElementSelectionService.AddHandler(FrameworkElement.PreviewKeyUpEvent, new RoutedEventHandler(TargetElement_PreviewKeyUp), true);
+         //ElementSelectionService.AddHandler(FrameworkElement.PreviewMouseDownEvent, new RoutedEventHandler(TargetElement_PreviewMouseDown), true);
 
-         SingleSelectionMode.Initialize(element, currentItemTracker);
-         MultiSelectionMode.Initialize(element, currentItemTracker);
+         SingleSelectionMode.Initialize(ElementSelectionService, CurrentItemTracker);
+         MultiSelectionMode.Initialize(ElementSelectionService, CurrentItemTracker);
 
          SetCurrentSelectionMode(SingleSelectionMode);
          currentSelectionMode.Enter();
@@ -44,7 +45,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
 
       protected ICurrentItemService CurrentItemTracker { get; private set; }
 
-      protected MultiSelector Element { get; private set; }
+      protected IMultiSelectionService ElementSelectionService { get; private set; }
 
       public static bool IsMultiSelectionKey(Key key)
       {
@@ -61,28 +62,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
 
       public virtual void Dispose()
       {
-         Element.RemoveHandler(FrameworkElement.PreviewKeyDownEvent, new RoutedEventHandler(TargetElement_PreviewKeyDown));
-         Element.RemoveHandler(FrameworkElement.PreviewKeyUpEvent, new RoutedEventHandler(TargetElement_PreviewKeyUp));
-         Element.RemoveHandler(FrameworkElement.PreviewMouseDownEvent, new RoutedEventHandler(TargetElement_PreviewMouseDown));
+         //ElementSelectionService.RemoveHandler(FrameworkElement.PreviewKeyDownEvent, new RoutedEventHandler(TargetElement_PreviewKeyDown));
+         //ElementSelectionService.RemoveHandler(FrameworkElement.PreviewKeyUpEvent, new RoutedEventHandler(TargetElement_PreviewKeyUp));
+         //ElementSelectionService.RemoveHandler(FrameworkElement.PreviewMouseDownEvent, new RoutedEventHandler(TargetElement_PreviewMouseDown));
          CurrentItemTracker.CurrentChanged -= CurrentItemTracker_CurrentChanged;
          CurrentItemTracker = null;
-      }
-
-      public void SetSelectionView(SelectionView selectionView)
-      {
-         if (selectionViewManager != null)
-            selectionViewManager.Dispose();
-
-         if (selectionView == null)
-            selectionViewManager = null;
-
-         //SetCurrentSelectionMode(IdleSelectionMode);
-
-         selectionViewManager = new SelectionViewManager(Element, selectionView);
-         Element.Dispatcher.Invoke(DispatcherPriority.Render, new Action(() =>
-         {
-            selectionViewManager.SelectItemsOnElement();
-         }));
       }
 
       protected void TargetElement_PreviewKeyUp(object sender, RoutedEventArgs e)
@@ -97,12 +81,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
 
       private void CurrentItemTracker_CurrentChanged(object sender, EventArgs args)
       {
+         bool bShift = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
+         bool bControl = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
+
+         if (bShift || bControl)
+            SetCurrentSelectionMode(MultiSelectionMode);
+         else
+            SetCurrentSelectionMode(SingleSelectionMode);
+
          currentSelectionMode.OnCurrentItemChanged();
-         Element.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
-         {
-            if (selectionViewManager != null)
-               selectionViewManager.UpdateViewFromElement();
-         }));
       }
 
       private void SetCurrentSelectionMode(SelectionMode nextSelectionMode)

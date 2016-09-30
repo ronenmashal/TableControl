@@ -2,267 +2,299 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:data="clr-namespace:_DGTester.Data"
+        xmlns:ext="clr-namespace:MagicSoftware.Common.Controls.Extensibility;assembly=MagicSoftware.Common"
         xmlns:l="clr-namespace:_DGTester"
         xmlns:mg="http://schemas.magicsoftware.com/common/2011/controls"
+        xmlns:pxy="clr-namespace:MagicSoftware.Common.Controls.Proxies;assembly=MagicSoftware.Common"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:tbl="http://schemas.magicsoftware.com/common/controls/table"
-        xmlns:ext="clr-namespace:MagicSoftware.Common.Controls.Extensibility;assembly=MagicSoftware.Common"
-             xmlns:pxy="clr-namespace:MagicSoftware.Common.Controls.Proxies;assembly=MagicSoftware.Common"
         Title="MainWindow"
         Width="1000"
         Height="400">
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/MagicSoftware.Common.Controls.Table;component/Themes/Generic.xaml" />
-            </ResourceDictionary.MergedDictionaries>
+   <Window.Resources>
+      <ResourceDictionary>
+         <ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary Source="pack://application:,,,/MagicSoftware.Common.Controls.Table;component/Themes/Generic.xaml" />
+         </ResourceDictionary.MergedDictionaries>
 
-            <!--  <mg:DataGridKeyboardHandler x:Key="DGKeyboardHandler" />  -->
-            <l:RowStyleSelector x:Key="TemplateSelector" />
-            <mg:DataGridFocusManager x:Key="DGFocusManager" />
-            <mg:FolderFocusManager x:Key="FolderFocusManager" />
-            <mg:DataGridMouseHandler x:Key="DGMouseHandler" />
-            <l:MyValidationAdornerFactory x:Key="MyAdornerFactory" />
-            <mg:DataGridValidationExtender x:Key="DGValidationExtender" AdornerFactory="{StaticResource MyAdornerFactory}" />
-            <ObjectDataProvider x:Key="Animals"
-                                MethodName="GetValues"
-                                ObjectType="{x:Type sys:Enum}">
-                <ObjectDataProvider.MethodParameters>
-                    <x:TypeExtension TypeName="data:Animal" />
-                </ObjectDataProvider.MethodParameters>
-            </ObjectDataProvider>
+         <!--  <mg:DataGridKeyboardHandler x:Key="DGKeyboardHandler" />  -->
+         <l:RowStyleSelector x:Key="TemplateSelector" />
+         <mg:DataGridFocusManager x:Key="DGFocusManager" />
+         <mg:FolderFocusManager x:Key="FolderFocusManager" />
+         <mg:DataGridMouseHandler x:Key="DGMouseHandler" />
+         <l:MyValidationAdornerFactory x:Key="MyAdornerFactory" />
+         <mg:DataGridValidationExtender x:Key="DGValidationExtender" AdornerFactory="{StaticResource MyAdornerFactory}" />
+         <ObjectDataProvider x:Key="Animals"
+                             MethodName="GetValues"
+                             ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+               <x:TypeExtension TypeName="data:Animal" />
+            </ObjectDataProvider.MethodParameters>
+         </ObjectDataProvider>
 
-            <Style x:Key="{x:Type data:MyHeaderView}"
-                   BasedOn="{StaticResource {x:Type DataGridRow}}"
-                   TargetType="DataGridRow">
-                <Setter Property="MinHeight" Value="{Binding MinRowHeight, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" />
-                <Setter Property="tbl:UIServiceProvider.ServiceList">
-                    <Setter.Value>
-                        <tbl:UIServiceCollection>
-                            <tbl:CustomRowCellEnumerationServiceFactory RowTypeIdentifier="custom1"/>
-                            <tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:VirtualCellContainerEditStateService}"/>
-                        </tbl:UIServiceCollection>
-                    </Setter.Value>
-                </Setter>
+         <Style x:Key="{x:Type data:MyHeaderView}"
+                BasedOn="{StaticResource {x:Type DataGridRow}}"
+                TargetType="DataGridRow">
+            <Setter Property="MinHeight" Value="{Binding MinRowHeight, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" />
+            <Setter Property="tbl:UIServiceProvider.ServiceList">
+               <Setter.Value>
+                  <tbl:UIServiceCollection>
+                     <tbl:CustomRowCellEnumerationServiceFactory RowTypeIdentifier="custom1" />
+                     <tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:VirtualCellContainerEditStateService}" />
+                  </tbl:UIServiceCollection>
+               </Setter.Value>
+            </Setter>
 
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="DataGridRow">
-                            <StackPanel Focusable="False" Orientation="Horizontal">
-                                <DataGridRowHeader />
-                                <Border x:Name="brdr"
-                                        Background="{TemplateBinding Background}"
-                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                        BorderThickness="{TemplateBinding BorderThickness}" 
-                                        Focusable="False">
-                                    <Border x:Name="underline"
-                                            Background="{TemplateBinding Background}"
-                                            BorderBrush="Black"
-                                            BorderThickness="0,0,0,1"
-                                            Focusable="False">
-                                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                            <tbl:VirtualTextTableCell Binding="{Binding StringValue}" MinWidth="50"/>
-                                            <tbl:VirtualTextTableCell Margin="5,0,0,0" Binding="{Binding IntValue}" MinWidth="50"/>
-                                            <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
-                                                                          Binding="{Binding Animal}"
-                                                                          IsEditable="True"
-                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" 
-                                                                          MinWidth="100"/>
-                                            <tbl:ComboBoxVirtualTableCell Margin="5,0,0,0"
-                                                                          Binding="{Binding Animal}"
-                                                                          IsEditable="False"
-                                                                          ItemsSource="{Binding Source={StaticResource Animals}}" 
-                                                                          MinWidth="100"/>
-                                            <tbl:CheckBoxVirtualTableCell Margin="5,0,0,0" Binding="{Binding BoolValue}" 
-                                                                          MinWidth="30"/>
-
-                                            <!--
-                                                <dg:VirtualTableCell ContentBinding="{Binding StringValue}">
-                                                <dg:VirtualTableCell.Element>
-                                                <TextBlock Text="{Binding StringValue}" />
-                                                </dg:VirtualTableCell.Element>
-                                                <dg:VirtualTableCell.EditingElement>
-                                                <TextBox Text="{Binding StringValue}" />
-                                                </dg:VirtualTableCell.EditingElement>
-                                                </dg:VirtualTableCell>
-                                                <dg:VirtualTableCell>
-                                                <dg:VirtualTableCell.Element>
-                                                <TextBlock Text="{Binding IntValue}" />
-                                                </dg:VirtualTableCell.Element>
-                                                <dg:VirtualTableCell.EditingElement>
-                                                <TextBox Text="{Binding IntValue}" />
-                                                </dg:VirtualTableCell.EditingElement>
-                                                </dg:VirtualTableCell>
-                                            -->
-                                        </StackPanel>
-                                    </Border>
-                                </Border>
-                            </StackPanel>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <!--  <Setter Property="mg:BehaviorExtensions.FocusManager" Value="{StaticResource FolderFocusManager}"/>  -->
-                <Style.Triggers>
-                    <!--
-                        <Trigger Property="IsEditing" Value="True">
-                        <Setter Property="MinHeight" Value="20" />
-                        <Setter Property="Template">
-                        <Setter.Value>
-                        <ControlTemplate TargetType="DataGridRow">
+            <Setter Property="Template">
+               <Setter.Value>
+                  <ControlTemplate TargetType="DataGridRow">
+                     <StackPanel Focusable="False" Orientation="Horizontal">
+                        <DataGridRowHeader />
                         <Border x:Name="brdr"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}">
-                        <Border x:Name="underline"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="Black"
-                        BorderThickness="0,0,0,1">
-                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                        <TextBox Text="{Binding StringValue}" />
-                        <TextBox Text="{Binding IntValue}" />
-                        </StackPanel>
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Focusable="False">
+                           <Border x:Name="underline"
+                                   Background="{TemplateBinding Background}"
+                                   BorderBrush="Black"
+                                   BorderThickness="0,0,0,1"
+                                   Focusable="False">
+                              <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                 <tbl:VirtualTextTableCell MinWidth="50" Binding="{Binding StringValue}" />
+                                 <tbl:VirtualTextTableCell MinWidth="50"
+                                                           Margin="5,0,0,0"
+                                                           Binding="{Binding IntValue}" />
+                                 <tbl:ComboBoxVirtualTableCell MinWidth="100"
+                                                               Margin="5,0,0,0"
+                                                               Binding="{Binding Animal}"
+                                                               IsEditable="True"
+                                                               ItemsSource="{Binding Source={StaticResource Animals}}" />
+                                 <tbl:ComboBoxVirtualTableCell MinWidth="100"
+                                                               Margin="5,0,0,0"
+                                                               Binding="{Binding Animal}"
+                                                               IsEditable="False"
+                                                               ItemsSource="{Binding Source={StaticResource Animals}}" />
+                                 <tbl:CheckBoxVirtualTableCell MinWidth="30"
+                                                               Margin="5,0,0,0"
+                                                               Binding="{Binding BoolValue}" />
+
+                                 <!--
+                                    <dg:VirtualTableCell ContentBinding="{Binding StringValue}">
+                                    <dg:VirtualTableCell.Element>
+                                    <TextBlock Text="{Binding StringValue}" />
+                                    </dg:VirtualTableCell.Element>
+                                    <dg:VirtualTableCell.EditingElement>
+                                    <TextBox Text="{Binding StringValue}" />
+                                    </dg:VirtualTableCell.EditingElement>
+                                    </dg:VirtualTableCell>
+                                    <dg:VirtualTableCell>
+                                    <dg:VirtualTableCell.Element>
+                                    <TextBlock Text="{Binding IntValue}" />
+                                    </dg:VirtualTableCell.Element>
+                                    <dg:VirtualTableCell.EditingElement>
+                                    <TextBox Text="{Binding IntValue}" />
+                                    </dg:VirtualTableCell.EditingElement>
+                                    </dg:VirtualTableCell>
+                                 -->
+                              </StackPanel>
+                           </Border>
                         </Border>
-                        </Border>
-                        </ControlTemplate>
-                        </Setter.Value>
-                        </Setter>
-                        </Trigger>
-                    -->
+                     </StackPanel>
+                  </ControlTemplate>
+               </Setter.Value>
+            </Setter>
+            <!--  <Setter Property="mg:BehaviorExtensions.FocusManager" Value="{StaticResource FolderFocusManager}"/>  -->
+            <Style.Triggers>
+               <!--
+                  <Trigger Property="IsEditing" Value="True">
+                  <Setter Property="MinHeight" Value="20" />
+                  <Setter Property="Template">
+                  <Setter.Value>
+                  <ControlTemplate TargetType="DataGridRow">
+                  <Border x:Name="brdr"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}">
+                  <Border x:Name="underline"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="Black"
+                  BorderThickness="0,0,0,1">
+                  <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                  <TextBox Text="{Binding StringValue}" />
+                  <TextBox Text="{Binding IntValue}" />
+                  </StackPanel>
+                  </Border>
+                  </Border>
+                  </ControlTemplate>
+                  </Setter.Value>
+                  </Setter>
+                  </Trigger>
+               -->
 
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#FFE5F1F1" />
-                    </Trigger>
+               <Trigger Property="IsMouseOver" Value="True">
+                  <Setter Property="Background" Value="#FFE5F1F1" />
+               </Trigger>
 
-                    <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
-                    </Trigger>
+               <Trigger Property="IsSelected" Value="True">
+                  <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+               </Trigger>
 
-                    <DataTrigger Value="True">
-                        <DataTrigger.Binding>
-                            <MultiBinding Converter="{StaticResource EqualityConverter}">
-                                <Binding Path="Item" RelativeSource="{x:Static RelativeSource.Self}" />
-                                <Binding Path="CurrentItem" RelativeSource="{RelativeSource FindAncestor, AncestorType=DataGrid}" />
-                            </MultiBinding>
-                        </DataTrigger.Binding>
-                        <!--<Setter Property="BorderBrush" Value="Red" />-->
-                        <!--<Setter Property="BorderThickness" Value="1.5" />-->
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
+               <DataTrigger Value="True">
+                  <DataTrigger.Binding>
+                     <MultiBinding Converter="{StaticResource EqualityConverter}">
+                        <Binding Path="Item" RelativeSource="{x:Static RelativeSource.Self}" />
+                        <Binding Path="CurrentItem" RelativeSource="{RelativeSource FindAncestor, AncestorType=DataGrid}" />
+                     </MultiBinding>
+                  </DataTrigger.Binding>
+                  <!--  <Setter Property="BorderBrush" Value="Red" />  -->
+                  <!--  <Setter Property="BorderThickness" Value="1.5" />  -->
+               </DataTrigger>
+            </Style.Triggers>
+         </Style>
 
-            <Style TargetType="{x:Type HeaderedContentControl}">
-                <Setter Property="Focusable" Value="False" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="HeaderedContentControl">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100" MinWidth="50" />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <ContentPresenter Grid.Column="0" ContentSource="Header" />
-                                <ContentPresenter Grid.Column="1" ContentSource="Content" />
-                            </Grid>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
+         <Style TargetType="{x:Type HeaderedContentControl}">
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+               <Setter.Value>
+                  <ControlTemplate TargetType="HeaderedContentControl">
+                     <Grid>
+                        <Grid.ColumnDefinitions>
+                           <ColumnDefinition Width="100" MinWidth="50" />
+                           <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <ContentPresenter Grid.Column="0" ContentSource="Header" />
+                        <ContentPresenter Grid.Column="1" ContentSource="Content" />
+                     </Grid>
+                  </ControlTemplate>
+               </Setter.Value>
+            </Setter>
+         </Style>
 
-            <ObjectDataProvider x:Key="EditModes"
-                                MethodName="GetValues"
-                                ObjectType="{x:Type sys:Enum}">
-                <ObjectDataProvider.MethodParameters>
-                    <x:TypeExtension TypeName="tbl:ItemsControlEditMode" />
-                </ObjectDataProvider.MethodParameters>
-            </ObjectDataProvider>
-        </ResourceDictionary>
-    </Window.Resources>
-    <DockPanel>
-        <StackPanel DockPanel.Dock="Bottom">
-            <HeaderedContentControl Header="VM Current Item:">
-                <TextBlock Text="{Binding CurrentItem}" />
-            </HeaderedContentControl>
-            <HeaderedContentControl Header="DG Current Item:">
-                <TextBlock Text="{Binding CurrentItem, ElementName=DG}" />
-            </HeaderedContentControl>
-            <HeaderedContentControl Header="Selected Item:">
-                <TextBlock Text="{Binding SelectedItem, ElementName=DG}" />
-            </HeaderedContentControl>
-            <HeaderedContentControl Header="Edit mode:">
-                <ComboBox x:Name="SelectedEditMode" ItemsSource="{Binding Source={StaticResource EditModes}}" HorizontalAlignment="Left" SelectedItem="{x:Static tbl:ItemsControlEditMode.AlwaysInEdit}"/>
-            </HeaderedContentControl>
-            <StackPanel Orientation="Horizontal">
-                <Button Name="ChangeColumnVisibility" Click="ChangeColumnVisibility_Click">Column Visibility</Button>
-                <Button Name="GetSelection" Click="GetSelection_Click">Show Selection</Button>
-            </StackPanel>
-        </StackPanel>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <tbl:Table x:Name="DG"
-                       EditMode="{Binding SelectedValue, ElementName=SelectedEditMode}"
-                       ItemsSource="{Binding Items}"
-                       Loaded="DataGrid_Loaded"
-                       RowStyleSelector="{StaticResource TemplateSelector}"
-                       TabIndex="0">
-                <!--<tbl:Table.Navigation>
-                    <NavigationTable>
-                        <NavigationKeyGesture Key="Up" Modifiers="" Action="MoveToPreviousItem"/>
-                        <NavigationKeyGesture Key="Up" Modifiers="Control" Action="MoveToPreviousItem"/>
-                        <NavigationKeyGesture Key="Up" Modifiers="Shift" Action="MoveToPreviousItem"/>
-                        <NavigationKeyGesture Key="Up" Modifiers="Control+Shift" Action="MoveToPreviousItem"/>
-                    </NavigationTable>
-                </tbl:Table.Navigation>-->
-                <!--  SelectionMode="Extended"  -->
-                <!--
-                    <dg:Table.Columns>
-                    <DataGridTextColumn Width="70"
-                    MinWidth="10"
-                    MaxWidth="200"
-                    CanUserResize="True"
-                    Visibility="{Binding ColVisibility,
-                    RelativeSource={RelativeSource FindAncestor,
-                    AncestorType=Window}}">
-                    <DataGridTextColumn.Binding>
-                    <Binding Path="StringVal">
-                    <Binding.ValidationRules>
-                    <data:XXXValidationRule />
-                    </Binding.ValidationRules>
-                    </Binding>
-                    </DataGridTextColumn.Binding>
-                    </DataGridTextColumn>
-                    </dg:Table.Columns>
-                -->
-            </tbl:Table>
-
+         <ObjectDataProvider x:Key="EditModes"
+                             MethodName="GetValues"
+                             ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+               <x:TypeExtension TypeName="tbl:ItemsControlEditMode" />
+            </ObjectDataProvider.MethodParameters>
+         </ObjectDataProvider>
+      </ResourceDictionary>
+   </Window.Resources>
+   <DockPanel>
+      <StackPanel DockPanel.Dock="Bottom">
+         <HeaderedContentControl Header="VM Current Item:">
+            <TextBlock Text="{Binding CurrentItem}" />
+         </HeaderedContentControl>
+         <HeaderedContentControl Header="DG Current Item:">
+            <TextBlock Text="{Binding CurrentItem, ElementName=DG}" />
+         </HeaderedContentControl>
+         <HeaderedContentControl Header="Selected Item:">
+            <TextBlock Text="{Binding SelectedItem, ElementName=DG}" />
+         </HeaderedContentControl>
+         <HeaderedContentControl Header="Edit mode:">
+            <ComboBox x:Name="SelectedEditMode"
+                      HorizontalAlignment="Left"
+                      ItemsSource="{Binding Source={StaticResource EditModes}}"
+                      SelectedItem="{x:Static tbl:ItemsControlEditMode.ReadOnly}" />
+         </HeaderedContentControl>
+         <StackPanel Orientation="Horizontal">
+            <Button Name="ChangeColumnVisibility" Click="ChangeColumnVisibility_Click">Column Visibility</Button>
+            <Button Name="GetSelection" Click="GetSelection_Click">Show Selection</Button>
+         </StackPanel>
+      </StackPanel>
+      <Grid>
+         <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+         </Grid.ColumnDefinitions>
+         <tbl:Table x:Name="DG"
+                    EditMode="{Binding SelectedValue,
+                                       ElementName=SelectedEditMode}"
+                    ItemsSource="{Binding Items}"
+                    Loaded="DataGrid_Loaded"
+                    RowStyleSelector="{StaticResource TemplateSelector}"
+                    TabIndex="0">
             <!--
-                <ListBox Grid.Column="1"
-                ItemsSource="{Binding SelectedItems,
-                ElementName=DG}"
-                SelectionMode="Extended" />
+               <tbl:Table.Navigation>
+               <NavigationTable>
+               <NavigationKeyGesture Key="Up" Modifiers="" Action="MoveToPreviousItem"/>
+               <NavigationKeyGesture Key="Up" Modifiers="Control" Action="MoveToPreviousItem"/>
+               <NavigationKeyGesture Key="Up" Modifiers="Shift" Action="MoveToPreviousItem"/>
+               <NavigationKeyGesture Key="Up" Modifiers="Control+Shift" Action="MoveToPreviousItem"/>
+               </NavigationTable>
+               </tbl:Table.Navigation>
             -->
-            <!--<tbl:LineEditor Grid.Column="1" ItemsSource="{Binding Items}">
-                <tbl:LineEditor.Resources>
-                    <DataTemplate x:Key="{x:Type data:MyHeaderView}">
-                        <tbl:VirtualTextTableCell Binding="{Binding StringValue}" />
-                    </DataTemplate>
-                </tbl:LineEditor.Resources>
-            </tbl:LineEditor>-->
-            <ListBox Grid.Column="1" ItemsSource="{Binding Items}" SelectionMode="Multiple" tbl:SelectionExtender.SelectionView="{Binding SelectedItems}">
-                <tbl:UIServiceProvider.ServiceList>
-                    <tbl:UIServiceCollection>
-                        <tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:SelectionExtender}" />
-                    </tbl:UIServiceCollection>
-                </tbl:UIServiceProvider.ServiceList>
-            </ListBox>
-        </Grid>
-        <!--
-            <DataGrid CanUserAddRows="False"
-            EnableRowVirtualization="True"
-            ItemsSource="{Binding Items}"/>
-        -->
+            <!--  SelectionMode="Extended"  -->
+            <!--
+               <dg:Table.Columns>
+               <DataGridTextColumn Width="70"
+               MinWidth="10"
+               MaxWidth="200"
+               CanUserResize="True"
+               Visibility="{Binding ColVisibility,
+               RelativeSource={RelativeSource FindAncestor,
+               AncestorType=Window}}">
+               <DataGridTextColumn.Binding>
+               <Binding Path="StringVal">
+               <Binding.ValidationRules>
+               <data:XXXValidationRule />
+               </Binding.ValidationRules>
+               </Binding>
+               </DataGridTextColumn.Binding>
+               </DataGridTextColumn>
+               </dg:Table.Columns>
+            -->
+         </tbl:Table>
 
-    </DockPanel>
+         <!--
+            <ListBox Grid.Column="1"
+            ItemsSource="{Binding SelectedItems,
+            ElementName=DG}"
+            SelectionMode="Extended" />
+         -->
+         <!--
+            <tbl:LineEditor Grid.Column="1" ItemsSource="{Binding Items}">
+            <tbl:LineEditor.Resources>
+            <DataTemplate x:Key="{x:Type data:MyHeaderView}">
+            <tbl:VirtualTextTableCell Binding="{Binding StringValue}" />
+            </DataTemplate>
+            </tbl:LineEditor.Resources>
+            </tbl:LineEditor>
+         -->
+         <ListBox Grid.Column="1"
+                  ItemsSource="{Binding Items}"
+                  SelectionMode="Multiple">
+            <!--tbl:SelectionExtender.SelectionView="{Binding SelectedItems}">-->
+                  
+            <ext:ElementExtensions.Extenders>
+               <ext:ExtendersCollection>
+                  <!--
+                     <ext:DataGridColumnLayoutExtender>
+                     <ext:DataGridColumnLayoutExtender.Distributor>
+                     <ext:ProportionalColumnDistribution />
+                     </ext:DataGridColumnLayoutExtender.Distributor>
+                     </ext:DataGridColumnLayoutExtender>
+                  -->
+
+                  <!--<tbl:SelectionExtender />-->
+               </ext:ExtendersCollection>
+            </ext:ElementExtensions.Extenders>
+            <tbl:UIServiceProvider.ServiceList>
+               <tbl:UIServiceCollection>
+                  <!--<tbl:ParameterlessUIServiceFactory ServiceType="{x:Type tbl:ListBoxMultiSelectionService}" />-->
+               </tbl:UIServiceCollection>
+            </tbl:UIServiceProvider.ServiceList>
+            <pxy:FrameworkElementProxy.Proxy>
+               <!--  This proxy definition is temporary, until the extenders will not be dependent on its existance.  -->
+               <pxy:FrameworkElementProxy />
+            </pxy:FrameworkElementProxy.Proxy>
+         </ListBox>
+      </Grid>
+      <!--
+         <DataGrid CanUserAddRows="False"
+         EnableRowVirtualization="True"
+         ItemsSource="{Binding Items}"/>
+      -->
+
+   </DockPanel>
 </Window>

@@ -195,7 +195,7 @@
             <ComboBox x:Name="SelectedEditMode"
                       HorizontalAlignment="Left"
                       ItemsSource="{Binding Source={StaticResource EditModes}}"
-                      SelectedItem="{x:Static tbl:ItemsControlEditMode.AlwaysInEdit}" />
+                      SelectedItem="{x:Static tbl:ItemsControlEditMode.ReadOnly}" />
          </HeaderedContentControl>
          <StackPanel Orientation="Horizontal">
             <Button Name="ChangeColumnVisibility" Click="ChangeColumnVisibility_Click">Column Visibility</Button>

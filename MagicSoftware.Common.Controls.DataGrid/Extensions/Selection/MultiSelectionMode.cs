@@ -24,10 +24,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Selection
          log.DebugFormat("Anchor is {0}", anchor);
          lastKnownCurrentItem = anchor;
          lastDistanceFromSelectionAnchor = 0;
+
+         var inputService = UIServiceProvider.GetService<InputService>(ElementSelectionService.Element);
+         inputService.RegisterKeyGestureAction(ToggleSelectionKey, (a) => ToggleItemSelection());
       }
 
       public override void Leave()
       {
+         var inputService = UIServiceProvider.GetService<InputService>(ElementSelectionService.Element);
+         inputService.UnregisterGestureAction(ToggleSelectionKey);
       }
 
       public override void OnCurrentItemChanged()

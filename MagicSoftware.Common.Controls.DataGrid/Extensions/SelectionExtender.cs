@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
@@ -8,7 +7,6 @@ using log4net;
 using MagicSoftware.Common.Controls.Extensibility;
 using MagicSoftware.Common.Utils;
 using System.Windows.Input;
-using MagicSoftware.Common.Controls.Table.Extensions.Selection;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -38,7 +36,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private readonly AutoResetFlag suppressChangeHandling = new AutoResetFlag();
       private ILog log = log4net.LogManager.GetLogger(LoggerName);
 
-      private SelectionModeManager selectionModeManager;
+      //private SelectionModeManager selectionModeManager;
 
       #endregion Private Fields
 
@@ -100,10 +98,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          TargetElementProxy.SelectionChanged += TargetElement_SelectionChanged;
 
          var currentItemTracker = UIServiceProvider.GetService<ICurrentItemService>(element, false);
-         if (currentItemTracker != null)
-         {
-            selectionModeManager = new SelectionModeManager(TargetElement);
-         }
+         currentItemTracker.CurrentChanged += new EventHandler(currentItemTracker_CurrentChanged);
+         //if (currentItemTracker != null)
+         //{
+         //   selectionModeManager = new SelectionModeManager(TargetElement);
+         //}
+
+         var inputService = UIServiceProvider.GetService<InputService>(TargetElement);
+         inputService.RegisterMouseActionGestures(ToggleSelection, new MouseGesturesFactory(MouseAction.LeftClick, ModifierKeys.Control));
+         inputService.RegisterMouseActionGestures(SelectRange, new MouseGesturesFactory(MouseAction.LeftClick, ModifierKeys.Shift));
       }
 
       public void DetachFromElement(FrameworkElement element)
@@ -159,6 +162,19 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (newModel != null)
             newModel.CollectionChanged += ItemsView_CollectionChanged;
       }
+
+      private void currentItemTracker_CurrentChanged(object sender, EventArgs e)
+      {
+      }
+
+      void ToggleSelection(MouseEventArgs eventArgs)
+      {
+
+         //TargetElementProxy.SelectedItems.Toggle(targetElement);
+      }
+
+      void SelectRange(MouseEventArgs eventArgs)
+      {}
 
       private void ItemsView_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
       {

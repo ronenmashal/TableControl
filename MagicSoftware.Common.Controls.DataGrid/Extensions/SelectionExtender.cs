@@ -8,6 +8,7 @@ using MagicSoftware.Common.Controls.Extensibility;
 using MagicSoftware.Common.Utils;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Collections.Generic;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -80,6 +81,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             obj.SetValue(SelectionViewProperty, value);
       }
 
+      ICurrentItemService currentItemTracker;
+      readonly AutoResetFlag ignoreCurrentItemChangedEvent = new AutoResetFlag();
+
       public void AttachToElement(FrameworkElement element)
       {
          //if (TargetElement != null)
@@ -98,7 +102,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          this.AttachSelectionModel(null, selectionView);
          TargetElementProxy.SelectionChanged += TargetElement_SelectionChanged;
 
-         var currentItemTracker = UIServiceProvider.GetService<ICurrentItemService>(element, false);
+         currentItemTracker = UIServiceProvider.GetService<ICurrentItemService>(element, false);
          currentItemTracker.CurrentChanged += new EventHandler(currentItemTracker_CurrentChanged);
          //if (currentItemTracker != null)
          //{
@@ -170,44 +174,70 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (container != null)
          {
             var containerType = container.GetType();
-            var hitTestResult = VisualTreeHelper.HitTest((Visual)eventArgs.OriginalSource, eventArgs.GetPosition(TargetElement));
-            if (hitTestResult.VisualHit != null)
+            var hitTestResult = VisualTreeHelper.HitTest(TargetElement, eventArgs.GetPosition(TargetElement));
+            if (hitTestResult != null && hitTestResult.VisualHit != null)
             {
                var hitItemContainer = UIUtils.GetAncestor<FrameworkElement>(hitTestResult.VisualHit, (element) => element.GetType().Equals(containerType));
-               var hitItem = TargetElement.ItemContainerGenerator.IndexFromContainer(hitItemContainer);
+               var hitItem = TargetElement.ItemContainerGenerator.ItemFromContainer(hitItemContainer);
                return hitItem;
             }
          }
          return null;
       }
 
+      readonly SelectionRange selectionRange = new SelectionRange();
+
       private void currentItemTracker_CurrentChanged(object sender, EventArgs e)
       {
+
+         if (ignoreCurrentItemChangedEvent.IsSet)
+            return;
+
          TargetElementProxy.SelectedItems.Clear();
-         var cis = UIServiceProvider.GetService<ICurrentItemService>(TargetElement);
-         TargetElementProxy.SelectedItem = cis.CurrentItem;
+         TargetElementProxy.SelectedItem = currentItemTracker.CurrentItem;
+         selectionRange.SetAnchor(currentItemTracker.CurrentPosition);
       }
 
       void ToggleSelection(MouseEventArgs eventArgs)
       {
-         var container = TargetElement.ItemContainerGenerator.ContainerFromIndex(0);
-         if (container == null)
-            // Empty list?
-            return;
-
-         var containerType = container.GetType();
-         var hitTestResult = VisualTreeHelper.HitTest(TargetElement, eventArgs.GetPosition(TargetElement));
-         if (hitTestResult != null && hitTestResult.VisualHit != null)
+         var hitItem = GetClickedItem(eventArgs);
+         if (hitItem != null)
          {
-            var hitItemContainer = UIUtils.GetAncestor<FrameworkElement>(hitTestResult.VisualHit, (element) => element.GetType().Equals(containerType));
-            var hitItem = TargetElement.ItemContainerGenerator.ItemFromContainer(hitItemContainer);
             TargetElementProxy.ToggleSelection(hitItem);
+            using (ignoreCurrentItemChangedEvent.Set())
+               currentItemTracker.MoveCurrentTo(hitItem);
+            selectionRange.SetAnchor(currentItemTracker.CurrentPosition);
             eventArgs.Handled = true;
          }
       }
 
       void SelectRange(MouseEventArgs eventArgs)
-      { }
+      {
+         var hitItem = GetClickedItem(eventArgs);
+         if (hitItem != null)
+         {
+            var container = TargetElement.ItemContainerGenerator.ContainerFromItem(hitItem);
+            var itemIndex = TargetElement.ItemContainerGenerator.IndexFromContainer(container);
+            var selectionChange = selectionRange.GetRangeChange(itemIndex);
+            foreach (var i in selectionChange.RemovedItems)
+            {
+               var itemContainer = TargetElement.ItemContainerGenerator.ContainerFromIndex(i);
+               var itemToRemove = TargetElement.ItemContainerGenerator.ItemFromContainer(itemContainer);
+               TargetElementProxy.SelectedItems.Remove(itemToRemove);
+            }
+
+            foreach (var i in selectionChange.AddedItems)
+            {
+               var itemContainer = TargetElement.ItemContainerGenerator.ContainerFromIndex(i);
+               var itemToAdd = TargetElement.ItemContainerGenerator.ItemFromContainer(itemContainer);
+               TargetElementProxy.SelectedItems.Add(itemToAdd);
+            }
+
+            selectionRange.SetEndIndex(itemIndex);
+
+            eventArgs.Handled = true;
+         }
+      }
 
       private void ItemsView_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
       {
@@ -262,5 +292,129 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       }
 
       #endregion Private Methods
+   }
+
+   /// <summary>
+   /// Represents a consequtive selection of items.
+   /// </summary>
+   class SelectionRange
+   {
+      private int rangeEndIndex;
+      private int anchorItemIndex;
+
+      public SelectionRange()
+      {
+         this.anchorItemIndex = -1;
+         this.rangeEndIndex = -1;
+      }
+
+      public void SetAnchor(int newAnchorIndex)
+      {
+         anchorItemIndex = newAnchorIndex;
+         rangeEndIndex = newAnchorIndex;
+      }
+
+      public SelectionRangeChange GetRangeChange(int newRangeEndIndex)
+      {
+         if (newRangeEndIndex < anchorItemIndex)
+         {
+            // New range goes upwards.
+
+            if (rangeEndIndex < anchorItemIndex)
+            {
+               // Old range also went upwards.
+               if (newRangeEndIndex < rangeEndIndex)
+                  return SelectionRangeChange.AddedOnly(newRangeEndIndex, rangeEndIndex - 1);
+               else if (newRangeEndIndex > rangeEndIndex)
+                  return SelectionRangeChange.RemovedOnly(rangeEndIndex, newRangeEndIndex - 1);
+            }
+            else if (anchorItemIndex > newRangeEndIndex)
+            {
+               // Old range went downwards.
+               return new SelectionRangeChange(anchorItemIndex + 1, rangeEndIndex, newRangeEndIndex, anchorItemIndex - 1);
+            }
+         }
+         else if (newRangeEndIndex > anchorItemIndex)
+         {
+            // New range goes downwards.
+
+            if (rangeEndIndex > anchorItemIndex)
+            {
+               // Old range also went downwards.
+               if (newRangeEndIndex > rangeEndIndex)
+                  return SelectionRangeChange.AddedOnly(newRangeEndIndex, rangeEndIndex + 1);
+               else if (newRangeEndIndex < rangeEndIndex)
+                  return SelectionRangeChange.RemovedOnly(rangeEndIndex, newRangeEndIndex + 1);
+            }
+            else if (anchorItemIndex < newRangeEndIndex)
+            {
+               // Old range went downwards.
+               return new SelectionRangeChange(anchorItemIndex - 1, rangeEndIndex, newRangeEndIndex, anchorItemIndex + 1);
+            }
+         }
+         else if (newRangeEndIndex != rangeEndIndex)
+         {
+            return SelectionRangeChange.RemovedOnly(anchorItemIndex, newRangeEndIndex);
+         }
+
+         return SelectionRangeChange.Empty;
+      }
+
+      internal void SetEndIndex(int itemIndex)
+      {
+         rangeEndIndex = itemIndex;
+      }
+   }
+
+   class SelectionRangeChange
+   {
+      int firstRemovedIndex;
+      int lastRemovedIndex;
+      int firstAddedIndex;
+      int lastAddedIndex;
+
+      public SelectionRangeChange(int firstRemovedIndex, int lastRemovedIndex, int firstAddedIndex, int lastAddedIndex)
+      {
+         this.firstAddedIndex = Math.Min(firstAddedIndex, lastAddedIndex);
+         this.lastAddedIndex = Math.Max(firstAddedIndex, lastAddedIndex);
+         this.firstRemovedIndex = Math.Min(firstRemovedIndex, lastRemovedIndex);
+         this.lastRemovedIndex = Math.Max(firstRemovedIndex, lastRemovedIndex);
+      }
+
+      public IEnumerable<int> RemovedItems
+      {
+         get
+         {
+            if (firstRemovedIndex > -1 && lastRemovedIndex > -1)
+            {
+               for (int i = firstRemovedIndex; i <= lastRemovedIndex; i++)
+                  yield return i;
+            }
+         }
+      }
+
+      public IEnumerable<int> AddedItems
+      {
+         get
+         {
+            if (firstAddedIndex > -1 && lastAddedIndex > -1)
+            {
+               for (int i = firstAddedIndex; i <= lastAddedIndex; i++)
+                  yield return i;
+            }
+         }
+      }
+
+      public static SelectionRangeChange RemovedOnly(int from, int to)
+      {
+         return new SelectionRangeChange(from, to, -1, -1);
+      }
+
+      public static SelectionRangeChange AddedOnly(int from, int to)
+      {
+         return new SelectionRangeChange(-1, -1, from, to);
+      }
+
+      public static readonly SelectionRangeChange Empty = new SelectionRangeChange(-1, -1, -1, -1);
    }
 }

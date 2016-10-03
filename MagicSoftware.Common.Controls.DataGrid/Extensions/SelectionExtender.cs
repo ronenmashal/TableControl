@@ -7,6 +7,7 @@ using log4net;
 using MagicSoftware.Common.Controls.Extensibility;
 using MagicSoftware.Common.Utils;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -163,18 +164,50 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             newModel.CollectionChanged += ItemsView_CollectionChanged;
       }
 
+      private object GetClickedItem(MouseEventArgs eventArgs)
+      {
+         var container = TargetElement.ItemContainerGenerator.ContainerFromIndex(0);
+         if (container != null)
+         {
+            var containerType = container.GetType();
+            var hitTestResult = VisualTreeHelper.HitTest((Visual)eventArgs.OriginalSource, eventArgs.GetPosition(TargetElement));
+            if (hitTestResult.VisualHit != null)
+            {
+               var hitItemContainer = UIUtils.GetAncestor<FrameworkElement>(hitTestResult.VisualHit, (element) => element.GetType().Equals(containerType));
+               var hitItem = TargetElement.ItemContainerGenerator.IndexFromContainer(hitItemContainer);
+               return hitItem;
+            }
+         }
+         return null;
+      }
+
       private void currentItemTracker_CurrentChanged(object sender, EventArgs e)
       {
+         TargetElementProxy.SelectedItems.Clear();
+         var cis = UIServiceProvider.GetService<ICurrentItemService>(TargetElement);
+         TargetElementProxy.SelectedItem = cis.CurrentItem;
       }
 
       void ToggleSelection(MouseEventArgs eventArgs)
       {
+         var container = TargetElement.ItemContainerGenerator.ContainerFromIndex(0);
+         if (container == null)
+            // Empty list?
+            return;
 
-         //TargetElementProxy.SelectedItems.Toggle(targetElement);
+         var containerType = container.GetType();
+         var hitTestResult = VisualTreeHelper.HitTest(TargetElement, eventArgs.GetPosition(TargetElement));
+         if (hitTestResult != null && hitTestResult.VisualHit != null)
+         {
+            var hitItemContainer = UIUtils.GetAncestor<FrameworkElement>(hitTestResult.VisualHit, (element) => element.GetType().Equals(containerType));
+            var hitItem = TargetElement.ItemContainerGenerator.ItemFromContainer(hitItemContainer);
+            TargetElementProxy.ToggleSelection(hitItem);
+            eventArgs.Handled = true;
+         }
       }
 
       void SelectRange(MouseEventArgs eventArgs)
-      {}
+      { }
 
       private void ItemsView_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
       {

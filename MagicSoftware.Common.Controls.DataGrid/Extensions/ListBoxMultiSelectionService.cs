@@ -35,5 +35,22 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          set { Element.SelectedItem = value; }
       }
 
+
+      public override bool ItemIsSelected(object item)
+      {
+         return Element.SelectedItems.Contains(item);
+      }
+
+      public override void AddItemToSelection(object item)
+      {
+         if (!Element.SelectedItems.Contains(item))
+            Element.SelectedItems.Add(item);
+      }
+
+      public override void RemoveItemFromSelection(object item)
+      {
+         if (Element.SelectedItems.Contains(item))
+            Element.SelectedItems.Remove(item);
+      }
    }
 }

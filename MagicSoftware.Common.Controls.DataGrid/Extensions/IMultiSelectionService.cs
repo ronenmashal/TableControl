@@ -16,6 +16,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       int SelectedIndex { get; set; }
       object SelectedItem { get; set; }
+
+      void ToggleSelection(object hitItem);
    }
 
    [ImplementedService(typeof(IMultiSelectionService))]
@@ -34,6 +36,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public abstract void ClearSelection();
       public abstract int SelectedIndex { get; set; }
       public abstract object SelectedItem { get; set; }
+      public abstract bool ItemIsSelected(object item);
+      public abstract void AddItemToSelection(object item);
+      public abstract void RemoveItemFromSelection(object item);
 
       public void AttachToElement(FrameworkElement element)
       {
@@ -53,6 +58,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public void Dispose()
       {
          DetachFromElement(Element);
+      }
+
+      public void ToggleSelection(object hitItem)
+      {
+         if (ItemIsSelected(hitItem))
+            RemoveItemFromSelection(hitItem);
+         else
+            AddItemToSelection(hitItem);
       }
    }
 }

@@ -151,7 +151,7 @@
          </pxy:FrameworkElementProxy.Proxy>
          <lext:UIServiceProvider.ServiceList>
             <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridCurrentCellService}" />
-            <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:InputService}" />
+            <lext:InputServiceFactory  BlockUnhandledMouseGestures="True" />
             <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:VirtualizedItemTemplatePersistencyService}" />
             <lext:ParameterlessUIServiceFactory ServiceType="{x:Type lext:DataGridVerticalScrollService}" />
             <!--  This extender collides with the selection view  -->

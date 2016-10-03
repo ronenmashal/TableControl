@@ -198,6 +198,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          var action = registeredGestures.GetActionForGesture(sender, e);
          if (action != null)
             action(e);
+         else
+            e.Handled = !PropogateUnhandledKeyGestures;
       }
 
       private void element_PreviewMouseDown(object sender, MouseEventArgs e)
@@ -212,7 +214,13 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          var action = registeredGestures.GetActionForGesture(sender, e);
          if (action != null)
             action(e);
+         else
+            e.Handled = !PropogateUnhandledMouseGestures;
+               
       }
+
+      public bool PropogateUnhandledKeyGestures { get; set; }
+      public bool PropogateUnhandledMouseGestures { get; set; }
 
       private class JointInputFilter : IInputFilter
       {
@@ -348,4 +356,19 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return new MouseGesture(mouseAction, modifiers);
       }
    }
+
+   public class InputServiceFactory : IUIServiceFactory
+   {
+      public bool BlockUnhandledMouseGestures { get; set; }
+
+      public IUIService CreateUIService()
+      {
+         return new InputService()
+         {
+            PropogateUnhandledMouseGestures = !BlockUnhandledMouseGestures,
+            PropogateUnhandledKeyGestures = true
+         };
+      }
+   }
+
 }

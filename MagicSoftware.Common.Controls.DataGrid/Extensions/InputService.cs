@@ -129,7 +129,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       #endregion Input Filter attached property
 
       private FrameworkElement element;
-      private Dictionary<InputGesture, Action<InputEventArgs>> registeredGestures = new Dictionary<InputGesture, Action<InputEventArgs>>();
+      private GesturesRegistrar registeredGestures = new GesturesRegistrar();
 
       public virtual bool IsAttached { get { return element != null; } }
 
@@ -155,10 +155,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void RegisterGestureAction(InputGesture gesture, Action<InputEventArgs> action)
       {
-         if (registeredGestures.ContainsKey(gesture))
-            throw new InvalidOperationException("Gesture " + gesture + " is already mapped to action " + registeredGestures[gesture]);
-
-         registeredGestures.Add(gesture, action);
+         registeredGestures.RegisterGestureAction(gesture, action);
       }
 
       public void RegisterKeyActionGestures(Action<KeyEventArgs> action, KeyGesturesFactory gesturesFactory)
@@ -185,7 +182,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public void UnregisterGestureAction(InputGesture gesture)
       {
-         registeredGestures.Remove(gesture);
+         //TODO: Pass action to unregister.
+         registeredGestures.UnregisterGesture(gesture);
       }
 
       private void element_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -197,11 +195,11 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                return;
          }
 
-         foreach (var mapping in registeredGestures)
-         {
-            if (mapping.Key.Matches(sender, e))
-               mapping.Value(e);
-         }
+         var action = registeredGestures.GetActionForGesture(sender, e);
+         if (action != null)
+            action(e);
+         else
+            e.Handled = !PropogateUnhandledKeyGestures;
       }
 
       private void element_PreviewMouseDown(object sender, MouseEventArgs e)
@@ -213,12 +211,16 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                return;
          }
 
-         foreach (var mapping in registeredGestures)
-         {
-            if (mapping.Key.Matches(sender, e))
-               mapping.Value(e);
-         }
+         var action = registeredGestures.GetActionForGesture(sender, e);
+         if (action != null)
+            action(e);
+         else
+            e.Handled = !PropogateUnhandledMouseGestures;
+               
       }
+
+      public bool PropogateUnhandledKeyGestures { get; set; }
+      public bool PropogateUnhandledMouseGestures { get; set; }
 
       private class JointInputFilter : IInputFilter
       {
@@ -270,6 +272,57 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             return clone;
          }
       }
+
+      class GesturesRegistrar
+      {
+         private Dictionary<InputGesture, List<PrioritizedAction>> registeredGestures = new Dictionary<InputGesture, List<PrioritizedAction>>();
+
+         class PrioritizedAction
+         {
+            public PrioritizedAction (int priority, Action<InputEventArgs> action)
+            {
+               this.Priority = priority;
+               this.Action = action;
+            }
+
+            public int Priority {get; private set;}
+            public Action<InputEventArgs> Action {get; private set;}
+         }
+
+         public void RegisterGestureAction(InputGesture gesture, Action<InputEventArgs> action)
+         {
+            //TODO: Handle duplicities.
+            //if (registeredGestures.ContainsKey(gesture))
+               //throw new InvalidOperationException("Gesture " + gesture + " is already mapped to action " + registeredGestures[gesture]);
+
+            if (!registeredGestures.ContainsKey(gesture))
+            {
+               registeredGestures.Add(gesture, new List<PrioritizedAction>());
+            }
+            var gestureActions = registeredGestures[gesture];
+            gestureActions.Add(new PrioritizedAction(int.MaxValue, action));
+            gestureActions.Sort((pa1, pa2) => pa1.Priority - pa2.Priority);
+         }
+
+         internal Action<InputEventArgs> GetActionForGesture(object sender, InputEventArgs e)
+         {
+            foreach (var mapping in registeredGestures)
+            {
+               if (mapping.Key.Matches(sender, e))
+               {
+                  var action = mapping.Value[0];
+                  return action.Action;
+               }
+            }
+            return null;
+         }
+
+         internal void UnregisterGesture(InputGesture gesture)
+         {
+            if (registeredGestures.ContainsKey(gesture))
+               registeredGestures.Remove(gesture);
+         }
+      }
    }
 
    public class KeyGesturesFactory : InputGesturesFactory
@@ -303,4 +356,19 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return new MouseGesture(mouseAction, modifiers);
       }
    }
+
+   public class InputServiceFactory : IUIServiceFactory
+   {
+      public bool BlockUnhandledMouseGestures { get; set; }
+
+      public IUIService CreateUIService()
+      {
+         return new InputService()
+         {
+            PropogateUnhandledMouseGestures = !BlockUnhandledMouseGestures,
+            PropogateUnhandledKeyGestures = true
+         };
+      }
+   }
+
 }

@@ -1,93 +1,25 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
-using MagicSoftware.Common.Utils;
 using log4net;
+using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    [ImplementedService(typeof(IElementEditStateService))]
    internal class DataGridEditStateService : IElementEditStateService, IUIService
    {
-      ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
       private readonly AutoResetFlag suppressEditStateEvent = new AutoResetFlag();
-
+      private bool canBeginEdit = true;
       private ICommandRegulationService commandRegulator;
-
       private DataGrid dataGrid;
-
-      public event EventHandler EditStateChanged;
+      private ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+      public object CurrentEdit { get; private set; }
 
       public bool IsAttached
       {
          get { return dataGrid != null; }
       }
-
-      public void AttachToElement(FrameworkElement element)
-      {
-         this.dataGrid = (DataGrid)element;
-         dataGrid.BeginningEdit += dataGrid_BeginningEdit;
-         dataGrid.CellEditEnding += dataGrid_CellEditEnding;
-         dataGrid.RowEditEnding += dataGrid_RowEditEnding;
-         dataGrid.PreparingCellForEdit += dataGrid_PreparingCellForEdit;
-
-         UIServiceProvider.AddServiceProviderFullyAttachedHandler(dataGrid, ServiceProvider_FullyAttached);
-      }
-
-      public void DetachFromElement(System.Windows.FrameworkElement element)
-      {
-         if (dataGrid == null)
-         {
-            log.WarnFormat("Detaching extender {0} from {1} twice", this, element);
-            return;
-         }
-
-         dataGrid.BeginningEdit -= dataGrid_BeginningEdit;
-         dataGrid.CellEditEnding -= dataGrid_CellEditEnding;
-         dataGrid.RowEditEnding -= dataGrid_RowEditEnding;
-         CurrentEdit = null;
-         this.dataGrid = null;
-      }
-
-      public void Dispose()
-      {
-         if (IsAttached)
-            DetachFromElement(dataGrid);
-      }
-
-      private void dataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
-      {
-         CurrentEdit = e.Row.Item;
-      }
-
-      private void dataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-      {
-      }
-
-      private void dataGrid_PreparingCellForEdit(object sender, DataGridPreparingCellForEditEventArgs e)
-      {
-      }
-
-      private void dataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
-      {
-         CurrentEdit = null;
-      }
-
-      private void OnEditStateChanged()
-      {
-         if (EditStateChanged != null && !suppressEditStateEvent.IsSet)
-            EditStateChanged(this, new EventArgs());
-      }
-
-      private void ServiceProvider_FullyAttached(object obj, EventArgs args)
-      {
-         commandRegulator = UIServiceProvider.GetService<ICommandRegulationService>(dataGrid);
-      }
-
-      #region IEditingItemsControlProxy Members
-
-      public object CurrentEdit { get; private set; }
 
       public bool IsEditingField
       {
@@ -117,12 +49,24 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
-      #endregion IEditingItemsControlProxy Members
+      public event EventHandler EditStateChanged;
 
-      #region IElementEditStateProxy Members
+      public void AttachToElement(FrameworkElement element)
+      {
+         this.dataGrid = (DataGrid)element;
+         dataGrid.BeginningEdit += dataGrid_BeginningEdit;
+         dataGrid.CellEditEnding += dataGrid_CellEditEnding;
+         dataGrid.RowEditEnding += dataGrid_RowEditEnding;
+         dataGrid.PreparingCellForEdit += dataGrid_PreparingCellForEdit;
+
+         UIServiceProvider.AddServiceProviderFullyAttachedHandler(dataGrid, ServiceProvider_FullyAttached);
+      }
 
       public bool BeginFieldEdit()
       {
+         if (!canBeginEdit)
+            return false;
+
          if (!IsEditingField)
             commandRegulator.ExecuteCommand(DataGrid.BeginEditCommand, DataGridEditingUnit.Cell);
 
@@ -136,6 +80,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          if (!IsEditingItem)
          {
+            if (!canBeginEdit)
+               return false;
+
             using (suppressEditStateEvent.Set())
             {
                commandRegulator.ExecuteCommand(DataGrid.BeginEditCommand, DataGridEditingUnit.Row);
@@ -184,6 +131,69 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          return !IsEditingItem;
       }
 
-      #endregion IElementEditStateProxy Members
+      public void DetachFromElement(System.Windows.FrameworkElement element)
+      {
+         if (dataGrid == null)
+         {
+            log.WarnFormat("Detaching extender {0} from {1} twice", this, element);
+            return;
+         }
+
+         dataGrid.BeginningEdit -= dataGrid_BeginningEdit;
+         dataGrid.CellEditEnding -= dataGrid_CellEditEnding;
+         dataGrid.RowEditEnding -= dataGrid_RowEditEnding;
+         CurrentEdit = null;
+         this.dataGrid = null;
+      }
+
+      public bool DisableEditing()
+      {
+         if (IsEditingItem && !CommitItemEdit())
+            return false;
+
+         canBeginEdit = false;
+         return true;
+      }
+
+      public void Dispose()
+      {
+         if (IsAttached)
+            DetachFromElement(dataGrid);
+      }
+
+      public bool EnableEditing()
+      {
+         canBeginEdit = true;
+         return true;
+      }
+
+      private void dataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+      {
+         CurrentEdit = e.Row.Item;
+      }
+
+      private void dataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+      {
+      }
+
+      private void dataGrid_PreparingCellForEdit(object sender, DataGridPreparingCellForEditEventArgs e)
+      {
+      }
+
+      private void dataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+      {
+         CurrentEdit = null;
+      }
+
+      private void OnEditStateChanged()
+      {
+         if (EditStateChanged != null && !suppressEditStateEvent.IsSet)
+            EditStateChanged(this, new EventArgs());
+      }
+
+      private void ServiceProvider_FullyAttached(object obj, EventArgs args)
+      {
+         commandRegulator = UIServiceProvider.GetService<ICommandRegulationService>(dataGrid);
+      }
    }
 }

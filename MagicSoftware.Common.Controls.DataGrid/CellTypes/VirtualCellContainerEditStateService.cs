@@ -10,9 +10,8 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
    public class VirtualCellContainerEditStateService : IElementEditStateService, IUIService
    {
       private readonly AutoResetFlag suppressEditStateEvent = new AutoResetFlag();
+      private bool canBeginEdit = true;
       private VirtualTableCell editingCell = null;
-
-      public event EventHandler EditStateChanged;
 
       public bool IsAttached
       {
@@ -42,6 +41,8 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          }
       }
 
+      public event EventHandler EditStateChanged;
+
       public void AttachToElement(System.Windows.FrameworkElement element)
       {
          CellContainer = element;
@@ -50,6 +51,9 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
 
       public bool BeginFieldEdit()
       {
+         if (!canBeginEdit)
+            return false;
+
          var currentCellService = UIServiceProvider.GetService<ICurrentCellService>(CellContainerOwner);
          editingCell = currentCellService.CurrentCellContainer as VirtualTableCell;
          if (editingCell != null)
@@ -67,6 +71,9 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
       {
          if (!IsEditingItem)
          {
+            if (!canBeginEdit)
+               return false;
+
             using (suppressEditStateEvent.Set())
                BeginFieldEdit();
 
@@ -142,10 +149,25 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          CellContainerOwner = null;
       }
 
+      public bool DisableEditing()
+      {
+         if (IsEditingItem && !CommitItemEdit())
+            return false;
+
+         canBeginEdit = false;
+         return true;
+      }
+
       public void Dispose()
       {
          if (IsAttached)
             DetachFromElement(CellContainer);
+      }
+
+      public bool EnableEditing()
+      {
+         canBeginEdit = true;
+         return true;
       }
 
       private void OnEditStateChanged()

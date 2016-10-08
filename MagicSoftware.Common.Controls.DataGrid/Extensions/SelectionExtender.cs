@@ -96,7 +96,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          var inputService = UIServiceProvider.GetService<InputService>(TargetElement);
          inputService.RegisterMouseActionGestures(ToggleSelection, new MouseGesturesFactory(MouseAction.LeftClick, ModifierKeys.Control));
-         inputService.RegisterMouseActionGestures(SelectRange, new MouseGesturesFactory(MouseAction.LeftClick, ModifierKeys.Shift));
+         inputService.RegisterKeyActionGestures(ToggleSelection, new KeyGesturesFactory(Key.Space, ModifierKeys.Control));
+         //inputService.RegisterMouseActionGestures(SelectRange, new MouseGesturesFactory(MouseAction.LeftClick, ModifierKeys.Shift));
       }
 
       public void DetachFromElement(FrameworkElement element)
@@ -150,9 +151,24 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (ignoreCurrentItemChangedEvent.IsSet)
             return;
 
-         TargetElementProxy.SelectedItems.Clear();
-         TargetElementProxy.SelectedItem = currentItemTracker.CurrentItem;
-         selectionRange.AnchorItemIndex = currentItemTracker.CurrentPosition;
+         bool shiftIsPressed = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
+         bool controlIsPressed = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
+
+         if (!shiftIsPressed)
+         {
+            if (!controlIsPressed)
+            {
+               TargetElementProxy.SelectedItems.Clear();
+               TargetElementProxy.SelectedItem = currentItemTracker.CurrentItem;
+               EnableEditing();
+            }
+            selectionRange.AnchorItemIndex = currentItemTracker.CurrentPosition;
+            return;
+         }
+
+         DisableEditing();
+
+         SelectRange(currentItemTracker.CurrentItem);
       }
 
       private object GetClickedItem(MouseEventArgs eventArgs)
@@ -215,11 +231,33 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
+      void SelectRange(object upToItem)
+      {
+         DisableEditing();
+         var container = TargetElement.ItemContainerGenerator.ContainerFromItem(upToItem);
+         var itemIndex = TargetElement.ItemContainerGenerator.IndexFromContainer(container);
+         var selectionChange = selectionRange.GetRangeChange(itemIndex);
+         foreach (var i in selectionChange.RemovedItems)
+         {
+            var itemToRemove = TargetElement.Items.GetItemAt(i);
+            TargetElementProxy.SelectedItems.Remove(itemToRemove);
+         }
+
+         foreach (var i in selectionChange.AddedItems)
+         {
+            var itemToAdd = TargetElement.Items.GetItemAt(i);
+            TargetElementProxy.SelectedItems.Add(itemToAdd);
+         }
+
+         selectionRange.EndItemIndex = itemIndex;
+      }
+
       private void SelectRange(MouseEventArgs eventArgs)
       {
          var hitItem = GetClickedItem(eventArgs);
          if (hitItem != null)
          {
+            DisableEditing();
             var container = TargetElement.ItemContainerGenerator.ContainerFromItem(hitItem);
             var itemIndex = TargetElement.ItemContainerGenerator.IndexFromContainer(container);
             var selectionChange = selectionRange.GetRangeChange(itemIndex);
@@ -245,6 +283,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          if (!suppressChangeHandling.IsSet)
          {
+            DisableEditing();
             using (suppressChangeHandling.Set())
             {
                var selectedItemsCollection = GetSelectionView((DependencyObject)sender);
@@ -262,16 +301,36 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
+      void DisableEditing()
+      {
+         var editSvc = UIServiceProvider.GetService<IElementEditStateService>(TargetElement, false);
+         if (editSvc != null)
+         {
+            editSvc.DisableEditing();
+         }
+      }
+
+      void EnableEditing()
+      {
+         var editSvc = UIServiceProvider.GetService<IElementEditStateService>(TargetElement, false);
+         if (editSvc != null)
+         {
+            editSvc.EnableEditing();
+         }
+      }
+
+      private void ToggleSelection(KeyEventArgs eventArgs)
+      {
+         DisableEditing();
+         TargetElementProxy.ToggleSelection(currentItemTracker.CurrentItem);
+      }
+
       private void ToggleSelection(MouseEventArgs eventArgs)
       {
          var hitItem = GetClickedItem(eventArgs);
          if (hitItem != null)
          {
             TargetElementProxy.ToggleSelection(hitItem);
-            using (ignoreCurrentItemChangedEvent.Set())
-               currentItemTracker.MoveCurrentTo(hitItem);
-            selectionRange.AnchorItemIndex = currentItemTracker.CurrentPosition;
-            eventArgs.Handled = true;
          }
       }
 

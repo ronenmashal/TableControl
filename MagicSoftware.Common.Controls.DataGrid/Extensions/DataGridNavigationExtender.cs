@@ -87,7 +87,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveToLeftMost), new KeyGesturesFactory(Key.Home));
          inputService.RegisterKeyActionGestures(AsFieldKeyAction(MoveToRightMost), new KeyGesturesFactory(Key.End));
 
-         inputService.RegisterMouseActionGestures(MouseClicked, new MouseGesturesFactory(MouseAction.LeftClick));
+         inputService.RegisterMouseActionGestures(MouseClicked, new MouseGesturesFactory(MouseAction.LeftClick, InputGesturesFactory.AllCombinationsOf(ModifierKeys.Shift, ModifierKeys.Control)));
       }
 
       private Action<KeyEventArgs> AsFieldKeyAction(Action fieldAction)

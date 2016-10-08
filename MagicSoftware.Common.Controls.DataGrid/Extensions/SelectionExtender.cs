@@ -154,26 +154,21 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          bool shiftIsPressed = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
          bool controlIsPressed = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
 
-         if (!shiftIsPressed && !controlIsPressed)
+         if (!shiftIsPressed)
          {
-            TargetElementProxy.SelectedItems.Clear();
-            TargetElementProxy.SelectedItem = currentItemTracker.CurrentItem;
+            if (!controlIsPressed)
+            {
+               TargetElementProxy.SelectedItems.Clear();
+               TargetElementProxy.SelectedItem = currentItemTracker.CurrentItem;
+               EnableEditing();
+            }
             selectionRange.AnchorItemIndex = currentItemTracker.CurrentPosition;
-            EnableEditing();
             return;
          }
 
          DisableEditing();
 
-         if (shiftIsPressed)
-         {
-            SelectRange(currentItemTracker.CurrentItem);
-         }
-         else
-         {
-            // Control is pressed
-            TargetElementProxy.ToggleSelection(currentItemTracker.CurrentItem);
-         }
+         SelectRange(currentItemTracker.CurrentItem);
       }
 
       private object GetClickedItem(MouseEventArgs eventArgs)
@@ -336,10 +331,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (hitItem != null)
          {
             TargetElementProxy.ToggleSelection(hitItem);
-            using (ignoreCurrentItemChangedEvent.Set())
-               currentItemTracker.MoveCurrentTo(hitItem);
-            selectionRange.AnchorItemIndex = currentItemTracker.CurrentPosition;
-            eventArgs.Handled = true;
          }
       }
 

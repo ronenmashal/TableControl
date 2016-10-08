@@ -97,6 +97,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          var inputService = UIServiceProvider.GetService<InputService>(TargetElement);
          inputService.RegisterMouseActionGestures(ToggleSelection, new MouseGesturesFactory(MouseAction.LeftClick, ModifierKeys.Control));
          inputService.RegisterMouseActionGestures(SelectRange, new MouseGesturesFactory(MouseAction.LeftClick, ModifierKeys.Shift));
+         inputService.RegisterKeyActionGestures(ToggleSelection, new KeyGesturesFactory(Key.Space, ModifierKeys.Control));
       }
 
       public void DetachFromElement(FrameworkElement element)
@@ -220,6 +221,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          var hitItem = GetClickedItem(eventArgs);
          if (hitItem != null)
          {
+            DisableEditing();
             var container = TargetElement.ItemContainerGenerator.ContainerFromItem(hitItem);
             var itemIndex = TargetElement.ItemContainerGenerator.IndexFromContainer(container);
             var selectionChange = selectionRange.GetRangeChange(itemIndex);
@@ -245,6 +247,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          if (!suppressChangeHandling.IsSet)
          {
+            DisableEditing();
             using (suppressChangeHandling.Set())
             {
                var selectedItemsCollection = GetSelectionView((DependencyObject)sender);
@@ -260,6 +263,30 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                }
             }
          }
+      }
+
+      void DisableEditing()
+      {
+         var editSvc = UIServiceProvider.GetService<IElementEditStateService>(TargetElement, false);
+         if (editSvc != null)
+         {
+            editSvc.DisableEditing();
+         }
+      }
+
+      void EnableEditing()
+      {
+         var editSvc = UIServiceProvider.GetService<IElementEditStateService>(TargetElement, false);
+         if (editSvc != null)
+         {
+            editSvc.EnableEditing();
+         }
+      }
+
+      private void ToggleSelection(KeyEventArgs eventArgs)
+      {
+         DisableEditing();
+         TargetElementProxy.ToggleSelection(currentItemTracker.CurrentItem);
       }
 
       private void ToggleSelection(MouseEventArgs eventArgs)

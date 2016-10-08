@@ -21,5 +21,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       bool CommitFieldEdit();
 
       bool CommitItemEdit();
+
+      bool DisableEditing();
+      bool EnableEditing();
    }
 }

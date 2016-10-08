@@ -22,7 +22,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public static ModifierKeys[] AllCombinationsOf(params ModifierKeys[] modifiers)
       {
-         ModifierKeys[] combinations = new ModifierKeys[modifiers.Length * modifiers.Length];
+         ModifierKeys[] combinations = new ModifierKeys[(int)Math.Pow(2, modifiers.Length)];
          combinations[0] = ModifierKeys.None;
          int c = 1;
          for (int i = 0; i < modifiers.Length; i++)

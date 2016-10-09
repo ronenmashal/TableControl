@@ -40,5 +40,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          return "{UniversalCellInfo: {" + this.Item + "}, " + this.CellIndex + "}";
       }
+
+      public bool IsUndefined
+      {
+         get { return Item == null || CellIndex < 0; }
+      }
    }
 }

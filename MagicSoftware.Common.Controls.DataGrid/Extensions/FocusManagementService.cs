@@ -69,6 +69,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             DetachFromElement(TargetElement);
       }
 
+      private DispatcherOperation nextFocusUpdateOperation = null;
+
+      public void SetFocusOnTargetElement()
+      {
+         TargetElement.Focus();
+         UpdateFocus();
+      }
+
       public void UpdateFocus()
       {
          if (focusDeferCount > 0)
@@ -79,42 +87,72 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          hasPendingFocus = false;
 
-         TargetElement.Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+         if (!TargetElement.IsKeyboardFocusWithin)
          {
-            log.DebugFormat("Updating focus on {0}", TargetElement);
-            using (LoggingExtensions.Indent())
+            log.DebugFormat("Ignoring UpdateFocus() request on {0}, because it does not have keyboard focus.", TargetElement);
+            return;
+         }
+
+         log.DebugFormat("Begin updating focus on {0}", TargetElement);
+
+         if (nextFocusUpdateOperation != null)
+         {
+            nextFocusUpdateOperation.Abort();
+         }
+
+         IsRestoringFocusOnElement = isRestoringState.IsSet;
+
+         nextFocusUpdateOperation = TargetElement.Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() =>
+         {
+            using (new DisposalActionCaller(() => IsRestoringFocusOnElement = false))
             {
-               IElementEditStateService editStateService = null;
-               if (currentCellService.CurrentItemContainer != null)
-                  editStateService = UIServiceProvider.GetService<IElementEditStateService>(currentCellService.CurrentItemContainer, false);
-
-               if (editStateService == null)
-                  editStateService = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
-
-               var elementToFocus = currentCellService.CurrentCellContainer as FrameworkElement;
-               if (elementToFocus == null)
-                  return;
-
-               var vte = VisualTreeHelpers.GetVisualTreeEnumerator(elementToFocus, (v) => { return (v is UIElement) && ((UIElement)v).Focusable; }, FocusNavigationDirection.Next);
-               while (vte.MoveNext())
+               log.DebugFormat("Updating focus on {0}", TargetElement);
+               using (LoggingExtensions.Indent())
                {
-                  elementToFocus = vte.Current as FrameworkElement;
+                  //IElementEditStateService editStateService = null;
+                  //if (currentCellService.CurrentItemContainer != null)
+                  //   editStateService = UIServiceProvider.GetService<IElementEditStateService>(currentCellService.CurrentItemContainer, false);
+
+                  //if (editStateService == null)
+                  //   editStateService = UIServiceProvider.GetService<IElementEditStateService>(TargetElement);
+
+                  var elementToFocus = currentCellService.CurrentCellContainer;
+                  if (elementToFocus == null)
+                     return;
+
+                  if (elementToFocus.IsFocused)
+                  {
+                     log.DebugFormat("The cell {0} is already in focus.", elementToFocus);
+                     return;
+                  }
+
+                  var vte = VisualTreeHelpers.GetVisualTreeEnumerator(elementToFocus,
+                     (v) => { return (v is UIElement) && ((UIElement) v).Focusable; }, FocusNavigationDirection.Next);
+                  while (vte.MoveNext())
+                  {
+                     elementToFocus = vte.Current as FrameworkElement;
+                  }
+                  log.DebugFormat("Trying to set focus on element {0}", elementToFocus);
+                  using (isUpdatingFocus.Set())
+                  {
+                     bool isFocused = elementToFocus.Focus();
+                     log.DebugFormat("Focus result: {0}, Focused element is {1}", isFocused, Keyboard.FocusedElement);
+                  }
+                  isFirstFocus = false;
+                  nextFocusUpdateOperation = null;
                }
-               log.DebugFormat("Trying to set focus on element {0}", elementToFocus);
-               using (isUpdatingFocus.Set())
-               {
-                  bool isFocused = elementToFocus.Focus();
-                  log.DebugFormat("Focus result: {0}, Focused element is {1}", isFocused, Keyboard.FocusedElement);
-               }
-               isFirstFocus = false;
             }
          }));
       }
+
+      public bool IsRestoringFocusOnElement { get; private set; }
 
       private void currentCellService_CurrentCellChanged(object sender, EventArgs e)
       {
          UpdateFocus();
       }
+
+      readonly AutoResetFlag isRestoringState = new AutoResetFlag();
 
       private void TargetElement_PreviewGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
       {
@@ -131,25 +169,31 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             return;
          }
 
-         DependencyObject oldFocus = e.OldFocus as DependencyObject;
-         DependencyObject newFocus = e.NewFocus as DependencyObject;
+         if (isRestoringState.IsSet)
+            return;
 
-         if (oldFocus != null & newFocus != null)
+         using (isRestoringState.Set())
          {
-            if (TargetElement.IsAncestorOf(oldFocus) && TargetElement.IsAncestorOf(newFocus))
+            DependencyObject oldFocus = e.OldFocus as DependencyObject;
+            DependencyObject newFocus = e.NewFocus as DependencyObject;
+
+            if (oldFocus != null & newFocus != null)
             {
-               log.DebugFormat("Focus changed within the same element");
-               // Focus moved within the container.
-               return;
+               if (TargetElement.IsAncestorOf(oldFocus) && TargetElement.IsAncestorOf(newFocus))
+               {
+                  log.DebugFormat("Focus changed within the same element");
+                  // Focus moved within the container.
+                  return;
+               }
             }
-         }
 
-         log.Debug("Restoring state on UI service providers");
+            log.Debug("Restoring state on UI service providers");
 
-         var statePersistentServices = UIServiceProvider.GetAllServices<IStatePersistency>(TargetElement);
-         foreach (var service in statePersistentServices)
-         {
-            service.RestoreState();
+            var statePersistentServices = UIServiceProvider.GetAllServices<IStatePersistency>(TargetElement);
+            foreach (var service in statePersistentServices)
+            {
+               service.RestoreState();
+            }
          }
       }
 

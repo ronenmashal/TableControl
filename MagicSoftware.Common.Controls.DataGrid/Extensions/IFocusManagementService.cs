@@ -7,5 +7,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       IDisposable DeferFocusUpdate();
 
       void UpdateFocus();
+      void SetFocusOnTargetElement();
+      bool IsRestoringFocusOnElement { get; }
    }
 }

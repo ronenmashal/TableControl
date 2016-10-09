@@ -114,6 +114,10 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       private void MouseClicked(MouseEventArgs eventArgs)
       {
          log.Debug("Mouse was clicked on " + eventArgs.OriginalSource);
+
+         var focusManager = UIServiceProvider.GetService<IFocusManagementService>(TargetElement);
+         focusManager.SetFocusOnTargetElement();
+
          HitTestResult hitTestResult = VisualTreeHelper.HitTest(TargetElement, Mouse.GetPosition(TargetElement));
          var row = UIUtils.GetAncestor<DataGridRow>((Visual)hitTestResult.VisualHit);
          if (row != null)

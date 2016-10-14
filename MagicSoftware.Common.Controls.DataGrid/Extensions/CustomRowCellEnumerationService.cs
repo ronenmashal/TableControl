@@ -59,6 +59,9 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public override FrameworkElement GetCellAt(int index)
       {
+         if (cells == null)
+            UpdateCellsCollection();
+
          if (cells.Count == 0)
             UpdateCellsCollection();
          return cells[index];

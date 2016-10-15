@@ -21,6 +21,17 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          get { return dataGrid != null; }
       }
 
+      public bool CanBeginEdit
+      {
+         get { return canBeginEdit; }
+         set
+         {
+            canBeginEdit = value;
+            if (CanBeginEditChanged != null)
+               CanBeginEditChanged(this, new EventArgs());
+         }
+      }
+
       public bool IsEditingField
       {
          get
@@ -48,6 +59,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
             return row.IsEditing;
          }
       }
+
+      public event EventHandler CanBeginEditChanged;
 
       public event EventHandler EditStateChanged;
 
@@ -151,7 +164,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          if (IsEditingItem && !CommitItemEdit())
             return false;
 
-         canBeginEdit = false;
+         CanBeginEdit = false;
          return true;
       }
 
@@ -163,7 +176,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
       public bool EnableEditing()
       {
-         canBeginEdit = true;
+         CanBeginEdit = true;
          return true;
       }
 

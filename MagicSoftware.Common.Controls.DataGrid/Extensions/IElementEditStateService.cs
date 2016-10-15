@@ -4,11 +4,15 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 {
    internal interface IElementEditStateService
    {
-      event EventHandler EditStateChanged;
+      bool CanBeginEdit { get; }
 
       bool IsEditingField { get; }
 
       bool IsEditingItem { get; }
+
+      event EventHandler CanBeginEditChanged;
+
+      event EventHandler EditStateChanged;
 
       bool BeginFieldEdit();
 
@@ -23,6 +27,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       bool CommitItemEdit();
 
       bool DisableEditing();
+
       bool EnableEditing();
    }
 }

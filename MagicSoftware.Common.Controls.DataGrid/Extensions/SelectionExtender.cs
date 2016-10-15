@@ -1,4 +1,7 @@
-﻿using System;
+﻿using log4net;
+using MagicSoftware.Common.Controls.Extensibility;
+using MagicSoftware.Common.Utils;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -7,9 +10,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using log4net;
-using MagicSoftware.Common.Controls.Extensibility;
-using MagicSoftware.Common.Utils;
 
 namespace MagicSoftware.Common.Controls.Table.Extensions
 {
@@ -89,6 +89,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
 
          currentItemTracker = UIServiceProvider.GetService<ICurrentItemService>(element, false);
          currentItemTracker.CurrentChanged += new EventHandler(currentItemTracker_CurrentChanged);
+         currentItemTracker.PreviewCurrentChanging += CurrentItemTracker_PreviewCurrentChanging;
          //if (currentItemTracker != null)
          //{
          //   selectionModeManager = new SelectionModeManager(TargetElement);
@@ -171,6 +172,42 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          SelectRange(currentItemTracker.CurrentItem);
       }
 
+      private void CurrentItemTracker_PreviewCurrentChanging(object sender, PreviewChangeEventArgs previewChangeEventArgs)
+      {
+         if (ignoreCurrentItemChangedEvent.IsSet)
+            return;
+
+         bool shiftIsPressed = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
+         bool controlIsPressed = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
+
+         if (shiftIsPressed || controlIsPressed)
+         {
+            if (!DisableEditing())
+            {
+               previewChangeEventArgs.Canceled = true;
+            }
+         }
+      }
+
+      private bool DisableEditing()
+      {
+         var editSvc = UIServiceProvider.GetService<IElementEditStateService>(TargetElement, false);
+         if (editSvc != null)
+         {
+            return editSvc.DisableEditing();
+         }
+         return true;
+      }
+
+      private void EnableEditing()
+      {
+         var editSvc = UIServiceProvider.GetService<IElementEditStateService>(TargetElement, false);
+         if (editSvc != null)
+         {
+            editSvc.EnableEditing();
+         }
+      }
+
       private object GetClickedItem(MouseEventArgs eventArgs)
       {
          var containerType = ItemContainerType.Value;
@@ -231,7 +268,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          }
       }
 
-      void SelectRange(object upToItem)
+      private void SelectRange(object upToItem)
       {
          DisableEditing();
          var container = TargetElement.ItemContainerGenerator.ContainerFromItem(upToItem);
@@ -283,7 +320,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       {
          if (!suppressChangeHandling.IsSet)
          {
-            DisableEditing();
             using (suppressChangeHandling.Set())
             {
                var selectedItemsCollection = GetSelectionView((DependencyObject)sender);
@@ -298,24 +334,6 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                   selectedItemsCollection.Remove(item);
                }
             }
-         }
-      }
-
-      void DisableEditing()
-      {
-         var editSvc = UIServiceProvider.GetService<IElementEditStateService>(TargetElement, false);
-         if (editSvc != null)
-         {
-            editSvc.DisableEditing();
-         }
-      }
-
-      void EnableEditing()
-      {
-         var editSvc = UIServiceProvider.GetService<IElementEditStateService>(TargetElement, false);
-         if (editSvc != null)
-         {
-            editSvc.EnableEditing();
          }
       }
 

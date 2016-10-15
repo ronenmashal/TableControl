@@ -18,6 +18,17 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          get { return CellContainer != null; }
       }
 
+      public bool CanBeginEdit
+      {
+         get {return canBeginEdit;}
+         set
+         {
+            canBeginEdit = value;
+            if (CanBeginEditChanged != null)
+               CanBeginEditChanged(this, new EventArgs());
+         }
+      }
+
       public bool IsEditingField
       {
          get { return editingCell != null; }
@@ -42,6 +53,7 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
       }
 
       public event EventHandler EditStateChanged;
+      public event EventHandler CanBeginEditChanged;
 
       public void AttachToElement(System.Windows.FrameworkElement element)
       {
@@ -154,7 +166,7 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
          if (IsEditingItem && !CommitItemEdit())
             return false;
 
-         canBeginEdit = false;
+         CanBeginEdit = false;
          return true;
       }
 
@@ -166,7 +178,8 @@ namespace MagicSoftware.Common.Controls.Table.CellTypes
 
       public bool EnableEditing()
       {
-         canBeginEdit = true;
+         CanBeginEdit = true;
+
          return true;
       }
 

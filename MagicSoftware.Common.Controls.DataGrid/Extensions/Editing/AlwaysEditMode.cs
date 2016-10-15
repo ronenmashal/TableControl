@@ -33,6 +33,8 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
 
       public override void Cleanup()
       {
+         EditStateService.CanBeginEditChanged -= EditStateServiceOnCanBeginEditChanged;
+
          currentState.Leave();
          currentState = null;
          base.Cleanup();
@@ -47,6 +49,14 @@ namespace MagicSoftware.Common.Controls.Table.Extensions.Editing
             currentState = new BeginEditState();
             currentState.Enter(this);
          }));
+
+         EditStateService.CanBeginEditChanged += EditStateServiceOnCanBeginEditChanged;
+      }
+
+      private void EditStateServiceOnCanBeginEditChanged(object sender, EventArgs eventArgs)
+      {
+         if (EditStateService.CanBeginEdit)
+            BeginEditingCurrentItem();
       }
 
       internal bool BeginEditingCurrentItem()

@@ -127,7 +127,7 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
                   }
 
                   var vte = VisualTreeHelpers.GetVisualTreeEnumerator(elementToFocus,
-                     (v) => { return (v is UIElement) && ((UIElement) v).Focusable; }, FocusNavigationDirection.Next);
+                     (v) => { return (v is UIElement) && ((UIElement)v).Focusable; }, FocusNavigationDirection.Next);
                   while (vte.MoveNext())
                   {
                      elementToFocus = vte.Current as FrameworkElement;
@@ -175,9 +175,16 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
          using (isRestoringState.Set())
          {
             DependencyObject oldFocus = e.OldFocus as DependencyObject;
+
+            if (oldFocus == null)
+            {
+               log.Debug("Old focus is null. Not restoring focus.");
+               return;
+            }
+
             DependencyObject newFocus = e.NewFocus as DependencyObject;
 
-            if (oldFocus != null & newFocus != null)
+            if (newFocus != null)
             {
                if (TargetElement.IsAncestorOf(oldFocus) && TargetElement.IsAncestorOf(newFocus))
                {

@@ -40,12 +40,12 @@ namespace MagicSoftware.Common.Controls.Table.Extensions
       public abstract void AddItemToSelection(object item);
       public abstract void RemoveItemFromSelection(object item);
 
-      public void AttachToElement(FrameworkElement element)
+      public virtual void AttachToElement(FrameworkElement element)
       {
          Element = (T) element;
       }
 
-      public void DetachFromElement(FrameworkElement element)
+      public virtual void DetachFromElement(FrameworkElement element)
       {
          Element = null;
       }
